@@ -175,6 +175,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="btn btn-primary" onclick="saveFansData()">儲存粉絲數據</button>
       </div>
 
+      <div class="card" id="fansRecordCard">
+        <div class="card-title">粉絲數據記錄</div>
+        <div id="fansRecordList"><div style="font-size:13px;color:#aaa;text-align:center;padding:1rem;">載入中...</div></div>
+      </div>
+
       <div class="card" id="todayRecordsCard" style="display:none;">
         <div class="card-title">今日銷售記錄</div>
         <div id="todayList"></div>
@@ -253,10 +258,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field"><input type="text" id="newNameInput" placeholder="輸入新姓名" /></div>
       <button class="btn btn-primary" onclick="updateName()">儲存姓名</button>
     </div>
-    <div class="card" id="fansRecordCard">
-      <div class="card-title">粉絲數據記錄</div>
-      <div id="fansRecordList"><div style="font-size:13px;color:#aaa;text-align:center;padding:1rem;">載入中...</div></div>
-    </div>
+
     <div class="logout-btn" onclick="doLogout()">登出</div>
   </div>
 
@@ -383,6 +385,13 @@ function enterApp(){
   document.getElementById('todayDisplay').textContent = d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
   renderSaleItems();
   loadSalesData();
+  loadFansRecordOnInput();
+}
+
+async function loadFansRecordOnInput(){
+  if(!currentUser) return;
+  const {data:mData} = await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).order('id',{ascending:false});
+  renderFansRecordList(mData||[]);
 }
 
 function doLogout(){
@@ -398,13 +407,6 @@ function switchPage(page,el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   el.classList.add('active');
-  if(page==='profile') loadFansRecordForProfile();
-}
-
-async function loadFansRecordForProfile(){
-  if(!currentUser) return;
-  const {data:mData} = await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).order('month');
-  renderFansRecordList(mData||[]);
 }
 
 function switchSubTab(section,tab){
@@ -477,29 +479,27 @@ async function saveFansData(){
   // 取上月粉絲數，沒有上月資料就用初始粉絲
   const prevMonth = month===1?12:month-1;
   const prevYear = month===1?year-1:year;
-  const {data:prevData} = await sb.from('monthly_data').select('current_fans').eq('user_id',currentUser.id).eq('year',prevYear).eq('month',prevMonth).single();
-  const prevFans = prevData ? (prevData.current_fans||0) : (currentUser.init_fans||0);
+  const {data:prevRows} = await sb.from('monthly_data').select('current_fans').eq('user_id',currentUser.id).eq('year',prevYear).eq('month',prevMonth).order('id',{ascending:false}).limit(1);
+  const prevFans = prevRows&&prevRows.length ? (prevRows[0].current_fans||0) : (currentUser.init_fans||0);
   const fansGain = currentFansVal - prevFans;
 
-  const existing = await sb.from('monthly_data').select('id').eq('user_id',currentUser.id).eq('year',year).eq('month',month).single();
-  if(existing.data){
-    await sb.from('monthly_data').update({current_fans:currentFansVal,fans_gain:fansGain,videos,new_clients:newC,return_clients:retC}).eq('id',existing.data.id);
-  } else {
-    await sb.from('monthly_data').insert({user_id:currentUser.id,year,month,current_fans:currentFansVal,fans_gain:fansGain,videos,new_clients:newC,return_clients:retC,profit:0,init_fans:currentUser.init_fans||0});
-  }
+  // 先刪除同月所有舊資料，再新增（確保只有一筆最新）
+  await sb.from('monthly_data').delete().eq('user_id',currentUser.id).eq('year',year).eq('month',month);
+  await sb.from('monthly_data').insert({user_id:currentUser.id,year,month,current_fans:currentFansVal,fans_gain:fansGain,videos,new_clients:newC,return_clients:retC,profit:0,init_fans:currentUser.init_fans||0});
 
-  // 更新下個月的增粉（如果下個月有資料，重新計算）
+  // 更新下個月的增粉
   const nextMonth = month===12?1:month+1;
   const nextYear = month===12?year+1:year;
-  const {data:nextData} = await sb.from('monthly_data').select('id,current_fans').eq('user_id',currentUser.id).eq('year',nextYear).eq('month',nextMonth).single();
-  if(nextData && nextData.current_fans){
-    const nextGain = nextData.current_fans - currentFansVal;
-    await sb.from('monthly_data').update({fans_gain:nextGain}).eq('id',nextData.id);
+  const {data:nextRows} = await sb.from('monthly_data').select('id,current_fans').eq('user_id',currentUser.id).eq('year',nextYear).eq('month',nextMonth).order('id',{ascending:false}).limit(1);
+  if(nextRows&&nextRows.length&&nextRows[0].current_fans){
+    const nextGain = nextRows[0].current_fans - currentFansVal;
+    await sb.from('monthly_data').update({fans_gain:nextGain}).eq('id',nextRows[0].id);
   }
 
   const sign = fansGain>=0?'+':'';
-  alert('粉絲數據已儲存！本月增粉 '+sign+fansGain.toLocaleString());
+  await loadFansRecordOnInput();
   if(document.getElementById('profit-chart').style.display!=='none') renderCharts();
+  alert('粉絲數據已儲存！本月增粉 '+sign+fansGain.toLocaleString());
 }
 
 async function saveInitFans(){
@@ -720,11 +720,10 @@ function renderFansRecordList(mData){
 async function deleteFansRecord(id){
   if(!confirm('確定刪除這筆粉絲數據？')) return;
   await sb.from('monthly_data').delete().eq('id',id);
-  alert('已刪除！');
-  if(document.getElementById('profit-chart').style.display!=='none') renderCharts();
-  // reload fans list
   const {data:mData} = await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).order('month');
   renderFansRecordList(mData||[]);
+  if(document.getElementById('profit-chart').style.display!=='none') renderCharts();
+  alert('已刪除！');
 }
 </script>
 </body>
