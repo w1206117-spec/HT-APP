@@ -12,16 +12,16 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;}
-#loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
+#loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80') center/cover no-repeat;}
 .login-header{text-align:center;margin-bottom:2rem;}
-.login-header h1{font-size:28px;font-weight:500;color:#333;letter-spacing:3px;}
-.login-header p{font-size:14px;color:#888;margin-top:6px;}
-.login-card{background:white;border-radius:16px;padding:2rem;width:100%;max-width:360px;box-shadow:0 2px 20px rgba(0,0,0,0.08);}
+.login-header h1{font-size:28px;font-weight:500;color:white;letter-spacing:3px;text-shadow:0 1px 8px rgba(0,0,0,0.3);}
+.login-header p{font-size:14px;color:rgba(255,255,255,0.85);margin-top:6px;}
+.login-card{background:rgba(255,255,255,0.92);backdrop-filter:blur(10px);border-radius:16px;padding:2rem;width:100%;max-width:360px;box-shadow:0 4px 30px rgba(0,0,0,0.2);}
 .login-card input,.login-card select{width:100%;padding:12px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:15px;margin-bottom:12px;outline:none;background:white;color:#333;appearance:none;}
-.login-card input:focus,.login-card select:focus{border-color:#A4E5E0;}
-.login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:#A4E5E0;color:#085041;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:1px;}
+.login-card input:focus,.login-card select:focus{border-color:#C9A884;}
+.login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#C9A884,#A67C5B);color:white;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:1px;}
 .login-switch{text-align:center;margin-top:14px;font-size:13px;color:#888;}
-.login-switch a{color:#5BBDB7;cursor:pointer;}
+.login-switch a{color:#A67C5B;cursor:pointer;}
 .msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:8px;min-height:20px;}
 #mainPage{display:none;padding-bottom:80px;}
 .app-header{padding:1.25rem 1.25rem 1rem;text-align:center;color:white;}
@@ -101,8 +101,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <option value="三級">三級</option>
         <option value="三級輔導">三級輔導</option>
         <option value="二級">二級</option>
+        <option value="二級輔導">二級輔導</option>
         <option value="一級">一級</option>
+        <option value="一級輔導">一級輔導</option>
         <option value="皇家">皇家</option>
+        <option value="皇家輔導">皇家輔導</option>
       </select>
       <input type="text" id="regName" placeholder="姓名" />
       <input type="text" id="regPhone" placeholder="手機號碼" maxlength="10" />
@@ -172,7 +175,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="field"><label>新消費者</label><input type="number" id="newClients" placeholder="0" /></div>
           <div class="field"><label>回購客</label><input type="number" id="returnClients" placeholder="0" /></div>
         </div>
-        <button class="btn btn-primary" onclick="saveFansData()">儲存粉絲數據</button>
+        <button class="btn btn-primary" onclick="saveFansData()">儲存新客曲線數據</button>
       </div>
 
       <div class="card" id="fansRecordCard">
@@ -311,7 +314,7 @@ const PRODUCTS = [
   {name:'法樂蓬養髮原液',costs:{實習:840,三級:720,三級輔導:695,二級:640,一級:570,皇家:500}},
 ];
 
-const LEVEL_BG = {實習:'bg-intern',三級:'bg-3',三級輔導:'bg-3c',二級:'bg-2',一級:'bg-1',皇家:'bg-royal'};
+const LEVEL_BG = {實習:'bg-intern',三級:'bg-3',三級輔導:'bg-3c',二級:'bg-2',二級輔導:'bg-2',一級:'bg-1',一級輔導:'bg-1',皇家:'bg-royal',皇家輔導:'bg-royal'};
 const ML = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
 let currentUser = null;
@@ -671,21 +674,43 @@ async function loadFansCharts(totalYearProfit){
     }
   };
 
-  // 合併圖表：總粉絲 + 增粉並排
+  // 堆疊圖：底部=初始粉絲base，上層=增粉
+  const baseArr = cumFans.map((v,i)=>v!==null?(v-(fans[i]||0)):null);
   if(fChart) fChart.destroy();
   fChart = new Chart(document.getElementById('fansChartCanvas'),{
     type:'bar',
     data:{labels:ML,datasets:[
-      {label:'總粉絲',data:cumFans,backgroundColor:'rgba(91,189,183,0.7)',borderRadius:3},
-      {label:'增粉',data:fans,backgroundColor:fans.map(v=>v===null?'transparent':v>=0?'rgba(212,83,126,0.85)':'rgba(226,75,74,0.7)'),borderRadius:3}
+      {label:'基礎粉絲',data:baseArr,backgroundColor:'rgba(91,189,183,0.6)',borderRadius:0,stack:'fans'},
+      {label:'當月增粉',data:fans.map(v=>v&&v>0?v:null),backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3,stack:'fans'}
     ]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{
-        x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
-        y:{ticks:{font:{size:10}}}
+        x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
+        y:{stacked:true,ticks:{font:{size:10}}}
       }
     },
-    plugins:[datalabelPlugin]
+    plugins:[{
+      id:'stackLabels',
+      afterDatasetsDraw(chart){
+        const ctx=chart.ctx;
+        chart.data.datasets.forEach((ds,di)=>{
+          const meta=chart.getDatasetMeta(di);
+          meta.data.forEach((bar,i)=>{
+            const val=ds.data[i];
+            if(val===null||val===0) return;
+            const totalVal = cumFans[i];
+            if(di===1){
+              ctx.fillStyle='#D4537E';ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+              ctx.fillText('+'+val.toLocaleString(),bar.x,bar.y-4);
+            }
+            if(di===0&&totalVal){
+              ctx.fillStyle='#555';ctx.font='10px sans-serif';ctx.textAlign='center';
+              ctx.fillText(totalVal.toLocaleString(),bar.x,bar.y-(fans[i]&&fans[i]>0?20:4));
+            }
+          });
+        });
+      }
+    }]
   });
 
   if(cChart) cChart.destroy();
