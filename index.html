@@ -1,1 +1,782 @@
 
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HT團隊">
+<link rel="apple-touch-icon" href="app2.jpg">
+<title>HT 團隊系統</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;}
+#loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:url('HT1.jpg') center/cover no-repeat;}
+.login-header{text-align:center;margin-bottom:2rem;}
+.login-header h1{font-size:28px;font-weight:500;color:white;letter-spacing:3px;text-shadow:0 1px 8px rgba(0,0,0,0.3);}
+.login-header p{font-size:14px;color:rgba(255,255,255,0.85);margin-top:6px;}
+.login-card{background:rgba(255,255,255,0.92);backdrop-filter:blur(10px);border-radius:16px;padding:2rem;width:100%;max-width:360px;box-shadow:0 4px 30px rgba(0,0,0,0.2);}
+.login-card input,.login-card select{width:100%;padding:12px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:15px;margin-bottom:12px;outline:none;background:white;color:#333;appearance:none;}
+.login-card input:focus,.login-card select:focus{border-color:#C9A884;}
+.login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#C9A884,#A67C5B);color:white;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:1px;}
+.login-switch{text-align:center;margin-top:14px;font-size:13px;color:#888;}
+.login-switch a{color:#A67C5B;cursor:pointer;}
+.msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:8px;min-height:20px;}
+#mainPage{display:none;padding-bottom:80px;}
+.app-header{padding:1.25rem 1.25rem 1rem;text-align:center;color:white;}
+.app-header h1{font-size:20px;font-weight:500;letter-spacing:2px;}
+.level-tag{display:inline-block;padding:3px 14px;border-radius:20px;background:rgba(255,255,255,0.25);font-size:12px;margin-top:6px;}
+.user-name{font-size:13px;opacity:0.8;margin-top:4px;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:0.5px solid #eee;display:flex;z-index:100;}
+.nav-item{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;}
+.nav-icon{font-size:20px;display:block;margin-bottom:2px;}
+.nav-label{font-size:10px;color:#aaa;}
+.nav-item.active .nav-label{color:#5BBDB7;font-weight:500;}
+.page{display:none;padding:1rem;}
+.page.active{display:block;}
+.card{background:white;border-radius:14px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);}
+.card-title{font-size:13px;color:#888;margin-bottom:12px;letter-spacing:0.5px;}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:1rem;}
+.metric{background:#f8f8f8;border-radius:10px;padding:10px;text-align:center;}
+.metric-label{font-size:11px;color:#888;margin-bottom:4px;}
+.metric-value{font-size:17px;font-weight:500;color:#333;}
+.field{margin-bottom:10px;}
+.field label{font-size:12px;color:#888;display:block;margin-bottom:4px;}
+.field input,.field select{width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;color:#333;}
+.field input:focus,.field select:focus{border-color:#A4E5E0;background:white;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.btn{padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-top:4px;}
+.btn-primary{background:#A4E5E0;color:#085041;}
+.item-row{display:grid;grid-template-columns:1fr 58px 72px 28px;gap:6px;align-items:center;padding:8px 10px;background:#f8f8f8;border-radius:10px;margin-bottom:6px;}
+.item-row select{font-size:12px;padding:5px 6px;border-radius:7px;border:0.5px solid #ddd;background:white;color:#333;}
+.item-row input{padding:5px 8px;border-radius:7px;border:0.5px solid #ddd;background:white;text-align:center;font-size:13px;color:#333;}
+.item-cost{font-size:11px;color:#888;text-align:right;line-height:1.4;}
+.remove-btn{background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;padding:0;}
+.add-item-btn{width:100%;padding:9px;border:0.5px dashed #ccc;border-radius:10px;background:transparent;color:#aaa;font-size:13px;cursor:pointer;margin-top:4px;}
+.result-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid #f0f0f0;}
+.result-row:last-child{border-bottom:none;}
+.result-label{font-size:14px;color:#888;}
+.result-value{font-size:15px;font-weight:500;color:#333;}
+.chart-wrap{position:relative;width:100%;height:200px;margin-top:8px;}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px;font-size:12px;color:#888;}
+.legend span{display:flex;align-items:center;gap:4px;}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.tabs{display:flex;gap:6px;margin-bottom:1rem;}
+.tab{padding:7px 14px;border-radius:18px;border:0.5px solid #ddd;background:transparent;color:#888;font-size:12px;cursor:pointer;}
+.tab.active{background:#A4E5E0;border-color:#76D5CF;color:#085041;font-weight:500;}
+.logout-btn{display:block;text-align:center;padding:12px;color:#aaa;font-size:13px;cursor:pointer;margin-top:1rem;}
+.bg-intern{background:linear-gradient(135deg,#A4E5E0,#76D5CF);}
+.bg-3{background:linear-gradient(135deg,#8DDDD7,#5BBDB7);}
+.bg-3c{background:linear-gradient(135deg,#76D5CF,#4BBDB7);}
+.bg-2{background:linear-gradient(135deg,#E8B4BE,#D4949F);}
+.bg-1{background:linear-gradient(135deg,#D5C6E0,#BBA8CE);}
+.bg-royal{background:linear-gradient(135deg,#C9A84C,#E8D5A3,#C9A84C);}
+.today-summary{display:flex;justify-content:space-between;align-items:center;}
+.today-sub{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:0.5px solid #f0f0f0;}
+.rec-item{padding:8px 0;border-bottom:0.5px solid #f5f5f5;}
+.rec-item:last-child{border-bottom:none;}
+.fans-total-box{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 14px;background:#f0faf9;border-radius:10px;}
+.fans-total-label{font-size:13px;color:#888;}
+.fans-total-num{font-size:20px;font-weight:500;color:#1D9E75;}
+</style>
+</head>
+<body>
+<div id="loginPage">
+  <div class="login-header">
+    <h1>HT 團隊系統</h1>
+    <p>Jerosse x HT 專屬後台</p>
+  </div>
+  <div style="text-align:center;margin-bottom:1.5rem;opacity:0.55;color:white;font-size:13px;letter-spacing:3px;">— 你有權利改寫人生 —</div>
+  <div class="login-card">
+    <div id="loginForm">
+      <input type="text" id="loginPhone" placeholder="手機號碼" maxlength="10" />
+      <input type="password" id="loginPwd" placeholder="密碼" />
+      <button class="login-btn" onclick="doLogin()">登入</button>
+      <div class="login-switch">還沒有帳號？<a onclick="showRegister()">立即申請</a></div>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <input type="text" id="regUpline" placeholder="上家姓名" />
+      <select id="regLevel">
+        <option value="">— 選擇申請級別 —</option>
+        <option value="實習加盟">實習加盟</option>
+        <option value="三級加盟">三級加盟</option>
+        <option value="三級輔導">三級輔導</option>
+        <option value="二級輔導">二級輔導</option>
+        <option value="一級輔導">一級輔導</option>
+        <option value="皇家輔導">皇家輔導</option>
+      </select>
+      <input type="text" id="regName" placeholder="姓名" />
+      <input type="text" id="regPhone" placeholder="手機號碼" maxlength="10" />
+      <input type="password" id="regPwd" placeholder="設定密碼" />
+      <button class="login-btn" onclick="doRegister()">送出申請</button>
+      <div class="login-switch">已有帳號？<a onclick="showLogin()">返回登入</a></div>
+    </div>
+    <div class="msg" id="loginMsg"></div>
+  </div>
+</div>
+
+<div id="mainPage">
+  <div class="app-header" id="appHeader">
+    <div class="user-name" id="headerName"></div>
+    <h1>HT 團隊系統</h1>
+    <div class="level-tag" id="headerLevel"></div>
+  </div>
+
+  <div class="page active" id="page-profit">
+    <div class="tabs">
+      <button class="tab active" onclick="switchSubTab('profit','input')">新增今日</button>
+      <button class="tab" onclick="switchSubTab('profit','chart')">趨勢圖表</button>
+    </div>
+    <div id="profit-input">
+      <div class="card">
+        <div class="today-summary">
+          <div>
+            <div style="font-size:12px;color:#888;">今日日期</div>
+            <div style="font-size:16px;font-weight:500;color:#333;" id="todayDisplay"></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:#888;">本日累積淨利</div>
+            <div style="font-size:20px;font-weight:500;" id="todayProfitDisplay">NT$0</div>
+          </div>
+        </div>
+        <div class="today-sub">
+          <div>
+            <div style="font-size:12px;color:#888;">本月累積淨利</div>
+            <div style="font-size:15px;font-weight:500;color:#333;" id="monthProfitDisplay">NT$0</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:#888;">本月筆數</div>
+            <div style="font-size:15px;font-weight:500;color:#333;" id="monthCountDisplay">0 筆</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">新增單筆銷售</div>
+        <div id="salesItems"></div>
+        <button class="add-item-btn" onclick="addSaleItem()">＋ 新增品項</button>
+        <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid #f0f0f0;">
+          <div class="field"><label>本次收款金額（NT$）</label><input type="number" id="totalRevenue" placeholder="輸入實收金額" /></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveRecord()">新增這筆</button>
+      </div>
+      <div class="card">
+        <div class="card-title">粉絲 ＆ 影片（每月更新）</div>
+        <div class="form-row">
+          <div class="field"><label>目前粉絲數</label><input type="number" id="currentFans" placeholder="現在的粉絲數" /></div>
+          <div class="field"><label>影片更新數</label><input type="number" id="videoCount" placeholder="0" /></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>新消費者</label><input type="number" id="newClients" placeholder="0" /></div>
+          <div class="field"><label>回購客</label><input type="number" id="returnClients" placeholder="0" /></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveFansData()">儲存新客曲線數據</button>
+      </div>
+      <div class="card" id="fansRecordCard">
+        <div class="card-title">粉絲數據記錄</div>
+        <div id="fansRecordList"><div style="font-size:13px;color:#aaa;text-align:center;padding:1rem;">載入中...</div></div>
+      </div>
+      <div class="card" id="todayRecordsCard" style="display:none;">
+        <div class="card-title">今日銷售記錄</div>
+        <div id="todayList"></div>
+      </div>
+    </div>
+    <div id="profit-chart" style="display:none;">
+      <div class="metrics">
+        <div class="metric"><div class="metric-label">年度淨利</div><div class="metric-value" id="m1">—</div></div>
+        <div class="metric"><div class="metric-label">當月增粉</div><div class="metric-value" id="m3">—</div></div>
+        <div class="metric"><div class="metric-label">年度增粉</div><div class="metric-value" id="m2">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">本月每日淨利</div>
+        <div class="chart-wrap"><canvas id="profitChartCanvas"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">年度淨利趨勢</div>
+        <div class="chart-wrap"><canvas id="yearProfitCanvas"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">粉絲成長</div>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:#5BBDB7;"></span>總粉絲</span>
+          <span><span class="legend-dot" style="background:#D4537E;"></span>增粉</span>
+        </div>
+        <div id="videoTextDisplay" style="font-size:12px;color:#888;margin-bottom:6px;"></div>
+        <div class="chart-wrap" style="height:240px;"><canvas id="fansChartCanvas"></canvas></div>
+        <div class="fans-total-box">
+          <span class="fans-total-label">目前粉絲總數</span>
+          <span class="fans-total-num" id="currentFansTotal">—</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">客戶成長</div>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:#7F77DD;"></span>新消費者</span>
+          <span><span class="legend-dot" style="background:#5BBDB7;"></span>回購客</span>
+        </div>
+        <div class="chart-wrap"><canvas id="clientsChartCanvas"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">起始粉絲設定</div>
+        <div class="field"><label>第一個月之前的粉絲數</label><input type="number" id="initFansInput" placeholder="例：14254" /></div>
+        <button class="btn btn-primary" onclick="saveInitFans()">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-course">
+    <div id="course-stage-view">
+      <div style="font-size:18px;font-weight:500;color:#333;margin-bottom:4px;padding:0 0 0.5rem;">高速晉升圖書館</div>
+      <div style="font-size:13px;color:#888;margin-bottom:1.25rem;">選擇你的學習階段</div>
+      <div id="stage-cards"></div>
+    </div>
+    <div id="course-list-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <button onclick="backToStages()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
+        <div>
+          <div style="font-size:16px;font-weight:500;color:#333;" id="stageTitle"></div>
+          <div style="font-size:12px;color:#888;" id="stageProgress"></div>
+        </div>
+      </div>
+      <div id="courseList"></div>
+    </div>
+    <div id="course-detail-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <button onclick="backToCourseList()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
+        <div style="font-size:16px;font-weight:500;color:#333;" id="detailTitle"></div>
+      </div>
+      <div class="card">
+        <div id="detailDesc" style="font-size:14px;color:#555;line-height:1.7;margin-bottom:1rem;"></div>
+        <a id="detailYoutubeBtn" href="#" target="_blank" style="display:block;text-align:center;padding:13px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:12px;">▶ 跳到 YouTube 開啟</a>
+        <button id="detailCompleteBtn" onclick="markComplete()" class="btn btn-primary" style="margin-top:0;">✓ 標記完成</button>
+      </div>
+      <div class="card" id="noteCard" style="display:none;">
+        <div class="card-title">📝 課程筆記</div>
+        <div id="noteTemplate" style="font-size:13px;color:#555;line-height:1.8;white-space:pre-wrap;background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:10px;"></div>
+        <button onclick="copyNote()" class="btn btn-primary">複製筆記格式</button>
+      </div>
+    </div>
+    <div id="course-complete-view" style="display:none;text-align:center;padding:2rem 1rem;">
+      <div style="font-size:48px;margin-bottom:1rem;">🎉</div>
+      <div style="font-size:20px;font-weight:500;color:#333;margin-bottom:8px;" id="completeTitle"></div>
+      <div style="font-size:14px;color:#888;line-height:1.7;margin-bottom:1.5rem;" id="completeMsg"></div>
+      <a id="completeVideoBtn" href="#" target="_blank" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:1rem;">▶ 觀看鼓勵影片</a>
+      <br>
+      <button onclick="backToStages()" class="btn btn-primary" style="margin-top:12px;">繼續下一階段</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-check">
+    <div class="card" style="text-align:center;padding:3rem 1rem;">
+      <div style="font-size:40px;margin-bottom:1rem;">✅</div>
+      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">每月覆盤加速器</div>
+      <div style="font-size:13px;color:#aaa;">即將推出，敬請期待</div>
+    </div>
+  </div>
+
+  <div class="page" id="page-profile">
+    <div class="card">
+      <div class="card-title">帳號資訊</div>
+      <div class="result-row"><span class="result-label">姓名</span><span class="result-value" id="profileName"></span></div>
+      <div class="result-row"><span class="result-label">手機</span><span class="result-value" id="profilePhone"></span></div>
+      <div class="result-row"><span class="result-label">上家</span><span class="result-value" id="profileUpline"></span></div>
+      <div class="result-row"><span class="result-label">級別</span><span class="result-value" id="profileLevel"></span></div>
+      <div class="result-row"><span class="result-label">狀態</span><span class="result-value" id="profileStatus"></span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">修改姓名</div>
+      <div class="field"><input type="text" id="newNameInput" placeholder="輸入新姓名" /></div>
+      <button class="btn btn-primary" onclick="updateName()">儲存姓名</button>
+    </div>
+    <div class="logout-btn" onclick="doLogout()">登出</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="switchPage('profit',this)">
+      <span class="nav-icon">💰</span><span class="nav-label">計績</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('course',this)">
+      <span class="nav-icon">📚</span><span class="nav-label">課程</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('check',this)">
+      <span class="nav-icon">✅</span><span class="nav-label">覆盤</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('profile',this)">
+      <span class="nav-icon">👼🏻</span><span class="nav-label">我的</span>
+    </button>
+  </div>
+</div>
+
+<script>
+// v2.1
+const SUPABASE_URL='https://lsurinqdrybvqtvhiqim.supabase.co';
+const SUPABASE_KEY='sb_publishable_OVv7ly-_nLpirm93hcR0Qg_GK71hyI_';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const PRODUCTS=[
+  {name:'纖纖飲',costs:{實習加盟:1160,三級加盟:990,三級輔導:955,二級輔導:880,一級輔導:790,皇家輔導:700}},
+  {name:'纖飄錠',costs:{實習加盟:1160,三級加盟:990,三級輔導:955,二級輔導:880,一級輔導:790,皇家輔導:700}},
+  {name:'紫纖飲',costs:{實習加盟:780,三級加盟:660,三級輔導:635,二級輔導:580,一級輔導:510,皇家輔導:440}},
+  {name:'爆纖錠',costs:{實習加盟:660,三級加盟:580,三級輔導:560,二級輔導:520,一級輔導:470,皇家輔導:430}},
+  {name:'爆纖錠體驗包',costs:{實習加盟:190,三級加盟:164,三級輔導:158,二級輔導:146,一級輔導:133,皇家輔導:120}},
+  {name:'纖酵宿',costs:{實習加盟:780,三級加盟:660,三級輔導:635,二級輔導:580,一級輔導:510,皇家輔導:440}},
+  {name:'纖酵宿體驗',costs:{實習加盟:145,三級加盟:117,三級輔導:113,二級輔導:103,一級輔導:89,皇家輔導:75}},
+  {name:'肽纖飲可可/奶茶',costs:{實習加盟:780,三級加盟:660,三級輔導:635,二級輔導:580,一級輔導:510,皇家輔導:440}},
+  {name:'複方金盞花葉黃素EX飲',costs:{實習加盟:840,三級加盟:720,三級輔導:695,二級輔導:640,一級輔導:570,皇家輔導:500}},
+  {name:'葉黃素高鈣晶亮凍',costs:{實習加盟:530,三級加盟:455,三級輔導:440,二級輔導:410,一級輔導:365,皇家輔導:320}},
+  {name:'高機能益生菌',costs:{實習加盟:990,三級加盟:860,三級輔導:830,二級輔導:770,一級輔導:690,皇家輔導:620}},
+  {name:'酒國英雄極速錠',costs:{實習加盟:530,三級加盟:455,三級輔導:440,二級輔導:410,一級輔導:365,皇家輔導:320}},
+  {name:'療肺草正冠茶',costs:{實習加盟:780,三級加盟:660,三級輔導:635,二級輔導:580,一級輔導:510,皇家輔導:440}},
+  {name:'固樂纖',costs:{實習加盟:1260,三級加盟:1080,三級輔導:1040,二級輔導:920,一級輔導:830,皇家輔導:740}},
+  {name:'水光錠',costs:{實習加盟:1260,三級加盟:1080,三級輔導:1040,二級輔導:920,一級輔導:830,皇家輔導:740}},
+  {name:'水光繃帶面膜精裝版',costs:{實習加盟:550,三級加盟:500,三級輔導:485,二級輔導:450,一級輔導:400,皇家輔導:360}},
+  {name:'雪聚露',costs:{實習加盟:990,三級加盟:860,三級輔導:830,二級輔導:770,一級輔導:690,皇家輔導:620}},
+  {name:'婕肌零',costs:{實習加盟:780,三級加盟:660,三級輔導:635,二級輔導:580,一級輔導:510,皇家輔導:440}},
+  {name:'婕肌零體驗',costs:{實習加盟:30,三級加盟:25,三級輔導:24,二級輔導:20,一級輔導:17,皇家輔導:15}},
+  {name:'玻尿酸',costs:{實習加盟:780,三級加盟:660,三級輔導:635,二級輔導:580,一級輔導:510,皇家輔導:440}},
+  {name:'急救小白瓶',costs:{實習加盟:990,三級加盟:860,三級輔導:830,二級輔導:770,一級輔導:690,皇家輔導:620}},
+  {name:'積雪草護手霜',costs:{實習加盟:530,三級加盟:455,三級輔導:440,二級輔導:410,一級輔導:365,皇家輔導:320}},
+  {name:'法樂蓬洗髮露',costs:{實習加盟:990,三級加盟:860,三級輔導:830,二級輔導:770,一級輔導:690,皇家輔導:620}},
+  {name:'洗髮露試用包',costs:{實習加盟:24,三級加盟:21,三級輔導:20,二級輔導:17,一級輔導:14,皇家輔導:12}},
+  {name:'法樂蓬養髮原液',costs:{實習加盟:840,三級加盟:720,三級輔導:695,二級輔導:640,一級輔導:570,皇家輔導:500}},
+];
+const LEVEL_BG={實習加盟:'bg-intern',三級加盟:'bg-3',三級輔導:'bg-3c',二級輔導:'bg-2',一級輔導:'bg-1',皇家輔導:'bg-royal'};
+const ML=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+let currentUser=null,saleItems=[{productIdx:0,qty:1}],salesCache=[];
+let pChart,yChart,fChart,cChart;
+
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function getMonthStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function showRegister(){document.getElementById('loginForm').style.display='none';document.getElementById('registerForm').style.display='block';document.getElementById('loginMsg').textContent='';}
+function showLogin(){document.getElementById('registerForm').style.display='none';document.getElementById('loginForm').style.display='block';document.getElementById('loginMsg').textContent='';}
+
+async function doRegister(){
+  const upline=document.getElementById('regUpline').value.trim();
+  const level=document.getElementById('regLevel').value;
+  const name=document.getElementById('regName').value.trim();
+  const phone=document.getElementById('regPhone').value.trim();
+  const pwd=document.getElementById('regPwd').value.trim();
+  const msg=document.getElementById('loginMsg');
+  if(!upline||!level||!name||!phone||!pwd){msg.textContent='請填寫所有欄位';return;}
+  const existing=await sb.from('users').select('id').eq('phone',phone).single();
+  if(existing.data){msg.textContent='此手機號碼已申請過';return;}
+  const {error}=await sb.from('users').insert({name,phone,password:pwd,upline,level,status:'待審核',init_fans:0});
+  if(error){msg.textContent='申請失敗，請再試一次';return;}
+  msg.style.color='#1D9E75';msg.textContent='申請成功！請等待管理員審核後登入';
+  setTimeout(showLogin,2000);
+}
+
+async function doLogin(){
+  const phone=document.getElementById('loginPhone').value.trim();
+  const pwd=document.getElementById('loginPwd').value.trim();
+  const msg=document.getElementById('loginMsg');
+  if(!phone||!pwd){msg.textContent='請填寫手機號碼和密碼';return;}
+  const {data}=await sb.from('users').select('*').eq('phone',phone).eq('password',pwd).single();
+  if(!data){msg.textContent='手機號碼或密碼錯誤';return;}
+  if(data.status==='待審核'){msg.textContent='帳號審核中，請等待管理員審核';return;}
+  currentUser=data;enterApp();
+}
+
+function enterApp(){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('mainPage').style.display='block';
+  const header=document.getElementById('appHeader');
+  header.className='app-header '+(LEVEL_BG[currentUser.level]||'bg-intern');
+  document.getElementById('headerName').textContent=currentUser.name;
+  document.getElementById('headerLevel').textContent=currentUser.level;
+  document.getElementById('profileName').textContent=currentUser.name;
+  document.getElementById('profilePhone').textContent=currentUser.phone;
+  document.getElementById('profileUpline').textContent=currentUser.upline||'—';
+  document.getElementById('profileLevel').textContent=currentUser.level;
+  document.getElementById('profileStatus').textContent=currentUser.status;
+  document.getElementById('initFansInput').value=currentUser.init_fans||0;
+  const d=new Date();
+  document.getElementById('todayDisplay').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
+  renderSaleItems();loadSalesData();loadFansRecordOnInput();
+}
+
+async function loadFansRecordOnInput(){
+  if(!currentUser)return;
+  const {data:mData}=await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).order('id',{ascending:false});
+  renderFansRecordList(mData||[]);
+}
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('mainPage').style.display='none';
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('loginPhone').value='';
+  document.getElementById('loginPwd').value='';
+}
+
+function switchPage(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  el.classList.add('active');
+  if(page==='course') loadCourses();
+}
+
+function switchSubTab(section,tab){
+  const inputEl=document.getElementById(section+'-input');
+  const chartEl=document.getElementById(section+'-chart');
+  const tabs=document.querySelectorAll('#page-'+section+' .tab');
+  tabs.forEach((t,i)=>t.classList.toggle('active',i===(tab==='input'?0:1)));
+  if(tab==='input'){inputEl.style.display='block';chartEl.style.display='none';}
+  else{inputEl.style.display='none';chartEl.style.display='block';loadSalesData().then(renderCharts);}
+}
+
+function renderSaleItems(){
+  const level=currentUser?currentUser.level:'實習加盟';
+  const container=document.getElementById('salesItems');
+  container.innerHTML=saleItems.map((item,i)=>{
+    const cost=PRODUCTS[item.productIdx].costs[level]||0;
+    const options=PRODUCTS.map((p,pi)=>`<option value="${pi}"${pi===item.productIdx?' selected':''}>${p.name}</option>`).join('');
+    return `<div class="item-row">
+      <select onchange="changeProd(${i},this.value)">${options}</select>
+      <input type="number" min="1" value="${item.qty}" onchange="changeQty(${i},this.value)" />
+      <div class="item-cost">$${cost.toLocaleString()}<br>共$${(cost*item.qty).toLocaleString()}</div>
+      <button class="remove-btn" onclick="removeItem(${i})">×</button>
+    </div>`;
+  }).join('');
+}
+function addSaleItem(){saleItems.push({productIdx:0,qty:1});renderSaleItems();}
+function changeProd(i,v){saleItems[i].productIdx=parseInt(v);renderSaleItems();}
+function changeQty(i,v){saleItems[i].qty=Math.max(1,parseInt(v)||1);renderSaleItems();}
+function removeItem(i){if(saleItems.length>1)saleItems.splice(i,1);renderSaleItems();}
+
+async function saveRecord(){
+  const level=currentUser.level;
+  const today=getTodayStr();
+  const revenue=parseInt(document.getElementById('totalRevenue').value)||0;
+  if(revenue===0){alert('請輸入收款金額');return;}
+  let totalCost=0;
+  const itemsSnap=saleItems.map(item=>{
+    const cost=PRODUCTS[item.productIdx].costs[level]||0;
+    totalCost+=cost*item.qty;
+    return {name:PRODUCTS[item.productIdx].name,qty:item.qty,cost};
+  });
+  const profit=revenue-totalCost;
+  const now=new Date();
+  await sb.from('sales_data').insert({user_id:currentUser.id,date:today,year:now.getFullYear(),month:now.getMonth()+1,product_name:JSON.stringify(itemsSnap),quantity:saleItems.reduce((a,i)=>a+i.qty,0),cost:totalCost,total_revenue:revenue});
+  saleItems=[{productIdx:0,qty:1}];
+  document.getElementById('totalRevenue').value='';
+  renderSaleItems();
+  await loadSalesData();
+  alert('已新增！本次淨利 NT$'+profit.toLocaleString());
+}
+
+async function saveFansData(){
+  const now=new Date();const year=now.getFullYear();const month=now.getMonth()+1;
+  const currentFansVal=parseInt(document.getElementById('currentFans').value)||0;
+  const videos=parseInt(document.getElementById('videoCount').value)||0;
+  const newC=parseInt(document.getElementById('newClients').value)||0;
+  const retC=parseInt(document.getElementById('returnClients').value)||0;
+  const prevMonth=month===1?12:month-1;const prevYear=month===1?year-1:year;
+  const {data:prevRows}=await sb.from('monthly_data').select('current_fans').eq('user_id',currentUser.id).eq('year',prevYear).eq('month',prevMonth).order('id',{ascending:false}).limit(1);
+  const prevFans=prevRows&&prevRows.length?(prevRows[0].current_fans||0):(currentUser.init_fans||0);
+  const fansGain=currentFansVal-prevFans;
+  await sb.from('monthly_data').delete().eq('user_id',currentUser.id).eq('year',year).eq('month',month);
+  await sb.from('monthly_data').insert({user_id:currentUser.id,year,month,current_fans:currentFansVal,fans_gain:fansGain,videos,new_clients:newC,return_clients:retC,profit:0,init_fans:currentUser.init_fans||0});
+  const nextMonth=month===12?1:month+1;const nextYear=month===12?year+1:year;
+  const {data:nextRows}=await sb.from('monthly_data').select('id,current_fans').eq('user_id',currentUser.id).eq('year',nextYear).eq('month',nextMonth).order('id',{ascending:false}).limit(1);
+  if(nextRows&&nextRows.length&&nextRows[0].current_fans){await sb.from('monthly_data').update({fans_gain:nextRows[0].current_fans-currentFansVal}).eq('id',nextRows[0].id);}
+  const sign=fansGain>=0?'+':'';
+  await loadFansRecordOnInput();
+  if(document.getElementById('profit-chart').style.display!=='none')renderCharts();
+  alert('粉絲數據已儲存！本月增粉 '+sign+fansGain.toLocaleString());
+}
+
+async function saveInitFans(){
+  const v=parseInt(document.getElementById('initFansInput').value)||0;
+  await sb.from('users').update({init_fans:v}).eq('id',currentUser.id);
+  currentUser.init_fans=v;alert('起始粉絲已儲存！');
+}
+
+async function loadSalesData(){
+  if(!currentUser)return;
+  const {data}=await sb.from('sales_data').select('*').eq('user_id',currentUser.id).order('date');
+  salesCache=data||[];
+  updateTodaySummary();renderTodayRecords();
+  const chartVisible=document.getElementById('profit-chart').style.display!=='none';
+  if(chartVisible)renderCharts();
+}
+
+function updateTodaySummary(){
+  const today=getTodayStr();const monthStr=getMonthStr();
+  const todayRecs=salesCache.filter(r=>r.date===today);
+  const monthRecs=salesCache.filter(r=>r.date&&r.date.startsWith(monthStr));
+  const todayProfit=todayRecs.reduce((a,r)=>a+(r.total_revenue-r.cost),0);
+  const monthProfit=monthRecs.reduce((a,r)=>a+(r.total_revenue-r.cost),0);
+  const el=document.getElementById('todayProfitDisplay');
+  el.textContent='NT$'+todayProfit.toLocaleString();
+  el.style.color=todayProfit>=0?'#1D9E75':'#E24B4A';
+  document.getElementById('monthProfitDisplay').textContent='NT$'+monthProfit.toLocaleString();
+  document.getElementById('monthCountDisplay').textContent=monthRecs.length+' 筆';
+}
+
+function renderTodayRecords(){
+  const today=getTodayStr();
+  const recs=salesCache.filter(r=>r.date===today);
+  const box=document.getElementById('todayRecordsCard');
+  const list=document.getElementById('todayList');
+  if(!recs.length){box.style.display='none';return;}
+  box.style.display='block';
+  list.innerHTML=recs.map(r=>{
+    let items=[];try{items=JSON.parse(r.product_name);}catch(e){}
+    const profit=r.total_revenue-r.cost;
+    return `<div class="rec-item">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+        <span style="font-size:13px;color:#555;">${items.map(it=>it.name+'×'+it.qty).join('、')}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:14px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span>
+          <button onclick="deleteRecord(${r.id})" style="background:none;border:none;color:#ddd;font-size:16px;cursor:pointer;padding:0;">🗑</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#aaa;">收款 NT$${r.total_revenue.toLocaleString()} ／ 成本 NT$${r.cost.toLocaleString()}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCharts(){
+  const now=new Date();const year=now.getFullYear();const month=now.getMonth()+1;
+  const daysInMonth=new Date(year,month,0).getDate();
+  const dayLabels=Array.from({length:daysInMonth},(_,i)=>(i+1)+'');
+  const dayProfits=Array(daysInMonth).fill(0);
+  salesCache.filter(r=>r.year===year&&r.month===month).forEach(r=>{
+    const day=parseInt(r.date.split('-')[2])-1;
+    if(day>=0&&day<daysInMonth)dayProfits[day]+=(r.total_revenue-r.cost);
+  });
+  if(pChart)pChart.destroy();
+  pChart=new Chart(document.getElementById('profitChartCanvas'),{type:'bar',data:{labels:dayLabels,datasets:[{data:dayProfits,backgroundColor:dayProfits.map(v=>v>=0?'rgba(91,189,183,0.85)':'rgba(226,75,74,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}}}});
+  const monthProfits=Array(12).fill(0);
+  salesCache.filter(r=>r.year===year).forEach(r=>{if(r.month>=1&&r.month<=12)monthProfits[r.month-1]+=(r.total_revenue-r.cost);});
+  const totalYearProfit=monthProfits.reduce((a,v)=>a+v,0);
+  if(yChart)yChart.destroy();
+  yChart=new Chart(document.getElementById('yearProfitCanvas'),{type:'bar',data:{labels:ML,datasets:[{data:monthProfits,backgroundColor:monthProfits.map(v=>v>=0?'rgba(91,189,183,0.85)':'rgba(226,75,74,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}}}});
+  loadFansCharts(totalYearProfit);
+}
+
+async function updateName(){
+  const newName=document.getElementById('newNameInput').value.trim();
+  if(!newName){alert('請輸入姓名');return;}
+  await sb.from('users').update({name:newName}).eq('id',currentUser.id);
+  currentUser.name=newName;
+  document.getElementById('profileName').textContent=newName;
+  document.getElementById('headerName').textContent=newName;
+  document.getElementById('newNameInput').value='';
+  alert('姓名已更新！');
+}
+
+async function deleteRecord(id){
+  if(!confirm('確定刪除這筆記錄？'))return;
+  await sb.from('sales_data').delete().eq('id',id);
+  await loadSalesData();
+}
+
+async function loadFansCharts(totalYearProfit){
+  const now=new Date();const year=now.getFullYear();const nowM=now.getMonth()+1;
+  const {data:mData}=await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).eq('year',year).order('month');
+  const byMonth=Array(12).fill(null).map((_,i)=>(mData||[]).find(m=>m.month===i+1)||null);
+  const fans=byMonth.map(m=>m?m.fans_gain:null);
+  const videos=byMonth.map(m=>m?m.videos:null);
+  const newC=byMonth.map(m=>m?m.new_clients:null);
+  const retC=byMonth.map(m=>m?m.return_clients:null);
+  const cumFans=[];let lastKnown=currentUser.init_fans||0;
+  byMonth.forEach(m=>{if(m&&m.current_fans)lastKnown=m.current_fans;cumFans.push(m?(m.current_fans||lastKnown):null);});
+  const latestMonth=[...(mData||[])].sort((a,b)=>b.month-a.month)[0];
+  const totalFansGain=latestMonth?(latestMonth.current_fans||0)-(currentUser.init_fans||0):0;
+  const currentFansTotal=latestMonth?(latestMonth.current_fans||0):(currentUser.init_fans||0);
+  const thisMonthData=(mData||[]).find(m=>m.month===nowM);
+  const thisMonthFans=thisMonthData?(thisMonthData.fans_gain||0):0;
+  const videoText=byMonth.map((m,i)=>m&&m.videos?(i+1)+'月：'+m.videos+'部':'').filter(Boolean).join('　');
+  const vtEl=document.getElementById('videoTextDisplay');
+  if(vtEl)vtEl.textContent=videoText?'影片更新：'+videoText:'';
+
+  document.getElementById('m1').textContent='$'+(totalYearProfit/1000).toFixed(1)+'K';
+  document.getElementById('m1').style.color=totalYearProfit>=0?'#1D9E75':'#E24B4A';
+  document.getElementById('m2').textContent=(totalFansGain>=0?'+':'')+totalFansGain.toLocaleString();
+  document.getElementById('m2').style.color=totalFansGain>=0?'#1D9E75':'#E24B4A';
+  document.getElementById('m3').textContent=(thisMonthFans>=0?'+':'')+thisMonthFans.toLocaleString();
+  document.getElementById('m3').style.color=thisMonthFans>=0?'#1D9E75':'#E24B4A';
+  const totalEl=document.getElementById('currentFansTotal');
+  if(totalEl)totalEl.textContent=currentFansTotal.toLocaleString();
+
+  const datalabelPlugin={id:'datalabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);if(ds.type==='line')return;meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;ctx.fillStyle='#555';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText(val.toLocaleString(),bar.x,bar.y-4);});});}};
+
+  const baseArr=cumFans.map((v,i)=>v!==null?(v-(fans[i]||0)):null);
+  if(fChart)fChart.destroy();
+  fChart=new Chart(document.getElementById('fansChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'基礎粉絲',data:baseArr,backgroundColor:'rgba(91,189,183,0.6)',borderRadius:0,stack:'fans'},{label:'當月增粉',data:fans.map(v=>v&&v>0?v:null),backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3,stack:'fans'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[{id:'stackLabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;const totalVal=cumFans[i];if(di===1){ctx.fillStyle='#D4537E';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('+'+val.toLocaleString(),bar.x,bar.y-4);}if(di===0&&totalVal){ctx.fillStyle='#085041';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText(totalVal.toLocaleString(),bar.x,bar.y-(fans[i]&&fans[i]>0?24:8));const baseVal=baseArr[i];if(baseVal&&bar.height>30){ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font='10px sans-serif';ctx.fillText('原有'+baseVal.toLocaleString(),bar.x,bar.y+(bar.height/2)+4);}}});});}}]});
+
+  if(cChart)cChart.destroy();
+  cChart=new Chart(document.getElementById('clientsChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'新消費者',data:newC,backgroundColor:'rgba(127,119,221,0.85)',borderRadius:3},{label:'回購客',data:retC,backgroundColor:'rgba(91,189,183,0.85)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[datalabelPlugin]});
+
+  renderFansRecordList(mData||[]);
+}
+
+function renderFansRecordList(mData){
+  const list=document.getElementById('fansRecordList');
+  if(!list)return;
+  if(!mData.length){list.innerHTML='<div style="font-size:13px;color:#aaa;text-align:center;padding:1rem;">尚無記錄</div>';return;}
+  const sorted=[...mData].sort((a,b)=>b.month-a.month);
+  list.innerHTML=sorted.map(m=>`<div class="rec-item"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:14px;font-weight:500;color:#333;">${m.year}年${m.month}月</div><div style="font-size:12px;color:#aaa;margin-top:2px;">粉絲 ${(m.current_fans||0).toLocaleString()} ／ 增粉 ${m.fans_gain>=0?'+':''}${(m.fans_gain||0).toLocaleString()} ／ 影片 ${m.videos||0}部</div><div style="font-size:12px;color:#aaa;">新客 ${m.new_clients||0} ／ 回購 ${m.return_clients||0}</div></div><button onclick="deleteFansRecord(${m.id})" style="background:none;border:none;color:#ddd;font-size:18px;cursor:pointer;padding:4px;">🗑</button></div></div>`).join('');
+}
+
+async function deleteFansRecord(id){
+  if(!confirm('確定刪除這筆粉絲數據？'))return;
+  await sb.from('monthly_data').delete().eq('id',id);
+  const {data:mData}=await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).order('month');
+  renderFansRecordList(mData||[]);
+  if(document.getElementById('profit-chart').style.display!=='none')renderCharts();
+  alert('已刪除！');
+}
+
+const STAGES=[
+  {key:'新人啟航',icon:'🌱',desc:'從零開始，掌握核心銷售力',color:'#A4E5E0',textColor:'#085041'},
+  {key:'輔導督導',icon:'🚀',desc:'帶人複製，打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a'},
+  {key:'高階領導',icon:'👑',desc:'領袖思維，拓展事業版圖',color:'#E8D5A3',textColor:'#7a5200'}
+];
+const COMPLETE_MSG={
+  '新人啟航':{title:'恭喜完成新人啟航！🎉',msg:'你已經掌握了最核心的銷售基礎，繼續保持這份熱情，你一定可以！',video:''},
+  '輔導督導':{title:'恭喜完成輔導督導！🚀',msg:'你已具備帶領團隊的能力，每一位你扶持的夥伴都是你事業的翅膀，繼續前進，皇家之路就在眼前！',video:''},
+  '高階領導':{title:'恭喜完成高階領導！👑',msg:'你已蛻變為真正的領袖，你的格局決定了你的高度，讓我們一起創造更大的可能！',video:''}
+};
+
+let currentStage='';
+let currentCourseId=null;
+let allCourses=[];
+let userProgress=[];
+
+async function loadCourses(){
+  if(!currentUser)return;
+  const {data:courses}=await sb.from('courses').select('*').eq('is_active',true).order('order_num');
+  allCourses=courses||[];
+  const {data:progress}=await sb.from('course_progress').select('*').eq('user_id',currentUser.id);
+  userProgress=progress||[];
+  renderStageCards();
+}
+
+function renderStageCards(){
+  const el=document.getElementById('stage-cards');
+  if(!el)return;
+  el.innerHTML=STAGES.map(s=>{
+    const stageCourses=allCourses.filter(c=>c.stage===s.key);
+    const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+    const total=stageCourses.length;
+    const pct=total?Math.round(done/total*100):0;
+    return `<div onclick="openStage('${s.key}')" style="background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:14px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${s.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:500;color:#333;margin-bottom:3px;">${s.key}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:8px;">${s.desc}</div>
+        <div style="background:#f0f0f0;border-radius:6px;height:6px;overflow:hidden;">
+          <div style="background:${s.color};height:100%;width:${pct}%;border-radius:6px;transition:width 0.3s;"></div>
+        </div>
+        <div style="font-size:11px;color:#aaa;margin-top:4px;">${done}／${total} 堂完成</div>
+      </div>
+      <div style="font-size:20px;color:#ccc;">›</div>
+    </div>`;
+  }).join('');
+}
+
+function openStage(stage){
+  currentStage=stage;
+  document.getElementById('course-stage-view').style.display='none';
+  document.getElementById('course-list-view').style.display='block';
+  document.getElementById('stageTitle').textContent=stage;
+  renderCourseList();
+}
+
+function renderCourseList(){
+  const stageCourses=allCourses.filter(c=>c.stage===currentStage);
+  const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+  document.getElementById('stageProgress').textContent=done+'／'+stageCourses.length+' 堂完成';
+  const el=document.getElementById('courseList');
+  el.innerHTML=stageCourses.map((c,i)=>{
+    const isComplete=userProgress.find(p=>p.course_id===c.id&&p.completed);
+    return `<div onclick="openCourse(${c.id})" style="background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:12px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:${isComplete?'#A4E5E0':'#f0f0f0'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:${isComplete?'#085041':'#aaa'};flex-shrink:0;">${isComplete?'✓':(i+1)}</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:#333;">${c.title}</div>
+        <div style="font-size:12px;color:#aaa;margin-top:2px;">${c.description||''}</div>
+      </div>
+      <div style="font-size:20px;color:#ccc;">›</div>
+    </div>`;
+  }).join('')||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">此階段暫無課程</div>';
+}
+
+function openCourse(id){
+  const c=allCourses.find(x=>x.id===id);
+  if(!c)return;
+  currentCourseId=id;
+  document.getElementById('course-list-view').style.display='none';
+  document.getElementById('course-detail-view').style.display='block';
+  document.getElementById('detailTitle').textContent=c.title;
+  document.getElementById('detailDesc').textContent=c.description||'';
+  const ytBtn=document.getElementById('detailYoutubeBtn');
+  if(c.youtube_url){ytBtn.href=c.youtube_url;ytBtn.style.display='block';}
+  else{ytBtn.style.display='none';}
+  const isComplete=userProgress.find(p=>p.course_id===id&&p.completed);
+  const btn=document.getElementById('detailCompleteBtn');
+  if(isComplete){btn.textContent='✓ 已完成';btn.style.background='#ccc';btn.disabled=true;}
+  else{btn.textContent='✓ 標記完成';btn.style.background='#A4E5E0';btn.disabled=false;}
+  const noteCard=document.getElementById('noteCard');
+  if(c.note_template){
+    noteCard.style.display='block';
+    document.getElementById('noteTemplate').textContent=c.note_template;
+  } else {
+    noteCard.style.display='none';
+  }
+}
+
+async function markComplete(){
+  if(!currentCourseId)return;
+  const existing=userProgress.find(p=>p.course_id===currentCourseId&&p.user_id===currentUser.id);
+  if(!existing){
+    await sb.from('course_progress').insert({user_id:currentUser.id,course_id:currentCourseId,completed:true,completed_at:new Date().toISOString()});
+    userProgress.push({user_id:currentUser.id,course_id:currentCourseId,completed:true});
+  }
+  const btn=document.getElementById('detailCompleteBtn');
+  btn.textContent='✓ 已完成';btn.style.background='#ccc';btn.disabled=true;
+  const stageCourses=allCourses.filter(c=>c.stage===currentStage);
+  const doneCount=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+  if(doneCount===stageCourses.length&&stageCourses.length>0){
+    setTimeout(()=>showStageComplete(),500);
+  } else {
+    alert('太棒了！已標記完成 ✓');
+  }
+}
+
+function showStageComplete(){
+  document.getElementById('course-detail-view').style.display='none';
+  document.getElementById('course-complete-view').style.display='block';
+  const msg=COMPLETE_MSG[currentStage]||{title:'階段完成！🎉',msg:'恭喜你完成這個階段！',video:''};
+  document.getElementById('completeTitle').textContent=msg.title;
+  document.getElementById('completeMsg').textContent=msg.msg;
+  const vBtn=document.getElementById('completeVideoBtn');
+  if(msg.video){vBtn.href=msg.video;vBtn.style.display='inline-block';}
+  else{vBtn.style.display='none';}
+}
+
+function copyNote(){
+  const text=document.getElementById('noteTemplate').textContent;
+  navigator.clipboard.writeText(text).then(()=>alert('筆記格式已複製！貼到群組分享吧 😊'));
+}
+
+function backToStages(){
+  document.getElementById('course-stage-view').style.display='block';
+  document.getElementById('course-list-view').style.display='none';
+  document.getElementById('course-detail-view').style.display='none';
+  document.getElementById('course-complete-view').style.display='none';
+  loadCourses();
+}
+
+function backToCourseList(){
+  document.getElementById('course-detail-view').style.display='none';
+  document.getElementById('course-list-view').style.display='block';
+  renderCourseList();
+}
+</script>
+</body>
+</html>
