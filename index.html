@@ -229,10 +229,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 
   <div class="page" id="page-course">
-    <div class="card" style="text-align:center;padding:3rem 1rem;">
-      <div style="font-size:40px;margin-bottom:1rem;">📚</div>
-      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">高速晉升圖書館</div>
-      <div style="font-size:13px;color:#aaa;">即將推出，敬請期待</div>
+    <div id="course-stage-view">
+      <div style="font-size:18px;font-weight:500;color:#333;margin-bottom:4px;padding:0 0 0.5rem;">高速晉升圖書館</div>
+      <div style="font-size:13px;color:#888;margin-bottom:1.25rem;">選擇你的學習階段</div>
+      <div id="stage-cards"></div>
+    </div>
+    <div id="course-list-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <button onclick="backToStages()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
+        <div>
+          <div style="font-size:16px;font-weight:500;color:#333;" id="stageTitle"></div>
+          <div style="font-size:12px;color:#888;" id="stageProgress"></div>
+        </div>
+      </div>
+      <div id="courseList"></div>
+    </div>
+    <div id="course-detail-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <button onclick="backToCourseList()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
+        <div style="font-size:16px;font-weight:500;color:#333;" id="detailTitle"></div>
+      </div>
+      <div class="card">
+        <div id="detailDesc" style="font-size:14px;color:#555;line-height:1.7;margin-bottom:1rem;"></div>
+        <a id="detailYoutubeBtn" href="#" target="_blank" style="display:block;text-align:center;padding:13px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:12px;">▶ 跳到 YouTube 開啟</a>
+        <button id="detailCompleteBtn" onclick="markComplete()" class="btn btn-primary" style="margin-top:0;">✓ 標記完成</button>
+      </div>
+      <div class="card" id="noteCard" style="display:none;">
+        <div class="card-title">📝 課程筆記</div>
+        <div id="noteTemplate" style="font-size:13px;color:#555;line-height:1.8;white-space:pre-wrap;background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:10px;"></div>
+        <button onclick="copyNote()" class="btn btn-primary">複製筆記格式</button>
+      </div>
+    </div>
+    <div id="course-complete-view" style="display:none;text-align:center;padding:2rem 1rem;">
+      <div style="font-size:48px;margin-bottom:1rem;">🎉</div>
+      <div style="font-size:20px;font-weight:500;color:#333;margin-bottom:8px;" id="completeTitle"></div>
+      <div style="font-size:14px;color:#888;line-height:1.7;margin-bottom:1.5rem;" id="completeMsg"></div>
+      <a id="completeVideoBtn" href="#" target="_blank" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:1rem;">▶ 觀看鼓勵影片</a>
+      <br>
+      <button onclick="backToStages()" class="btn btn-primary" style="margin-top:12px;">繼續下一階段</button>
     </div>
   </div>
 
@@ -382,6 +416,7 @@ function switchPage(page,el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   el.classList.add('active');
+  if(page==='course') loadCourses();
 }
 
 function switchSubTab(section,tab){
@@ -573,7 +608,7 @@ async function loadFansCharts(totalYearProfit){
 
   const baseArr=cumFans.map((v,i)=>v!==null?(v-(fans[i]||0)):null);
   if(fChart)fChart.destroy();
-  fChart=new Chart(document.getElementById('fansChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'基礎粉絲',data:baseArr,backgroundColor:'rgba(91,189,183,0.6)',borderRadius:0,stack:'fans'},{label:'當月增粉',data:fans.map(v=>v&&v>0?v:null),backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3,stack:'fans'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[{id:'stackLabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;const totalVal=cumFans[i];if(di===1){ctx.fillStyle='#D4537E';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('+'+val.toLocaleString(),bar.x,bar.y-4);}if(di===0&&totalVal){ctx.fillStyle='#555';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText(totalVal.toLocaleString(),bar.x,bar.y-(fans[i]&&fans[i]>0?20:4));}});});}}]});
+  fChart=new Chart(document.getElementById('fansChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'基礎粉絲',data:baseArr,backgroundColor:'rgba(91,189,183,0.6)',borderRadius:0,stack:'fans'},{label:'當月增粉',data:fans.map(v=>v&&v>0?v:null),backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3,stack:'fans'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[{id:'stackLabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;const totalVal=cumFans[i];if(di===1){ctx.fillStyle='#D4537E';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('+'+val.toLocaleString(),bar.x,bar.y-4);}if(di===0&&totalVal){ctx.fillStyle='#085041';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText(totalVal.toLocaleString(),bar.x,bar.y-(fans[i]&&fans[i]>0?24:8));const baseVal=baseArr[i];if(baseVal&&bar.height>30){ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font='10px sans-serif';ctx.fillText('原有'+baseVal.toLocaleString(),bar.x,bar.y+(bar.height/2)+4);}}});});}}]});
 
   if(cChart)cChart.destroy();
   cChart=new Chart(document.getElementById('clientsChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'新消費者',data:newC,backgroundColor:'rgba(127,119,221,0.85)',borderRadius:3},{label:'回購客',data:retC,backgroundColor:'rgba(91,189,183,0.85)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[datalabelPlugin]});
@@ -596,6 +631,158 @@ async function deleteFansRecord(id){
   renderFansRecordList(mData||[]);
   if(document.getElementById('profit-chart').style.display!=='none')renderCharts();
   alert('已刪除！');
+}
+
+const STAGES=[
+  {key:'新人啟航',icon:'🌱',desc:'從零開始，掌握核心銷售力',color:'#A4E5E0',textColor:'#085041'},
+  {key:'輔導督導',icon:'🚀',desc:'帶人複製，打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a'},
+  {key:'高階領導',icon:'👑',desc:'領袖思維，拓展事業版圖',color:'#E8D5A3',textColor:'#7a5200'}
+];
+const COMPLETE_MSG={
+  '新人啟航':{title:'恭喜完成新人啟航！🎉',msg:'你已經掌握了最核心的銷售基礎，
+接下來的路會越走越寬，
+繼續保持這份熱情，你一定可以！',video:''},
+  '輔導督導':{title:'恭喜完成輔導督導！🚀',msg:'你已具備帶領團隊的能力，
+每一位你扶持的夥伴，都是你事業的翅膀，
+繼續前進，皇家之路就在眼前！',video:''},
+  '高階領導':{title:'恭喜完成高階領導！👑',msg:'你已蛻變為真正的領袖，
+你的格局決定了你的高度，
+讓我們一起創造更大的可能！',video:''}
+};
+
+let currentStage='';
+let currentCourseId=null;
+let allCourses=[];
+let userProgress=[];
+
+async function loadCourses(){
+  if(!currentUser)return;
+  const {data:courses}=await sb.from('courses').select('*').eq('is_active',true).order('order_num');
+  allCourses=courses||[];
+  const {data:progress}=await sb.from('course_progress').select('*').eq('user_id',currentUser.id);
+  userProgress=progress||[];
+  renderStageCards();
+}
+
+function renderStageCards(){
+  const el=document.getElementById('stage-cards');
+  if(!el)return;
+  el.innerHTML=STAGES.map(s=>{
+    const stageCourses=allCourses.filter(c=>c.stage===s.key);
+    const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+    const total=stageCourses.length;
+    const pct=total?Math.round(done/total*100):0;
+    return `<div onclick="openStage('${s.key}')" style="background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:14px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${s.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:500;color:#333;margin-bottom:3px;">${s.key}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:8px;">${s.desc}</div>
+        <div style="background:#f0f0f0;border-radius:6px;height:6px;overflow:hidden;">
+          <div style="background:${s.color};height:100%;width:${pct}%;border-radius:6px;transition:width 0.3s;"></div>
+        </div>
+        <div style="font-size:11px;color:#aaa;margin-top:4px;">${done}／${total} 堂完成</div>
+      </div>
+      <div style="font-size:20px;color:#ccc;">›</div>
+    </div>`;
+  }).join('');
+}
+
+function openStage(stage){
+  currentStage=stage;
+  document.getElementById('course-stage-view').style.display='none';
+  document.getElementById('course-list-view').style.display='block';
+  document.getElementById('stageTitle').textContent=stage;
+  renderCourseList();
+}
+
+function renderCourseList(){
+  const stageCourses=allCourses.filter(c=>c.stage===currentStage);
+  const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+  document.getElementById('stageProgress').textContent=done+'／'+stageCourses.length+' 堂完成';
+  const el=document.getElementById('courseList');
+  el.innerHTML=stageCourses.map((c,i)=>{
+    const isComplete=userProgress.find(p=>p.course_id===c.id&&p.completed);
+    return `<div onclick="openCourse(${c.id})" style="background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:12px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:${isComplete?'#A4E5E0':'#f0f0f0'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:${isComplete?'#085041':'#aaa'};flex-shrink:0;">${isComplete?'✓':(i+1)}</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:#333;">${c.title}</div>
+        <div style="font-size:12px;color:#aaa;margin-top:2px;">${c.description||''}</div>
+      </div>
+      <div style="font-size:20px;color:#ccc;">›</div>
+    </div>`;
+  }).join('')||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">此階段暫無課程</div>';
+}
+
+function openCourse(id){
+  const c=allCourses.find(x=>x.id===id);
+  if(!c)return;
+  currentCourseId=id;
+  document.getElementById('course-list-view').style.display='none';
+  document.getElementById('course-detail-view').style.display='block';
+  document.getElementById('detailTitle').textContent=c.title;
+  document.getElementById('detailDesc').textContent=c.description||'';
+  const ytBtn=document.getElementById('detailYoutubeBtn');
+  if(c.youtube_url){ytBtn.href=c.youtube_url;ytBtn.style.display='block';}
+  else{ytBtn.style.display='none';}
+  const isComplete=userProgress.find(p=>p.course_id===id&&p.completed);
+  const btn=document.getElementById('detailCompleteBtn');
+  if(isComplete){btn.textContent='✓ 已完成';btn.style.background='#ccc';btn.disabled=true;}
+  else{btn.textContent='✓ 標記完成';btn.style.background='#A4E5E0';btn.disabled=false;}
+  const noteCard=document.getElementById('noteCard');
+  if(c.note_template){
+    noteCard.style.display='block';
+    document.getElementById('noteTemplate').textContent=c.note_template;
+  } else {
+    noteCard.style.display='none';
+  }
+}
+
+async function markComplete(){
+  if(!currentCourseId)return;
+  const existing=userProgress.find(p=>p.course_id===currentCourseId&&p.user_id===currentUser.id);
+  if(!existing){
+    await sb.from('course_progress').insert({user_id:currentUser.id,course_id:currentCourseId,completed:true,completed_at:new Date().toISOString()});
+    userProgress.push({user_id:currentUser.id,course_id:currentCourseId,completed:true});
+  }
+  const btn=document.getElementById('detailCompleteBtn');
+  btn.textContent='✓ 已完成';btn.style.background='#ccc';btn.disabled=true;
+  const stageCourses=allCourses.filter(c=>c.stage===currentStage);
+  const doneCount=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+  if(doneCount===stageCourses.length&&stageCourses.length>0){
+    setTimeout(()=>showStageComplete(),500);
+  } else {
+    alert('太棒了！已標記完成 ✓');
+  }
+}
+
+function showStageComplete(){
+  document.getElementById('course-detail-view').style.display='none';
+  document.getElementById('course-complete-view').style.display='block';
+  const msg=COMPLETE_MSG[currentStage]||{title:'階段完成！🎉',msg:'恭喜你完成這個階段！',video:''};
+  document.getElementById('completeTitle').textContent=msg.title;
+  document.getElementById('completeMsg').textContent=msg.msg;
+  const vBtn=document.getElementById('completeVideoBtn');
+  if(msg.video){vBtn.href=msg.video;vBtn.style.display='inline-block';}
+  else{vBtn.style.display='none';}
+}
+
+function copyNote(){
+  const text=document.getElementById('noteTemplate').textContent;
+  navigator.clipboard.writeText(text).then(()=>alert('筆記格式已複製！貼到群組分享吧 😊'));
+}
+
+function backToStages(){
+  document.getElementById('course-stage-view').style.display='block';
+  document.getElementById('course-list-view').style.display='none';
+  document.getElementById('course-detail-view').style.display='none';
+  document.getElementById('course-complete-view').style.display='none';
+  loadCourses();
+}
+
+function backToCourseList(){
+  document.getElementById('course-detail-view').style.display='none';
+  document.getElementById('course-list-view').style.display='block';
+  renderCourseList();
 }
 </script>
 </body>
