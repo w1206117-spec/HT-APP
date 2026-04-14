@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HT 管理端</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;}
+#loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:url('HT2.jpg') center/cover no-repeat;}
+.login-card{background:white;border-radius:16px;padding:2rem;width:100%;max-width:360px;box-shadow:0 2px 20px rgba(0,0,0,0.08);}
+.login-card h2{font-size:20px;font-weight:500;color:#333;margin-bottom:1.5rem;text-align:center;letter-spacing:2px;}
+.login-card input{width:100%;padding:12px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:15px;margin-bottom:12px;outline:none;}
+.login-card input:focus{border-color:#A4E5E0;}
+.login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#C9A884,#A67C5B);color:white;font-size:15px;font-weight:500;cursor:pointer;}
+.msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:8px;}
+#adminPage{display:none;}
+.admin-header{background:linear-gradient(135deg,#C9A884,#A67C5B);padding:1.25rem 1.5rem;color:white;display:flex;justify-content:space-between;align-items:center;}
+.admin-header h1{font-size:18px;font-weight:500;letter-spacing:2px;}
+.logout-link{font-size:13px;color:rgba(255,255,255,0.8);cursor:pointer;}
+.tabs{display:flex;background:white;border-bottom:0.5px solid #eee;padding:0 1.5rem;}
+.tab{padding:14px 20px;font-size:14px;color:#aaa;cursor:pointer;border-bottom:2px solid transparent;}
+.tab.active{color:#A67C5B;border-bottom-color:#A67C5B;font-weight:500;}
+.content{padding:1.25rem 1.5rem;}
+.section{display:none;}
+.section.active{display:block;}
+.card{background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);}
+.card-title{font-size:13px;color:#888;margin-bottom:1rem;letter-spacing:0.5px;}
+.user-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:0.5px solid #f5f5f5;}
+.user-row:last-child{border-bottom:none;}
+.user-info h3{font-size:15px;font-weight:500;color:#333;}
+.user-info p{font-size:12px;color:#aaa;margin-top:3px;}
+.user-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+.btn{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:500;cursor:pointer;}
+.btn-approve{background:#e1f5ee;color:#0F6E56;}
+.btn-reject{background:#ffeaea;color:#E24B4A;}
+.btn-save{background:#A4E5E0;color:#085041;}
+.btn-danger{background:#ffeaea;color:#E24B4A;}
+.level-select{padding:6px 10px;border-radius:8px;border:0.5px solid #ddd;font-size:12px;color:#333;background:white;}
+.status-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;}
+.status-pending{background:#fff3cd;color:#856404;}
+.status-approved{background:#e1f5ee;color:#0F6E56;}
+.status-rejected{background:#ffeaea;color:#E24B4A;}
+.empty{text-align:center;padding:2rem;color:#aaa;font-size:14px;}
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem;}
+.metric-card{background:white;border-radius:12px;padding:1rem;text-align:center;box-shadow:0 1px 8px rgba(0,0,0,0.05);}
+.metric-label{font-size:12px;color:#888;margin-bottom:6px;}
+.metric-value{font-size:22px;font-weight:500;color:#333;}
+.search-input{width:100%;padding:10px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;margin-bottom:1rem;outline:none;background:white;}
+.search-input:focus{border-color:#A4E5E0;}
+.level-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
+.filter-btn{padding:5px 12px;border-radius:16px;border:0.5px solid #ddd;background:transparent;font-size:12px;color:#888;cursor:pointer;}
+.filter-btn.active{background:#A4E5E0;border-color:#76D5CF;color:#085041;font-weight:500;}
+</style>
+</head>
+<body>
+
+<div id="loginPage">
+  <div class="login-card">
+    <h2 style="color:#333;">HT 管理端</h2>
+    <input type="password" id="adminPwd" placeholder="輸入管理員密碼" />
+    <button class="login-btn" onclick="adminLogin()">進入管理端</button>
+    <div class="msg" id="adminMsg"></div>
+  </div>
+</div>
+
+<div id="adminPage">
+  <div class="admin-header">
+    <h1>HT 管理端</h1>
+    <span class="logout-link" onclick="adminLogout()">登出</span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('pending')">待審核</div>
+    <div class="tab" onclick="switchTab('members')">全部夥伴</div>
+    <div class="tab" onclick="switchTab('stats')">數據總覽</div>
+    <div class="tab" onclick="switchTab('courses')">課程管理</div>
+  </div>
+  <div class="content">
+
+    <!-- 待審核 -->
+    <div class="section active" id="section-pending">
+      <div class="card">
+        <div class="card-title">待審核申請</div>
+        <div id="pendingList"><div class="empty">載入中...</div></div>
+      </div>
+    </div>
+
+    <!-- 全部夥伴 -->
+    <div class="section" id="section-members">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜尋姓名或手機..." oninput="filterMembers()" />
+      <div class="level-filter" id="levelFilter">
+        <button class="filter-btn active" onclick="setLevelFilter('all',this)">全部</button>
+        <button class="filter-btn" onclick="setLevelFilter('實習加盟',this)">實習加盟</button>
+        <button class="filter-btn" onclick="setLevelFilter('三級加盟',this)">三級加盟</button>
+        <button class="filter-btn" onclick="setLevelFilter('三級輔導',this)">三級輔導</button>
+        <button class="filter-btn" onclick="setLevelFilter('二級輔導',this)">二級輔導</button>
+        <button class="filter-btn" onclick="setLevelFilter('一級輔導',this)">一級輔導</button>
+        <button class="filter-btn" onclick="setLevelFilter('皇家輔導',this)">皇家輔導</button>
+      </div>
+      <div class="card">
+        <div class="card-title">夥伴列表</div>
+        <div id="memberList"><div class="empty">載入中...</div></div>
+      </div>
+    </div>
+
+    <!-- 數據總覽 -->
+    <div class="section" id="section-stats">
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-label">總夥伴數</div><div class="metric-value" id="statTotal">—</div></div>
+        <div class="metric-card"><div class="metric-label">待審核</div><div class="metric-value" id="statPending">—</div></div>
+        <div class="metric-card"><div class="metric-label">已審核</div><div class="metric-value" id="statApproved">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">各級別人數</div>
+        <div id="levelStats"><div class="empty">載入中...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">本月業績排行</div>
+        <div id="profitRank"><div class="empty">載入中...</div></div>
+      </div>
+    </div>
+
+    <!-- 課程管理 -->
+    <div class="section" id="section-courses">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div style="font-size:15px;font-weight:500;color:#333;">課程列表</div>
+        <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddCourse()">＋ 新增課程</button>
+      </div>
+      <div class="level-filter">
+        <button class="filter-btn active" onclick="setCourseFilter('all',this)">全部</button>
+        <button class="filter-btn" onclick="setCourseFilter('新人啟航',this)">新人啟航</button>
+        <button class="filter-btn" onclick="setCourseFilter('輔導督導',this)">輔導督導</button>
+        <button class="filter-btn" onclick="setCourseFilter('高階領導',this)">高階領導</button>
+      </div>
+      <div id="courseAdminList"></div>
+
+      <!-- 新增/編輯課程表單 -->
+      <div id="courseForm" style="display:none;">
+        <div class="card" style="border:2px solid #A4E5E0;">
+          <div class="card-title" id="courseFormTitle">新增課程</div>
+          <input type="hidden" id="editCourseId" />
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">階段</label>
+            <select id="fStage" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;">
+              <option value="新人啟航">新人啟航</option>
+              <option value="輔導督導">輔導督導</option>
+              <option value="高階領導">高階領導</option>
+            </select>
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">課程名稱</label>
+            <input type="text" id="fTitle" placeholder="例：新人戰技第一堂" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;" />
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">課程簡介</label>
+            <textarea id="fDesc" rows="3" placeholder="這堂課的內容介紹..." style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;resize:vertical;"></textarea>
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">YouTube 連結</label>
+            <input type="text" id="fYoutube" placeholder="https://youtu.be/..." style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;" />
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">筆記格式（選填）</label>
+            <textarea id="fNote" rows="5" placeholder="📝 課程筆記格式&#10;&#10;課程名稱：&#10;今日學到：&#10;行動計畫：" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;resize:vertical;"></textarea>
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">順序（數字越小越前面）</label>
+            <input type="number" id="fOrder" value="0" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;" />
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn btn-approve" style="flex:1;" onclick="saveCourse()">儲存</button>
+            <button class="btn btn-reject" style="flex:1;" onclick="hideCourseForm()">取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://lsurinqdrybvqtvhiqim.supabase.co';
+const SUPABASE_KEY='sb_publishable_OVv7ly-_nLpirm93hcR0Qg_GK71hyI_';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const ADMIN_PWD='0325';
+const LEVELS=['實習加盟','三級加盟','三級輔導','二級輔導','一級輔導','皇家輔導'];
+
+let allUsers=[];
+let currentLevelFilter='all';
+
+function adminLogin(){
+  const pwd=document.getElementById('adminPwd').value;
+  if(pwd===ADMIN_PWD){
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('adminPage').style.display='block';
+    loadAll();
+  } else {
+    document.getElementById('adminMsg').textContent='密碼錯誤';
+  }
+}
+
+function adminLogout(){
+  document.getElementById('adminPage').style.display='none';
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('adminPwd').value='';
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['pending','members','stats','courses'][i]===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('section-'+tab).classList.add('active');
+  if(tab==='stats') loadStats();
+  if(tab==='courses') loadCourseAdmin();
+}
+
+async function loadAll(){
+  const {data}=await sb.from('users').select('*').order('id',{ascending:false});
+  allUsers=data||[];
+  renderPending();
+  renderMembers();
+}
+
+function renderPending(){
+  const pending=allUsers.filter(u=>u.status==='待審核');
+  const el=document.getElementById('pendingList');
+  if(!pending.length){el.innerHTML='<div class="empty">目前沒有待審核的申請</div>';return;}
+  el.innerHTML=pending.map(u=>`
+    <div class="user-row">
+      <div class="user-info">
+        <h3>${u.name}</h3>
+        <p>${u.phone} ／ 上家：${u.upline||'—'} ／ 申請級別：${u.level}</p>
+      </div>
+      <div class="user-actions">
+        <button class="btn btn-approve" onclick="approveUser(${u.id},'${u.level}')">審核通過</button>
+        <button class="btn btn-reject" onclick="rejectUser(${u.id})">拒絕</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderMembers(){
+  const search=document.getElementById('searchInput')?.value.toLowerCase()||'';
+  let filtered=allUsers.filter(u=>u.status==='已審核');
+  if(currentLevelFilter!=='all') filtered=filtered.filter(u=>u.level===currentLevelFilter);
+  if(search) filtered=filtered.filter(u=>u.name.toLowerCase().includes(search)||u.phone.includes(search));
+  const el=document.getElementById('memberList');
+  if(!filtered.length){el.innerHTML='<div class="empty">沒有符合的夥伴</div>';return;}
+  el.innerHTML=filtered.map(u=>`
+    <div class="user-row">
+      <div class="user-info">
+        <h3>${u.name}</h3>
+        <p>${u.phone} ／ 上家：${u.upline||'—'}</p>
+      </div>
+      <div class="user-actions">
+        <select class="level-select" id="lvl-${u.id}">
+          ${LEVELS.map(l=>`<option value="${l}"${l===u.level?' selected':''}>${l}</option>`).join('')}
+        </select>
+        <button class="btn btn-save" onclick="updateLevel(${u.id})">更新級別</button>
+        <button class="btn btn-danger" onclick="deleteUser(${u.id},'${u.name}')">刪除</button>
+      </div>
+    </div>`).join('');
+}
+
+function filterMembers(){renderMembers();}
+
+function setLevelFilter(level,el){
+  currentLevelFilter=level;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderMembers();
+}
+
+async function approveUser(id,level){
+  await sb.from('users').update({status:'已審核',level}).eq('id',id);
+  await loadAll();
+  alert('已審核通過！');
+}
+
+async function rejectUser(id){
+  if(!confirm('確定拒絕這個申請？')) return;
+  await sb.from('users').update({status:'已拒絕'}).eq('id',id);
+  await loadAll();
+  alert('已拒絕。');
+}
+
+async function updateLevel(id){
+  const level=document.getElementById('lvl-'+id).value;
+  await sb.from('users').update({level}).eq('id',id);
+  await loadAll();
+  alert('級別已更新！');
+}
+
+async function deleteUser(id,name){
+  if(!confirm(`確定刪除 ${name} 的帳號？此操作無法復原！`)) return;
+  await sb.from('users').delete().eq('id',id);
+  await loadAll();
+  alert('已刪除！');
+}
+
+let allCourses=[];
+let courseFilter='all';
+
+async function loadCourseAdmin(){
+  const {data}=await sb.from('courses').select('*').order('stage').order('order_num');
+  allCourses=data||[];
+  renderCourseAdmin();
+}
+
+function setCourseFilter(f,el){
+  courseFilter=f;
+  document.querySelectorAll('#section-courses .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderCourseAdmin();
+}
+
+function renderCourseAdmin(){
+  const filtered=courseFilter==='all'?allCourses:allCourses.filter(c=>c.stage===courseFilter);
+  const el=document.getElementById('courseAdminList');
+  if(!filtered.length){el.innerHTML='<div class="empty">暫無課程</div>';return;}
+  el.innerHTML=filtered.map(c=>`
+    <div class="card" style="margin-bottom:8px;opacity:${c.is_active?1:0.5};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#f0f0f0;color:#888;">${c.stage}</span>
+            <span style="font-size:11px;color:#aaa;">順序 ${c.order_num}</span>
+            ${c.is_active?'<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#e1f5ee;color:#0F6E56;">上架中</span>':'<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#ffeaea;color:#E24B4A;">已下架</span>'}
+          </div>
+          <div style="font-size:15px;font-weight:500;color:#333;margin-bottom:3px;">${c.title}</div>
+          <div style="font-size:12px;color:#aaa;">${c.description||'無簡介'}</div>
+          ${c.youtube_url?`<div style="font-size:12px;color:#5BBDB7;margin-top:4px;">▶ 有影片連結</div>`:''}
+          ${c.note_template?`<div style="font-size:12px;color:#888;margin-top:2px;">📝 有筆記格式</div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-left:12px;">
+          <button class="btn btn-save" style="padding:6px 12px;font-size:12px;" onclick="editCourse(${c.id})">編輯</button>
+          <button class="btn ${c.is_active?'btn-reject':'btn-approve'}" style="padding:6px 12px;font-size:12px;" onclick="toggleCourse(${c.id},${c.is_active})">${c.is_active?'下架':'上架'}</button>
+          <button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteCourse(${c.id})">刪除</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function showAddCourse(){
+  document.getElementById('courseFormTitle').textContent='新增課程';
+  document.getElementById('editCourseId').value='';
+  document.getElementById('fStage').value='新人啟航';
+  document.getElementById('fTitle').value='';
+  document.getElementById('fDesc').value='';
+  document.getElementById('fYoutube').value='';
+  document.getElementById('fNote').value='';
+  document.getElementById('fOrder').value='0';
+  document.getElementById('courseForm').style.display='block';
+  document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});
+}
+
+function editCourse(id){
+  const c=allCourses.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('courseFormTitle').textContent='編輯課程';
+  document.getElementById('editCourseId').value=id;
+  document.getElementById('fStage').value=c.stage;
+  document.getElementById('fTitle').value=c.title;
+  document.getElementById('fDesc').value=c.description||'';
+  document.getElementById('fYoutube').value=c.youtube_url||'';
+  document.getElementById('fNote').value=c.note_template||'';
+  document.getElementById('fOrder').value=c.order_num||0;
+  document.getElementById('courseForm').style.display='block';
+  document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveCourse(){
+  const id=document.getElementById('editCourseId').value;
+  const data={
+    stage:document.getElementById('fStage').value,
+    title:document.getElementById('fTitle').value.trim(),
+    description:document.getElementById('fDesc').value.trim(),
+    youtube_url:document.getElementById('fYoutube').value.trim(),
+    note_template:document.getElementById('fNote').value.trim(),
+    order_num:parseInt(document.getElementById('fOrder').value)||0,
+    is_active:true
+  };
+  if(!data.title){alert('請填寫課程名稱');return;}
+  if(id){await sb.from('courses').update(data).eq('id',id);}
+  else{await sb.from('courses').insert(data);}
+  hideCourseForm();
+  await loadCourseAdmin();
+  alert('課程已儲存！');
+}
+
+function hideCourseForm(){document.getElementById('courseForm').style.display='none';}
+
+async function toggleCourse(id,isActive){
+  await sb.from('courses').update({is_active:!isActive}).eq('id',id);
+  await loadCourseAdmin();
+}
+
+async function deleteCourse(id){
+  if(!confirm('確定刪除這堂課程？'))return;
+  await sb.from('courses').delete().eq('id',id);
+  await loadCourseAdmin();
+}
+
+async function loadStats(){
+  const approved=allUsers.filter(u=>u.status==='已審核');
+  const pending=allUsers.filter(u=>u.status==='待審核');
+  document.getElementById('statTotal').textContent=allUsers.length;
+  document.getElementById('statPending').textContent=pending.length;
+  document.getElementById('statApproved').textContent=approved.length;
+
+  const levelCount={};
+  LEVELS.forEach(l=>levelCount[l]=0);
+  approved.forEach(u=>{if(levelCount[u.level]!==undefined)levelCount[u.level]++;});
+  document.getElementById('levelStats').innerHTML=LEVELS.map(l=>levelCount[l]>0?`
+    <div class="user-row">
+      <span style="font-size:14px;color:#333;">${l}</span>
+      <span style="font-size:15px;font-weight:500;color:#A67C5B;">${levelCount[l]} 人</span>
+    </div>`:'').join('')||'<div class="empty">暫無數據</div>';
+
+  const now=new Date();
+  const year=now.getFullYear();
+  const month=now.getMonth()+1;
+  const {data:sales}=await sb.from('sales_data').select('user_id,total_revenue,cost').eq('year',year).eq('month',month);
+  if(sales&&sales.length){
+    const profitMap={};
+    sales.forEach(s=>{
+      if(!profitMap[s.user_id])profitMap[s.user_id]=0;
+      profitMap[s.user_id]+=(s.total_revenue-s.cost);
+    });
+    const ranked=Object.entries(profitMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    document.getElementById('profitRank').innerHTML=ranked.map(([uid,profit],i)=>{
+      const user=allUsers.find(u=>u.id==uid);
+      const name=user?user.name:'未知';
+      return `<div class="user-row">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;font-weight:500;color:#888;min-width:24px;">${i+1}</span>
+          <div><div style="font-size:14px;font-weight:500;color:#333;">${name}</div><div style="font-size:12px;color:#aaa;">${user?user.level:''}</div></div>
+        </div>
+        <span style="font-size:15px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span>
+      </div>`;
+    }).join('');
+  } else {
+    document.getElementById('profitRank').innerHTML='<div class="empty">本月尚無業績數據</div>';
+  }
+}
+</script>
+</body>
+</html>
