@@ -10,111 +10,77 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;}
-
-  /* 登入頁面 */
-  #loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
-  .login-header{text-align:center;margin-bottom:2rem;}
-  .login-header h1{font-size:28px;font-weight:500;color:#333;letter-spacing:3px;}
-  .login-header p{font-size:14px;color:#888;margin-top:6px;}
-  .login-card{background:white;border-radius:16px;padding:2rem;width:100%;max-width:360px;box-shadow:0 2px 20px rgba(0,0,0,0.08);}
-  .login-card input{width:100%;padding:12px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:15px;margin-bottom:12px;outline:none;}
-  .login-card input:focus{border-color:#A4E5E0;}
-  .login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:#A4E5E0;color:#085041;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:1px;}
-  .login-switch{text-align:center;margin-top:14px;font-size:13px;color:#888;}
-  .login-switch a{color:#5BBDB7;cursor:pointer;text-decoration:none;}
-  .msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:8px;min-height:20px;}
-
-  /* 主頁面 */
-  #mainPage{display:none;padding-bottom:80px;}
-  .app-header{padding:1.25rem 1.25rem 1rem;text-align:center;color:white;}
-  .app-header h1{font-size:20px;font-weight:500;letter-spacing:2px;}
-  .app-header .level-tag{display:inline-block;padding:3px 14px;border-radius:20px;background:rgba(255,255,255,0.25);font-size:12px;margin-top:6px;}
-  .app-header .user-name{font-size:13px;opacity:0.8;margin-top:4px;}
-
-  /* 底部導航 */
-  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:0.5px solid #eee;display:flex;z-index:100;}
-  .nav-item{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;}
-  .nav-icon{font-size:20px;display:block;margin-bottom:2px;}
-  .nav-label{font-size:10px;color:#aaa;}
-  .nav-item.active .nav-label{color:#5BBDB7;font-weight:500;}
-
-  /* 頁面內容 */
-  .page{display:none;padding:1rem 1rem;}
-  .page.active{display:block;}
-
-  /* 通用卡片 */
-  .card{background:white;border-radius:14px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);}
-  .card-title{font-size:13px;color:#888;margin-bottom:12px;letter-spacing:0.5px;}
-  .section-title{font-size:15px;font-weight:500;color:#333;margin-bottom:12px;}
-
-  /* 指標卡 */
-  .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:1rem;}
-  .metric{background:#f8f8f8;border-radius:10px;padding:10px;text-align:center;}
-  .metric-label{font-size:11px;color:#888;margin-bottom:4px;}
-  .metric-value{font-size:17px;font-weight:500;color:#333;}
-
-  /* 表單 */
-  .field{margin-bottom:10px;}
-  .field label{font-size:12px;color:#888;display:block;margin-bottom:4px;}
-  .field input,.field select,.field textarea{width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;color:#333;}
-  .field input:focus,.field select:focus{border-color:#A4E5E0;background:white;}
-  .field textarea{min-height:80px;resize:vertical;}
-  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .form-row.three{grid-template-columns:1fr 1fr 1fr;}
-
-  /* 按鈕 */
-  .btn{padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-top:4px;}
-  .btn-primary{background:#A4E5E0;color:#085041;}
-  .btn-danger{background:#ffeaea;color:#E24B4A;}
-  .btn-sm{padding:7px 14px;width:auto;font-size:13px;border-radius:8px;}
-
-  /* 品項列 */
-  .item-row{display:grid;grid-template-columns:1fr 60px 60px 28px;gap:6px;align-items:center;padding:8px 10px;background:#f8f8f8;border-radius:10px;margin-bottom:6px;}
-  .item-row select{font-size:12px;padding:5px 6px;border-radius:7px;border:0.5px solid #ddd;background:white;color:#333;}
-  .item-row input{padding:5px 8px;border-radius:7px;border:0.5px solid #ddd;background:white;text-align:center;font-size:13px;color:#333;}
-  .item-cost{font-size:11px;color:#888;text-align:right;}
-  .remove-btn{background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;padding:0;}
-  .add-item-btn{width:100%;padding:9px;border:0.5px dashed #ccc;border-radius:10px;background:transparent;color:#aaa;font-size:13px;cursor:pointer;margin-top:4px;}
-
-  /* 結果 */
-  .result-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid #f0f0f0;}
-  .result-row:last-child{border-bottom:none;}
-  .result-label{font-size:14px;color:#888;}
-  .result-value{font-size:15px;font-weight:500;color:#333;}
-  .profit-big{font-size:24px;font-weight:500;}
-  .profit-pos{color:#1D9E75;}
-  .profit-neg{color:#E24B4A;}
-
-  /* 圖表 */
-  .chart-wrap{position:relative;width:100%;height:200px;margin-top:8px;}
-  .legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px;font-size:12px;color:#888;}
-  .legend span{display:flex;align-items:center;gap:4px;}
-  .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
-
-  /* 標籤切換 */
-  .tabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;}
-  .tab{padding:7px 14px;border-radius:18px;border:0.5px solid #ddd;background:transparent;color:#888;font-size:12px;cursor:pointer;}
-  .tab.active{background:#A4E5E0;border-color:#76D5CF;color:#085041;font-weight:500;}
-
-  /* 登出 */
-  .logout-btn{display:block;text-align:center;padding:12px;color:#aaa;font-size:13px;cursor:pointer;margin-top:1rem;}
-
-  /* 級別顏色 */
-  .bg-intern{background:linear-gradient(135deg,#A4E5E0,#76D5CF);}
-  .bg-3{background:linear-gradient(135deg,#8DDDD7,#5BBDB7);}
-  .bg-3c{background:linear-gradient(135deg,#76D5CF,#4BBDB7);}
-  .bg-2{background:linear-gradient(135deg,#E8B4BE,#D4949F);}
-  .bg-1{background:linear-gradient(135deg,#D5C6E0,#BBA8CE);}
-  .bg-royal{background:linear-gradient(135deg,#C9A84C,#E8D5A3,#C9A84C);}
-
-  .pending-tag{display:inline-block;padding:3px 10px;border-radius:12px;background:#fff3cd;color:#856404;font-size:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;}
+#loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
+.login-header{text-align:center;margin-bottom:2rem;}
+.login-header h1{font-size:28px;font-weight:500;color:#333;letter-spacing:3px;}
+.login-header p{font-size:14px;color:#888;margin-top:6px;}
+.login-card{background:white;border-radius:16px;padding:2rem;width:100%;max-width:360px;box-shadow:0 2px 20px rgba(0,0,0,0.08);}
+.login-card input,.login-card select{width:100%;padding:12px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:15px;margin-bottom:12px;outline:none;background:white;color:#333;appearance:none;}
+.login-card input:focus,.login-card select:focus{border-color:#A4E5E0;}
+.login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:#A4E5E0;color:#085041;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:1px;}
+.login-switch{text-align:center;margin-top:14px;font-size:13px;color:#888;}
+.login-switch a{color:#5BBDB7;cursor:pointer;}
+.msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:8px;min-height:20px;}
+#mainPage{display:none;padding-bottom:80px;}
+.app-header{padding:1.25rem 1.25rem 1rem;text-align:center;color:white;}
+.app-header h1{font-size:20px;font-weight:500;letter-spacing:2px;}
+.level-tag{display:inline-block;padding:3px 14px;border-radius:20px;background:rgba(255,255,255,0.25);font-size:12px;margin-top:6px;}
+.user-name{font-size:13px;opacity:0.8;margin-top:4px;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:0.5px solid #eee;display:flex;z-index:100;}
+.nav-item{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;}
+.nav-icon{font-size:20px;display:block;margin-bottom:2px;}
+.nav-label{font-size:10px;color:#aaa;}
+.nav-item.active .nav-label{color:#5BBDB7;font-weight:500;}
+.page{display:none;padding:1rem;}
+.page.active{display:block;}
+.card{background:white;border-radius:14px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);}
+.card-title{font-size:13px;color:#888;margin-bottom:12px;letter-spacing:0.5px;}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:1rem;}
+.metric{background:#f8f8f8;border-radius:10px;padding:10px;text-align:center;}
+.metric-label{font-size:11px;color:#888;margin-bottom:4px;}
+.metric-value{font-size:17px;font-weight:500;color:#333;}
+.field{margin-bottom:10px;}
+.field label{font-size:12px;color:#888;display:block;margin-bottom:4px;}
+.field input,.field select{width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;color:#333;}
+.field input:focus,.field select:focus{border-color:#A4E5E0;background:white;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.form-row.three{grid-template-columns:1fr 1fr 1fr;}
+.btn{padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-top:4px;}
+.btn-primary{background:#A4E5E0;color:#085041;}
+.item-row{display:grid;grid-template-columns:1fr 58px 72px 28px;gap:6px;align-items:center;padding:8px 10px;background:#f8f8f8;border-radius:10px;margin-bottom:6px;}
+.item-row select{font-size:12px;padding:5px 6px;border-radius:7px;border:0.5px solid #ddd;background:white;color:#333;}
+.item-row input{padding:5px 8px;border-radius:7px;border:0.5px solid #ddd;background:white;text-align:center;font-size:13px;color:#333;}
+.item-cost{font-size:11px;color:#888;text-align:right;line-height:1.4;}
+.remove-btn{background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;padding:0;}
+.add-item-btn{width:100%;padding:9px;border:0.5px dashed #ccc;border-radius:10px;background:transparent;color:#aaa;font-size:13px;cursor:pointer;margin-top:4px;}
+.result-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid #f0f0f0;}
+.result-row:last-child{border-bottom:none;}
+.result-label{font-size:14px;color:#888;}
+.result-value{font-size:15px;font-weight:500;color:#333;}
+.chart-wrap{position:relative;width:100%;height:200px;margin-top:8px;}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px;font-size:12px;color:#888;}
+.legend span{display:flex;align-items:center;gap:4px;}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.tabs{display:flex;gap:6px;margin-bottom:1rem;}
+.tab{padding:7px 14px;border-radius:18px;border:0.5px solid #ddd;background:transparent;color:#888;font-size:12px;cursor:pointer;}
+.tab.active{background:#A4E5E0;border-color:#76D5CF;color:#085041;font-weight:500;}
+.logout-btn{display:block;text-align:center;padding:12px;color:#aaa;font-size:13px;cursor:pointer;margin-top:1rem;}
+.bg-intern{background:linear-gradient(135deg,#A4E5E0,#76D5CF);}
+.bg-3{background:linear-gradient(135deg,#8DDDD7,#5BBDB7);}
+.bg-3c{background:linear-gradient(135deg,#76D5CF,#4BBDB7);}
+.bg-2{background:linear-gradient(135deg,#E8B4BE,#D4949F);}
+.bg-1{background:linear-gradient(135deg,#D5C6E0,#BBA8CE);}
+.bg-royal{background:linear-gradient(135deg,#C9A84C,#E8D5A3,#C9A84C);}
+.today-summary{display:flex;justify-content:space-between;align-items:center;}
+.today-sub{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:0.5px solid #f0f0f0;}
+.rec-item{padding:8px 0;border-bottom:0.5px solid #f5f5f5;}
+.rec-item:last-child{border-bottom:none;}
 </style>
 </head>
 <body>
 
-<!-- 登入/註冊頁面 -->
 <div id="loginPage">
   <div class="login-header">
     <h1>HT 團隊系統</h1>
@@ -129,7 +95,7 @@
     </div>
     <div id="registerForm" style="display:none;">
       <input type="text" id="regUpline" placeholder="上家姓名" />
-      <select id="regLevel" style="width:100%;padding:12px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:15px;margin-bottom:12px;background:white;color:#555;outline:none;appearance:none;">
+      <select id="regLevel">
         <option value="">— 選擇申請級別 —</option>
         <option value="實習">實習</option>
         <option value="三級">三級</option>
@@ -148,7 +114,6 @@
   </div>
 </div>
 
-<!-- 主頁面 -->
 <div id="mainPage">
   <div class="app-header" id="appHeader">
     <div class="user-name" id="headerName"></div>
@@ -159,51 +124,76 @@
   <!-- 淨利系統 -->
   <div class="page active" id="page-profit">
     <div class="tabs">
-      <button class="tab active" onclick="switchSubTab('profit','input')">輸入本月</button>
+      <button class="tab active" onclick="switchSubTab('profit','input')">新增今日</button>
       <button class="tab" onclick="switchSubTab('profit','chart')">趨勢圖表</button>
     </div>
+
     <div id="profit-input">
       <div class="card">
-        <div class="card-title">選擇月份</div>
-        <div class="form-row">
-          <div class="field"><label>年份</label><select id="profitYear"></select></div>
-          <div class="field"><label>月份</label><select id="profitMonth"></select></div>
+        <div class="today-summary">
+          <div>
+            <div style="font-size:12px;color:#888;">今日日期</div>
+            <div style="font-size:16px;font-weight:500;color:#333;" id="todayDisplay"></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:#888;">本日累積淨利</div>
+            <div style="font-size:20px;font-weight:500;" id="todayProfitDisplay">NT$0</div>
+          </div>
+        </div>
+        <div class="today-sub">
+          <div>
+            <div style="font-size:12px;color:#888;">本月累積淨利</div>
+            <div style="font-size:15px;font-weight:500;color:#333;" id="monthProfitDisplay">NT$0</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:#888;">本月筆數</div>
+            <div style="font-size:15px;font-weight:500;color:#333;" id="monthCountDisplay">0 筆</div>
+          </div>
         </div>
       </div>
+
       <div class="card">
-        <div class="card-title">銷售品項</div>
+        <div class="card-title">新增單筆銷售</div>
         <div id="salesItems"></div>
         <button class="add-item-btn" onclick="addSaleItem()">＋ 新增品項</button>
+        <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid #f0f0f0;">
+          <div class="field"><label>本次收款金額（NT$）</label><input type="number" id="totalRevenue" placeholder="輸入實收金額" /></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveRecord()">新增這筆</button>
       </div>
+
       <div class="card">
-        <div class="card-title">總收款金額</div>
-        <div class="field"><input type="number" id="totalRevenue" placeholder="NT$ 輸入實收總金額" /></div>
+        <div class="card-title">粉絲 ＆ 影片（每月更新）</div>
         <div class="form-row">
+          <div class="field"><label>目前粉絲數</label><input type="number" id="currentFans" placeholder="現在的粉絲數" /></div>
           <div class="field"><label>影片更新數</label><input type="number" id="videoCount" placeholder="0" /></div>
-          <div class="field"><label>當月增粉</label><input type="number" id="fansGain" placeholder="0" /></div>
         </div>
         <div class="form-row">
           <div class="field"><label>新消費者</label><input type="number" id="newClients" placeholder="0" /></div>
           <div class="field"><label>回購客</label><input type="number" id="returnClients" placeholder="0" /></div>
         </div>
-        <button class="btn btn-primary" onclick="saveMonthData()">儲存本月數據</button>
+        <button class="btn btn-primary" onclick="saveFansData()">儲存粉絲數據</button>
       </div>
-      <div class="card" id="resultCard" style="display:none;">
-        <div class="card-title">本月計算結果</div>
-        <div class="result-row"><span class="result-label">總收款</span><span class="result-value" id="resRevenue"></span></div>
-        <div class="result-row"><span class="result-label">總成本</span><span class="result-value" id="resCost"></span></div>
-        <div class="result-row" style="padding-top:12px;">
-          <span class="result-label" style="font-size:16px;font-weight:500;color:#333;">本月淨利</span>
-          <span class="profit-big" id="resProfit"></span>
-        </div>
+
+      <div class="card" id="todayRecordsCard" style="display:none;">
+        <div class="card-title">今日銷售記錄</div>
+        <div id="todayList"></div>
       </div>
     </div>
+
     <div id="profit-chart" style="display:none;">
-      <div class="metrics" id="profitMetrics"></div>
+      <div class="metrics" id="profitMetrics">
+        <div class="metric"><div class="metric-label">年度淨利</div><div class="metric-value" id="m1">—</div></div>
+        <div class="metric"><div class="metric-label">年度增粉</div><div class="metric-value" id="m2">—</div></div>
+        <div class="metric"><div class="metric-label">回購率</div><div class="metric-value" id="m3">—</div></div>
+      </div>
       <div class="card">
-        <div class="card-title">淨利趨勢</div>
-        <div class="legend"><span><span class="legend-dot" style="background:#5BBDB7;"></span>淨利</span></div>
+        <div class="card-title">本月每日淨利</div>
         <div class="chart-wrap"><canvas id="profitChartCanvas"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">年度淨利趨勢</div>
+        <div class="chart-wrap"><canvas id="yearProfitCanvas"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">粉絲成長</div>
@@ -224,13 +214,13 @@
       </div>
       <div class="card">
         <div class="card-title">起始粉絲設定</div>
-        <div class="field"><label>起始粉絲數</label><input type="number" id="initFansInput" placeholder="例：14254" /></div>
+        <div class="field"><label>第一個月之前的粉絲數</label><input type="number" id="initFansInput" placeholder="例：14254" /></div>
         <button class="btn btn-primary" onclick="saveInitFans()">儲存</button>
       </div>
     </div>
   </div>
 
-  <!-- 成長系統（待開發） -->
+  <!-- 成長系統 -->
   <div class="page" id="page-course">
     <div class="card" style="text-align:center;padding:3rem 1rem;">
       <div style="font-size:40px;margin-bottom:1rem;">📚</div>
@@ -239,7 +229,7 @@
     </div>
   </div>
 
-  <!-- 檢核系統（待開發） -->
+  <!-- 檢核系統 -->
   <div class="page" id="page-check">
     <div class="card" style="text-align:center;padding:3rem 1rem;">
       <div style="font-size:40px;margin-bottom:1rem;">✅</div>
@@ -261,23 +251,18 @@
     <div class="logout-btn" onclick="doLogout()">登出</div>
   </div>
 
-  <!-- 底部導航 -->
   <div class="bottom-nav">
     <button class="nav-item active" onclick="switchPage('profit',this)">
-      <span class="nav-icon">💰</span>
-      <span class="nav-label">淨利</span>
+      <span class="nav-icon">💰</span><span class="nav-label">淨利</span>
     </button>
     <button class="nav-item" onclick="switchPage('course',this)">
-      <span class="nav-icon">📚</span>
-      <span class="nav-label">成長</span>
+      <span class="nav-icon">📚</span><span class="nav-label">成長</span>
     </button>
     <button class="nav-item" onclick="switchPage('check',this)">
-      <span class="nav-icon">✅</span>
-      <span class="nav-label">檢核</span>
+      <span class="nav-icon">✅</span><span class="nav-label">檢核</span>
     </button>
     <button class="nav-item" onclick="switchPage('profile',this)">
-      <span class="nav-icon">👤</span>
-      <span class="nav-label">我的</span>
+      <span class="nav-icon">👤</span><span class="nav-label">我的</span>
     </button>
   </div>
 </div>
@@ -316,30 +301,22 @@ const PRODUCTS = [
 ];
 
 const LEVEL_BG = {實習:'bg-intern',三級:'bg-3',三級輔導:'bg-3c',二級:'bg-2',一級:'bg-1',皇家:'bg-royal'};
-const MONTHS_LABEL = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+const ML = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
 let currentUser = null;
 let saleItems = [{productIdx:0,qty:1}];
-let monthlyCache = [];
-let pChart, fChart, cChart;
+let salesCache = [];
+let pChart, yChart, fChart, cChart;
 
-// 初始化年月選單
-function initSelects(){
-  const yr = document.getElementById('profitYear');
-  const mn = document.getElementById('profitMonth');
-  yr.innerHTML = '';
-  const now = new Date();
-  for(let y=now.getFullYear();y>=now.getFullYear()-1;y--){
-    yr.innerHTML += `<option value="${y}">${y}年</option>`;
-  }
-  mn.innerHTML = '';
-  for(let m=1;m<=12;m++){
-    const sel = m===now.getMonth()+1?' selected':'';
-    mn.innerHTML += `<option value="${m}"${sel}>${m}月</option>`;
-  }
+function getTodayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function getMonthStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 }
 
-// 登入/註冊切換
 function showRegister(){
   document.getElementById('loginForm').style.display='none';
   document.getElementById('registerForm').style.display='block';
@@ -351,7 +328,6 @@ function showLogin(){
   document.getElementById('loginMsg').textContent='';
 }
 
-// 註冊
 async function doRegister(){
   const upline = document.getElementById('regUpline').value.trim();
   const level = document.getElementById('regLevel').value;
@@ -369,25 +345,23 @@ async function doRegister(){
   setTimeout(showLogin,2000);
 }
 
-// 登入
 async function doLogin(){
   const phone = document.getElementById('loginPhone').value.trim();
   const pwd = document.getElementById('loginPwd').value.trim();
   const msg = document.getElementById('loginMsg');
   if(!phone||!pwd){msg.textContent='請填寫手機號碼和密碼';return;}
-  const {data,error} = await sb.from('users').select('*').eq('phone',phone).eq('password',pwd).single();
+  const {data} = await sb.from('users').select('*').eq('phone',phone).eq('password',pwd).single();
   if(!data){msg.textContent='手機號碼或密碼錯誤';return;}
   if(data.status==='待審核'){msg.textContent='帳號審核中，請等待管理員審核';return;}
   currentUser = data;
   enterApp();
 }
 
-// 進入APP
 function enterApp(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('mainPage').style.display='block';
   const header = document.getElementById('appHeader');
-  header.className = 'app-header ' + (LEVEL_BG[currentUser.level]||'bg-intern');
+  header.className = 'app-header '+(LEVEL_BG[currentUser.level]||'bg-intern');
   document.getElementById('headerName').textContent = currentUser.name;
   document.getElementById('headerLevel').textContent = currentUser.level;
   document.getElementById('profileName').textContent = currentUser.name;
@@ -396,12 +370,12 @@ function enterApp(){
   document.getElementById('profileLevel').textContent = currentUser.level;
   document.getElementById('profileStatus').textContent = currentUser.status;
   document.getElementById('initFansInput').value = currentUser.init_fans||0;
-  initSelects();
+  const d = new Date();
+  document.getElementById('todayDisplay').textContent = d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
   renderSaleItems();
-  loadMonthlyData();
+  loadSalesData();
 }
 
-// 登出
 function doLogout(){
   currentUser=null;
   document.getElementById('mainPage').style.display='none';
@@ -410,13 +384,11 @@ function doLogout(){
   document.getElementById('loginPwd').value='';
 }
 
-// 頁面切換
 function switchPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   el.classList.add('active');
-  if(page==='profit') loadMonthlyData();
 }
 
 function switchSubTab(section,tab){
@@ -428,18 +400,16 @@ function switchSubTab(section,tab){
   else{inputEl.style.display='none';chartEl.style.display='block';renderCharts();}
 }
 
-// 品項管理
 function renderSaleItems(){
   const level = currentUser?currentUser.level:'實習';
   const container = document.getElementById('salesItems');
   container.innerHTML = saleItems.map((item,i)=>{
     const cost = PRODUCTS[item.productIdx].costs[level]||0;
-    const total = cost*item.qty;
     const options = PRODUCTS.map((p,pi)=>`<option value="${pi}"${pi===item.productIdx?' selected':''}>${p.name}</option>`).join('');
     return `<div class="item-row">
       <select onchange="changeProd(${i},this.value)">${options}</select>
       <input type="number" min="1" value="${item.qty}" onchange="changeQty(${i},this.value)" />
-      <div class="item-cost">$${cost.toLocaleString()}<br>共$${total.toLocaleString()}</div>
+      <div class="item-cost">$${cost.toLocaleString()}<br>共$${(cost*item.qty).toLocaleString()}</div>
       <button class="remove-btn" onclick="removeItem(${i})">×</button>
     </div>`;
   }).join('');
@@ -449,106 +419,188 @@ function changeProd(i,v){saleItems[i].productIdx=parseInt(v);renderSaleItems();}
 function changeQty(i,v){saleItems[i].qty=Math.max(1,parseInt(v)||1);renderSaleItems();}
 function removeItem(i){if(saleItems.length>1)saleItems.splice(i,1);renderSaleItems();}
 
-// 儲存月份數據
-async function saveMonthData(){
+async function saveRecord(){
   const level = currentUser.level;
-  const year = parseInt(document.getElementById('profitYear').value);
-  const month = parseInt(document.getElementById('profitMonth').value);
+  const today = getTodayStr();
   const revenue = parseInt(document.getElementById('totalRevenue').value)||0;
-  const videos = parseInt(document.getElementById('videoCount').value)||0;
-  const fans = parseInt(document.getElementById('fansGain').value)||0;
-  const newC = parseInt(document.getElementById('newClients').value)||0;
-  const retC = parseInt(document.getElementById('returnClients').value)||0;
-
+  if(revenue===0){alert('請輸入收款金額');return;}
   let totalCost = 0;
-  saleItems.forEach(item=>{
-    totalCost += (PRODUCTS[item.productIdx].costs[level]||0)*item.qty;
+  const itemsSnap = saleItems.map(item=>{
+    const cost = PRODUCTS[item.productIdx].costs[level]||0;
+    totalCost += cost*item.qty;
+    return {name:PRODUCTS[item.productIdx].name,qty:item.qty,cost};
   });
   const profit = revenue - totalCost;
-
-  const existing = await sb.from('monthly_data').select('id').eq('user_id',currentUser.id).eq('year',year).eq('month',month).single();
-  if(existing.data){
-    await sb.from('monthly_data').update({profit,fans_gain:fans,videos,new_clients:newC,return_clients:retC}).eq('id',existing.data.id);
-  } else {
-    await sb.from('monthly_data').insert({user_id:currentUser.id,year,month,profit,fans_gain:fans,videos,new_clients:newC,return_clients:retC,init_fans:currentUser.init_fans||0});
-  }
-
-  document.getElementById('resRevenue').textContent = 'NT$'+revenue.toLocaleString();
-  document.getElementById('resCost').textContent = 'NT$'+totalCost.toLocaleString();
-  const profitEl = document.getElementById('resProfit');
-  profitEl.textContent = 'NT$'+profit.toLocaleString();
-  profitEl.className = 'profit-big '+(profit>=0?'profit-pos':'profit-neg');
-  document.getElementById('resultCard').style.display='block';
-  loadMonthlyData();
-  alert(year+'年'+month+'月數據已儲存！');
+  const now = new Date();
+  await sb.from('sales_data').insert({
+    user_id:currentUser.id,
+    date:today,
+    year:now.getFullYear(),
+    month:now.getMonth()+1,
+    product_name:JSON.stringify(itemsSnap),
+    quantity:saleItems.reduce((a,i)=>a+i.qty,0),
+    cost:totalCost,
+    total_revenue:revenue
+  });
+  saleItems=[{productIdx:0,qty:1}];
+  document.getElementById('totalRevenue').value='';
+  renderSaleItems();
+  await loadSalesData();
+  alert('已新增！本次淨利 NT$'+profit.toLocaleString());
 }
 
-// 儲存起始粉絲
+async function saveFansData(){
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth()+1;
+  const currentFansVal = parseInt(document.getElementById('currentFans').value)||0;
+  const videos = parseInt(document.getElementById('videoCount').value)||0;
+  const newC = parseInt(document.getElementById('newClients').value)||0;
+  const retC = parseInt(document.getElementById('returnClients').value)||0;
+  const prevMonth = month===1?12:month-1;
+  const prevYear = month===1?year-1:year;
+  const {data:prevData} = await sb.from('monthly_data').select('current_fans').eq('user_id',currentUser.id).eq('year',prevYear).eq('month',prevMonth).single();
+  const prevFans = prevData?prevData.current_fans:(currentUser.init_fans||0);
+  const fansGain = currentFansVal - prevFans;
+  const existing = await sb.from('monthly_data').select('id').eq('user_id',currentUser.id).eq('year',year).eq('month',month).single();
+  if(existing.data){
+    await sb.from('monthly_data').update({current_fans:currentFansVal,fans_gain:fansGain,videos,new_clients:newC,return_clients:retC}).eq('id',existing.data.id);
+  } else {
+    await sb.from('monthly_data').insert({user_id:currentUser.id,year,month,current_fans:currentFansVal,fans_gain:fansGain,videos,new_clients:newC,return_clients:retC,profit:0,init_fans:currentUser.init_fans||0});
+  }
+  alert('粉絲數據已儲存！本月增粉 '+fansGain.toLocaleString());
+}
+
 async function saveInitFans(){
   const v = parseInt(document.getElementById('initFansInput').value)||0;
   await sb.from('users').update({init_fans:v}).eq('id',currentUser.id);
-  currentUser.init_fans = v;
+  currentUser.init_fans=v;
   alert('起始粉絲已儲存！');
-  loadMonthlyData();
 }
 
-// 載入月份數據
-async function loadMonthlyData(){
+async function loadSalesData(){
   if(!currentUser) return;
-  const {data} = await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).order('year').order('month');
-  monthlyCache = data||[];
-  renderMetrics();
+  const {data} = await sb.from('sales_data').select('*').eq('user_id',currentUser.id).order('date');
+  salesCache = data||[];
+  updateTodaySummary();
+  renderTodayRecords();
 }
 
-function renderMetrics(){
-  const total = monthlyCache.reduce((a,m)=>a+m.profit,0);
-  const totalFans = monthlyCache.reduce((a,m)=>a+m.fans_gain,0);
-  const totalNew = monthlyCache.reduce((a,m)=>a+m.new_clients,0);
-  const totalRet = monthlyCache.reduce((a,m)=>a+m.return_clients,0);
-  document.getElementById('profitMetrics').innerHTML = `
-    <div class="metric"><div class="metric-label">年度淨利</div><div class="metric-value">$${Math.round(total/1000)}K</div></div>
-    <div class="metric"><div class="metric-label">總增粉</div><div class="metric-value">+${totalFans.toLocaleString()}</div></div>
-    <div class="metric"><div class="metric-label">回購率</div><div class="metric-value">${totalNew+totalRet?Math.round(totalRet/(totalNew+totalRet)*100):0}%</div></div>`;
+function updateTodaySummary(){
+  const today = getTodayStr();
+  const monthStr = getMonthStr();
+  const todayRecs = salesCache.filter(r=>r.date===today);
+  const monthRecs = salesCache.filter(r=>r.date&&r.date.startsWith(monthStr));
+  const todayProfit = todayRecs.reduce((a,r)=>a+(r.total_revenue-r.cost),0);
+  const monthProfit = monthRecs.reduce((a,r)=>a+(r.total_revenue-r.cost),0);
+  const el = document.getElementById('todayProfitDisplay');
+  el.textContent = 'NT$'+todayProfit.toLocaleString();
+  el.style.color = todayProfit>=0?'#1D9E75':'#E24B4A';
+  document.getElementById('monthProfitDisplay').textContent = 'NT$'+monthProfit.toLocaleString();
+  document.getElementById('monthCountDisplay').textContent = monthRecs.length+' 筆';
+}
+
+function renderTodayRecords(){
+  const today = getTodayStr();
+  const recs = salesCache.filter(r=>r.date===today);
+  const box = document.getElementById('todayRecordsCard');
+  const list = document.getElementById('todayList');
+  if(!recs.length){box.style.display='none';return;}
+  box.style.display='block';
+  list.innerHTML = recs.map(r=>{
+    let items=[];
+    try{items=JSON.parse(r.product_name);}catch(e){}
+    const profit = r.total_revenue-r.cost;
+    return `<div class="rec-item">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+        <span style="font-size:13px;color:#555;">${items.map(it=>it.name+'×'+it.qty).join('、')}</span>
+        <span style="font-size:14px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span>
+      </div>
+      <div style="font-size:12px;color:#aaa;">收款 NT$${r.total_revenue.toLocaleString()} ／ 成本 NT$${r.cost.toLocaleString()}</div>
+    </div>`;
+  }).join('');
 }
 
 function renderCharts(){
-  const labels = MONTHS_LABEL;
-  const year = new Date().getFullYear();
-  const byMonth = Array(12).fill(null).map((_,i)=>monthlyCache.find(m=>m.year===year&&m.month===i+1)||null);
-  const profits = byMonth.map(m=>m?m.profit:null);
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth()+1;
+  const daysInMonth = new Date(year,month,0).getDate();
+  const dayLabels = Array.from({length:daysInMonth},(_,i)=>(i+1)+'');
+  const dayProfits = Array(daysInMonth).fill(0);
+  salesCache.filter(r=>r.year===year&&r.month===month).forEach(r=>{
+    const day = parseInt(r.date.split('-')[2])-1;
+    if(day>=0&&day<daysInMonth) dayProfits[day]+=(r.total_revenue-r.cost);
+  });
+  if(pChart) pChart.destroy();
+  pChart = new Chart(document.getElementById('profitChartCanvas'),{
+    type:'bar',
+    data:{labels:dayLabels,datasets:[{data:dayProfits,backgroundColor:dayProfits.map(v=>v>=0?'rgba(91,189,183,0.85)':'rgba(226,75,74,0.85)'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}}}
+  });
+
+  const monthProfits = Array(12).fill(0);
+  salesCache.filter(r=>r.year===year).forEach(r=>{
+    if(r.month>=1&&r.month<=12) monthProfits[r.month-1]+=(r.total_revenue-r.cost);
+  });
+  const totalYearProfit = monthProfits.reduce((a,v)=>a+v,0);
+  if(yChart) yChart.destroy();
+  yChart = new Chart(document.getElementById('yearProfitCanvas'),{
+    type:'bar',
+    data:{labels:ML,datasets:[{data:monthProfits,backgroundColor:monthProfits.map(v=>v>=0?'rgba(91,189,183,0.85)':'rgba(226,75,74,0.85)'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
+              y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}}}
+  });
+
+  loadFansCharts(totalYearProfit);
+}
+
+async function loadFansCharts(totalYearProfit){
+  const now = new Date();
+  const year = now.getFullYear();
+  const {data:mData} = await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).eq('year',year).order('month');
+  const byMonth = Array(12).fill(null).map((_,i)=>(mData||[]).find(m=>m.month===i+1)||null);
   const fans = byMonth.map(m=>m?m.fans_gain:null);
   const videos = byMonth.map(m=>m?m.videos:null);
   const newC = byMonth.map(m=>m?m.new_clients:null);
   const retC = byMonth.map(m=>m?m.return_clients:null);
+  let running = currentUser.init_fans||0;
+  const cumFans = byMonth.map(m=>{running+=(m?m.fans_gain:0);return m?running:null;});
+  const totalFansGain = (mData||[]).reduce((a,m)=>a+(m.fans_gain||0),0);
+  const totalNew = (mData||[]).reduce((a,m)=>a+(m.new_clients||0),0);
+  const totalRet = (mData||[]).reduce((a,m)=>a+(m.return_clients||0),0);
 
-  let cumFans=[], running=currentUser.init_fans||0;
-  byMonth.forEach(m=>{running+=(m?m.fans_gain:0);cumFans.push(m?running:null);});
-
-  const baseOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{ticks:{font:{size:10}}}}};
-
-  if(pChart) pChart.destroy();
-  pChart = new Chart(document.getElementById('profitChartCanvas'),{
-    type:'line',data:{labels,datasets:[{data:profits,borderColor:'#5BBDB7',backgroundColor:'rgba(91,189,183,0.15)',fill:true,tension:0.3,pointBackgroundColor:'#5BBDB7'}]},
-    options:baseOpts
-  });
+  document.getElementById('m1').textContent = '$'+(totalYearProfit/1000).toFixed(1)+'K';
+  document.getElementById('m1').style.color = totalYearProfit>=0?'#1D9E75':'#E24B4A';
+  document.getElementById('m2').textContent = '+'+totalFansGain.toLocaleString();
+  document.getElementById('m3').textContent = (totalNew+totalRet?Math.round(totalRet/(totalNew+totalRet)*100):0)+'%';
 
   if(fChart) fChart.destroy();
   fChart = new Chart(document.getElementById('fansChartCanvas'),{
-    type:'bar',data:{labels,datasets:[
-      {label:'總粉絲',data:cumFans,backgroundColor:'#5BBDB7'},
-      {label:'增粉',data:fans,backgroundColor:'#D4537E'},
+    type:'bar',
+    data:{labels:ML,datasets:[
+      {label:'總粉絲',data:cumFans,backgroundColor:'rgba(91,189,183,0.7)',borderRadius:3},
+      {label:'增粉',data:fans,backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3},
       {type:'line',label:'影片',data:videos,borderColor:'#7F77DD',backgroundColor:'transparent',pointBackgroundColor:'#7F77DD',tension:0.3,yAxisID:'y2'}
     ]},
-    options:{...baseOpts,scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{ticks:{font:{size:10}}},y2:{position:'right',ticks:{font:{size:10}},grid:{display:false}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
+              y:{ticks:{font:{size:10}}},
+              y2:{position:'right',ticks:{font:{size:10}},grid:{display:false}}}}
   });
 
   if(cChart) cChart.destroy();
   cChart = new Chart(document.getElementById('clientsChartCanvas'),{
-    type:'bar',data:{labels,datasets:[
-      {label:'新消費者',data:newC,backgroundColor:'#7F77DD'},
-      {label:'回購客',data:retC,backgroundColor:'#5BBDB7'}
+    type:'bar',
+    data:{labels:ML,datasets:[
+      {label:'新消費者',data:newC,backgroundColor:'rgba(127,119,221,0.85)',borderRadius:3},
+      {label:'回購客',data:retC,backgroundColor:'rgba(91,189,183,0.85)',borderRadius:3}
     ]},
-    options:{...baseOpts,scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
+              y:{stacked:true,ticks:{font:{size:10}}}}}
   });
 }
 </script>
