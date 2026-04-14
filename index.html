@@ -623,8 +623,14 @@ async function loadFansCharts(totalYearProfit){
   const newC = byMonth.map(m=>m?m.new_clients:null);
   const retC = byMonth.map(m=>m?m.return_clients:null);
 
-  // 總粉絲 = 每月current_fans直接顯示（不累加，用實際輸入值）
-  const cumFans = byMonth.map(m=>m?(m.current_fans||0):null);
+  // 總粉絲 = current_fans就是當月實際總粉絲數，直接顯示
+  // 但若該月沒資料，用前一個有資料月份的值延續顯示
+  const cumFans = [];
+  let lastKnown = currentUser.init_fans||0;
+  byMonth.forEach(m=>{
+    if(m&&m.current_fans) lastKnown = m.current_fans;
+    cumFans.push(m ? (m.current_fans||lastKnown) : null);
+  });
 
   // 年度增粉 = 最新月份粉絲 - 初始粉絲
   const latestMonth = [...(mData||[])].sort((a,b)=>b.month-a.month)[0];
