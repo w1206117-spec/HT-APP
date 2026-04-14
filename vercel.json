@@ -1,7 +1,11 @@
 {
+  "cleanUrls": false,
   "routes": [
     { "src": "/admin.html", "dest": "/admin.html" },
     { "src": "/index.html", "dest": "/index.html" },
-    { "src": "/", "dest": "/index.html" }
+    { "src": "/HT1.jpg", "dest": "/HT1.jpg" },
+    { "src": "/HT2.jpg", "dest": "/HT2.jpg" },
+    { "src": "/app2.jpg", "dest": "/app2.jpg" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
