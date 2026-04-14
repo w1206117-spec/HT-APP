@@ -184,8 +184,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="profit-chart" style="display:none;">
       <div class="metrics" id="profitMetrics">
         <div class="metric"><div class="metric-label">年度淨利</div><div class="metric-value" id="m1">—</div></div>
+        <div class="metric"><div class="metric-label">當月增粉</div><div class="metric-value" id="m3">—</div></div>
         <div class="metric"><div class="metric-label">年度增粉</div><div class="metric-value" id="m2">—</div></div>
-        <div class="metric"><div class="metric-label">回購率</div><div class="metric-value" id="m3">—</div></div>
       </div>
       <div class="card">
         <div class="card-title">本月每日淨利</div>
@@ -224,7 +224,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="page" id="page-course">
     <div class="card" style="text-align:center;padding:3rem 1rem;">
       <div style="font-size:40px;margin-bottom:1rem;">📚</div>
-      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">快速晉升皇家系統</div>
+      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">成長系統</div>
       <div style="font-size:13px;color:#aaa;">即將推出，敬請期待</div>
     </div>
   </div>
@@ -233,7 +233,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="page" id="page-check">
     <div class="card" style="text-align:center;padding:3rem 1rem;">
       <div style="font-size:40px;margin-bottom:1rem;">✅</div>
-      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">每月覆盤系統</div>
+      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">檢核系統</div>
       <div style="font-size:13px;color:#aaa;">即將推出，敬請期待</div>
     </div>
   </div>
@@ -397,7 +397,7 @@ function switchSubTab(section,tab){
   const tabs = document.querySelectorAll('#page-'+section+' .tab');
   tabs.forEach((t,i)=>t.classList.toggle('active',i===(tab==='input'?0:1)));
   if(tab==='input'){inputEl.style.display='block';chartEl.style.display='none';}
-  else{inputEl.style.display='none';chartEl.style.display='block';renderCharts();}
+  else{inputEl.style.display='none';chartEl.style.display='block';loadSalesData().then(renderCharts);}
 }
 
 function renderSaleItems(){
@@ -484,6 +484,8 @@ async function loadSalesData(){
   salesCache = data||[];
   updateTodaySummary();
   renderTodayRecords();
+  const chartVisible = document.getElementById('profit-chart').style.display!=='none';
+  if(chartVisible) renderCharts();
 }
 
 function updateTodaySummary(){
@@ -574,8 +576,11 @@ async function loadFansCharts(totalYearProfit){
 
   document.getElementById('m1').textContent = '$'+(totalYearProfit/1000).toFixed(1)+'K';
   document.getElementById('m1').style.color = totalYearProfit>=0?'#1D9E75':'#E24B4A';
-  document.getElementById('m2').textContent = '+'+totalFansGain.toLocaleString();
-  document.getElementById('m3').textContent = (totalNew+totalRet?Math.round(totalRet/(totalNew+totalRet)*100):0)+'%';
+  document.getElementById('m2').textContent = (totalFansGain>=0?'+':'')+totalFansGain.toLocaleString();
+  const nowM = new Date().getMonth()+1;
+  const thisMonthData = (mData||[]).find(m=>m.month===nowM);
+  const thisMonthFans = thisMonthData?(thisMonthData.fans_gain||0):0;
+  document.getElementById('m3').textContent = (thisMonthFans>=0?'+':'')+thisMonthFans.toLocaleString();
 
   if(fChart) fChart.destroy();
   fChart = new Chart(document.getElementById('fansChartCanvas'),{
