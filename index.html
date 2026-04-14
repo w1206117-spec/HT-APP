@@ -224,20 +224,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- 晉升拓展系統 -->
+  <!-- 成長系統 -->
   <div class="page" id="page-course">
     <div class="card" style="text-align:center;padding:3rem 1rem;">
       <div style="font-size:40px;margin-bottom:1rem;">📚</div>
-      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">晉升圖書館</div>
+      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">成長系統</div>
       <div style="font-size:13px;color:#aaa;">即將推出，敬請期待</div>
     </div>
   </div>
 
-  <!-- 覆盤成長系統 -->
+  <!-- 檢核系統 -->
   <div class="page" id="page-check">
     <div class="card" style="text-align:center;padding:3rem 1rem;">
       <div style="font-size:40px;margin-bottom:1rem;">✅</div>
-      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">覆盤加速器</div>
+      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">檢核系統</div>
       <div style="font-size:13px;color:#aaa;">即將推出，敬請期待</div>
     </div>
   </div>
@@ -252,21 +252,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="result-row"><span class="result-label">級別</span><span class="result-value" id="profileLevel"></span></div>
       <div class="result-row"><span class="result-label">狀態</span><span class="result-value" id="profileStatus"></span></div>
     </div>
+    <div class="card">
+      <div class="card-title">修改姓名</div>
+      <div class="field"><input type="text" id="newNameInput" placeholder="輸入新姓名" /></div>
+      <button class="btn btn-primary" onclick="updateName()">儲存姓名</button>
+    </div>
+    <div class="card">
+      <div class="card-title">刪除粉絲月份數據</div>
+      <div class="form-row">
+        <div class="field"><label>年份</label><select id="delFansYear"><option value="2026">2026</option><option value="2025">2025</option></select></div>
+        <div class="field"><label>月份</label><select id="delFansMonth">
+          <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+          <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+          <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+          <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+        </select></div>
+      </div>
+      <button class="btn" style="background:#ffeaea;color:#E24B4A;margin-top:4px;" onclick="deleteFansMonth()">刪除該月粉絲數據</button>
+    </div>
     <div class="logout-btn" onclick="doLogout()">登出</div>
   </div>
 
   <div class="bottom-nav">
     <button class="nav-item active" onclick="switchPage('profit',this)">
-      <span class="nav-icon">💰</span><span class="nav-label">計績</span>
+      <span class="nav-icon">💰</span><span class="nav-label">淨利</span>
     </button>
     <button class="nav-item" onclick="switchPage('course',this)">
       <span class="nav-icon">📚</span><span class="nav-label">成長</span>
     </button>
     <button class="nav-item" onclick="switchPage('check',this)">
-      <span class="nav-icon">✅</span><span class="nav-label">覆盤</span>
+      <span class="nav-icon">✅</span><span class="nav-label">檢核</span>
     </button>
     <button class="nav-item" onclick="switchPage('profile',this)">
-      <span class="nav-icon">👼🏻</span><span class="nav-label">我的</span>
+      <span class="nav-icon">👤</span><span class="nav-label">我的</span>
     </button>
   </div>
 </div>
@@ -535,7 +553,10 @@ function renderTodayRecords(){
     return `<div class="rec-item">
       <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
         <span style="font-size:13px;color:#555;">${items.map(it=>it.name+'×'+it.qty).join('、')}</span>
-        <span style="font-size:14px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:14px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span>
+          <button onclick="deleteRecord(${r.id})" style="background:none;border:none;color:#ddd;font-size:16px;cursor:pointer;padding:0;">🗑</button>
+        </div>
       </div>
       <div style="font-size:12px;color:#aaa;">收款 NT$${r.total_revenue.toLocaleString()} ／ 成本 NT$${r.cost.toLocaleString()}</div>
     </div>`;
@@ -576,6 +597,31 @@ function renderCharts(){
   });
 
   loadFansCharts(totalYearProfit);
+}
+
+async function updateName(){
+  const newName = document.getElementById('newNameInput').value.trim();
+  if(!newName){alert('請輸入姓名');return;}
+  await sb.from('users').update({name:newName}).eq('id',currentUser.id);
+  currentUser.name = newName;
+  document.getElementById('profileName').textContent = newName;
+  document.getElementById('headerName').textContent = newName;
+  document.getElementById('newNameInput').value='';
+  alert('姓名已更新！');
+}
+
+async function deleteRecord(id){
+  if(!confirm('確定刪除這筆記錄？')) return;
+  await sb.from('sales_data').delete().eq('id',id);
+  await loadSalesData();
+}
+
+async function deleteFansMonth(){
+  const year = parseInt(document.getElementById('delFansYear').value);
+  const month = parseInt(document.getElementById('delFansMonth').value);
+  if(!confirm(`確定刪除 ${year}年${month}月 的粉絲數據？`)) return;
+  await sb.from('monthly_data').delete().eq('user_id',currentUser.id).eq('year',year).eq('month',month);
+  alert('已刪除！');
 }
 
 async function loadFansCharts(totalYearProfit){
