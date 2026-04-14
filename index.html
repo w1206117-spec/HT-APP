@@ -128,6 +128,16 @@
       <div class="login-switch">還沒有帳號？<a onclick="showRegister()">立即申請</a></div>
     </div>
     <div id="registerForm" style="display:none;">
+      <input type="text" id="regUpline" placeholder="上家姓名" />
+      <select id="regLevel" style="width:100%;padding:12px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:15px;margin-bottom:12px;background:white;color:#555;outline:none;appearance:none;">
+        <option value="">— 選擇申請級別 —</option>
+        <option value="實習">實習</option>
+        <option value="三級">三級</option>
+        <option value="三級輔導">三級輔導</option>
+        <option value="二級">二級</option>
+        <option value="一級">一級</option>
+        <option value="皇家">皇家</option>
+      </select>
       <input type="text" id="regName" placeholder="姓名" />
       <input type="text" id="regPhone" placeholder="手機號碼" maxlength="10" />
       <input type="password" id="regPwd" placeholder="設定密碼" />
@@ -244,6 +254,7 @@
       <div class="card-title">帳號資訊</div>
       <div class="result-row"><span class="result-label">姓名</span><span class="result-value" id="profileName"></span></div>
       <div class="result-row"><span class="result-label">手機</span><span class="result-value" id="profilePhone"></span></div>
+      <div class="result-row"><span class="result-label">上家</span><span class="result-value" id="profileUpline"></span></div>
       <div class="result-row"><span class="result-label">級別</span><span class="result-value" id="profileLevel"></span></div>
       <div class="result-row"><span class="result-label">狀態</span><span class="result-value" id="profileStatus"></span></div>
     </div>
@@ -342,14 +353,16 @@ function showLogin(){
 
 // 註冊
 async function doRegister(){
+  const upline = document.getElementById('regUpline').value.trim();
+  const level = document.getElementById('regLevel').value;
   const name = document.getElementById('regName').value.trim();
   const phone = document.getElementById('regPhone').value.trim();
   const pwd = document.getElementById('regPwd').value.trim();
   const msg = document.getElementById('loginMsg');
-  if(!name||!phone||!pwd){msg.textContent='請填寫所有欄位';return;}
+  if(!upline||!level||!name||!phone||!pwd){msg.textContent='請填寫所有欄位';return;}
   const existing = await sb.from('users').select('id').eq('phone',phone).single();
   if(existing.data){msg.textContent='此手機號碼已申請過';return;}
-  const {error} = await sb.from('users').insert({name,phone,password:pwd,level:'實習',status:'待審核',init_fans:0});
+  const {error} = await sb.from('users').insert({name,phone,password:pwd,upline,level,status:'待審核',init_fans:0});
   if(error){msg.textContent='申請失敗，請再試一次';return;}
   msg.style.color='#1D9E75';
   msg.textContent='申請成功！請等待管理員審核後登入';
@@ -379,6 +392,7 @@ function enterApp(){
   document.getElementById('headerLevel').textContent = currentUser.level;
   document.getElementById('profileName').textContent = currentUser.name;
   document.getElementById('profilePhone').textContent = currentUser.phone;
+  document.getElementById('profileUpline').textContent = currentUser.upline||'—';
   document.getElementById('profileLevel').textContent = currentUser.level;
   document.getElementById('profileStatus').textContent = currentUser.status;
   document.getElementById('initFansInput').value = currentUser.init_fans||0;
