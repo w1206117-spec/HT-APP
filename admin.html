@@ -94,11 +94,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="filter-btn" onclick="setLevelFilter('實習',this)">實習</button>
         <button class="filter-btn" onclick="setLevelFilter('三級',this)">三級</button>
         <button class="filter-btn" onclick="setLevelFilter('三級輔導',this)">三級輔導</button>
-        <button class="filter-btn" onclick="setLevelFilter('二級',this)">二級</button>
         <button class="filter-btn" onclick="setLevelFilter('二級輔導',this)">二級輔導</button>
-        <button class="filter-btn" onclick="setLevelFilter('一級',this)">一級</button>
         <button class="filter-btn" onclick="setLevelFilter('一級輔導',this)">一級輔導</button>
-        <button class="filter-btn" onclick="setLevelFilter('皇家',this)">皇家</button>
         <button class="filter-btn" onclick="setLevelFilter('皇家輔導',this)">皇家輔導</button>
       </div>
       <div class="card">
@@ -187,7 +184,7 @@ const SUPABASE_URL='https://lsurinqdrybvqtvhiqim.supabase.co';
 const SUPABASE_KEY='sb_publishable_OVv7ly-_nLpirm93hcR0Qg_GK71hyI_';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const ADMIN_PWD='0325';
-const LEVELS=['實習','三級','三級輔導','二級','二級輔導','一級','一級輔導','皇家','皇家輔導'];
+const LEVELS=['實習','三級','三級輔導','二級輔導','一級輔導','皇家輔導'];
 
 let allUsers=[];
 let currentLevelFilter='all';
