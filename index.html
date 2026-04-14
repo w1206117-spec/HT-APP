@@ -196,13 +196,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="chart-wrap"><canvas id="yearProfitCanvas"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">粉絲成長</div>
+        <div class="card-title">總粉絲數</div>
+        <div class="legend"><span><span class="legend-dot" style="background:#5BBDB7;"></span>總粉絲</span></div>
+        <div class="chart-wrap"><canvas id="fansChartCanvas"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">當月增粉 ＆ 影片數</div>
         <div class="legend">
-          <span><span class="legend-dot" style="background:#5BBDB7;"></span>總粉絲</span>
           <span><span class="legend-dot" style="background:#D4537E;"></span>增粉</span>
           <span><span class="legend-dot" style="background:#7F77DD;"></span>影片數</span>
         </div>
-        <div class="chart-wrap"><canvas id="fansChartCanvas"></canvas></div>
+        <div class="chart-wrap"><canvas id="fansGainCanvas"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">客戶成長</div>
@@ -224,7 +228,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="page" id="page-course">
     <div class="card" style="text-align:center;padding:3rem 1rem;">
       <div style="font-size:40px;margin-bottom:1rem;">📚</div>
-      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">成長系統</div>
+      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">晉升拓展系統</div>
       <div style="font-size:13px;color:#aaa;">即將推出，敬請期待</div>
     </div>
   </div>
@@ -233,7 +237,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="page" id="page-check">
     <div class="card" style="text-align:center;padding:3rem 1rem;">
       <div style="font-size:40px;margin-bottom:1rem;">✅</div>
-      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">檢核系統</div>
+      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">覆盤成長系統</div>
       <div style="font-size:13px;color:#aaa;">即將推出，敬請期待</div>
     </div>
   </div>
@@ -306,7 +310,7 @@ const ML = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10�
 let currentUser = null;
 let saleItems = [{productIdx:0,qty:1}];
 let salesCache = [];
-let pChart, yChart, fChart, cChart;
+let pChart, yChart, fChart, gChart, cChart;
 
 function getTodayStr(){
   const d = new Date();
@@ -457,18 +461,33 @@ async function saveFansData(){
   const videos = parseInt(document.getElementById('videoCount').value)||0;
   const newC = parseInt(document.getElementById('newClients').value)||0;
   const retC = parseInt(document.getElementById('returnClients').value)||0;
+
+  // 取上月粉絲數，沒有上月資料就用初始粉絲
   const prevMonth = month===1?12:month-1;
   const prevYear = month===1?year-1:year;
   const {data:prevData} = await sb.from('monthly_data').select('current_fans').eq('user_id',currentUser.id).eq('year',prevYear).eq('month',prevMonth).single();
-  const prevFans = prevData?prevData.current_fans:(currentUser.init_fans||0);
+  const prevFans = prevData ? (prevData.current_fans||0) : (currentUser.init_fans||0);
   const fansGain = currentFansVal - prevFans;
+
   const existing = await sb.from('monthly_data').select('id').eq('user_id',currentUser.id).eq('year',year).eq('month',month).single();
   if(existing.data){
     await sb.from('monthly_data').update({current_fans:currentFansVal,fans_gain:fansGain,videos,new_clients:newC,return_clients:retC}).eq('id',existing.data.id);
   } else {
     await sb.from('monthly_data').insert({user_id:currentUser.id,year,month,current_fans:currentFansVal,fans_gain:fansGain,videos,new_clients:newC,return_clients:retC,profit:0,init_fans:currentUser.init_fans||0});
   }
-  alert('粉絲數據已儲存！本月增粉 '+fansGain.toLocaleString());
+
+  // 更新下個月的增粉（如果下個月有資料，重新計算）
+  const nextMonth = month===12?1:month+1;
+  const nextYear = month===12?year+1:year;
+  const {data:nextData} = await sb.from('monthly_data').select('id,current_fans').eq('user_id',currentUser.id).eq('year',nextYear).eq('month',nextMonth).single();
+  if(nextData && nextData.current_fans){
+    const nextGain = nextData.current_fans - currentFansVal;
+    await sb.from('monthly_data').update({fans_gain:nextGain}).eq('id',nextData.id);
+  }
+
+  const sign = fansGain>=0?'+':'';
+  alert('粉絲數據已儲存！本月增粉 '+sign+fansGain.toLocaleString());
+  if(document.getElementById('profit-chart').style.display!=='none') renderCharts();
 }
 
 async function saveInitFans(){
@@ -571,29 +590,59 @@ async function loadFansCharts(totalYearProfit){
   let running = currentUser.init_fans||0;
   const cumFans = byMonth.map(m=>{running+=(m?m.fans_gain:0);return m?running:null;});
   const totalFansGain = (mData||[]).reduce((a,m)=>a+(m.fans_gain||0),0);
-  const totalNew = (mData||[]).reduce((a,m)=>a+(m.new_clients||0),0);
-  const totalRet = (mData||[]).reduce((a,m)=>a+(m.return_clients||0),0);
+  const nowM = new Date().getMonth()+1;
+  const thisMonthData = (mData||[]).find(m=>m.month===nowM);
+  const thisMonthFans = thisMonthData?(thisMonthData.fans_gain||0):0;
 
   document.getElementById('m1').textContent = '$'+(totalYearProfit/1000).toFixed(1)+'K';
   document.getElementById('m1').style.color = totalYearProfit>=0?'#1D9E75':'#E24B4A';
   document.getElementById('m2').textContent = (totalFansGain>=0?'+':'')+totalFansGain.toLocaleString();
-  const nowM = new Date().getMonth()+1;
-  const thisMonthData = (mData||[]).find(m=>m.month===nowM);
-  const thisMonthFans = thisMonthData?(thisMonthData.fans_gain||0):0;
+  document.getElementById('m2').style.color = totalFansGain>=0?'#1D9E75':'#E24B4A';
   document.getElementById('m3').textContent = (thisMonthFans>=0?'+':'')+thisMonthFans.toLocaleString();
+  document.getElementById('m3').style.color = thisMonthFans>=0?'#1D9E75':'#E24B4A';
+
+  const datalabelPlugin = {
+    id:'datalabels',
+    afterDatasetsDraw(chart){
+      const ctx = chart.ctx;
+      chart.data.datasets.forEach((ds,di)=>{
+        const meta = chart.getDatasetMeta(di);
+        meta.data.forEach((bar,i)=>{
+          const val = ds.data[i];
+          if(val===null||val===0) return;
+          ctx.fillStyle = '#555';
+          ctx.font = '10px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(val.toLocaleString(), bar.x, bar.y-4);
+        });
+      });
+    }
+  };
 
   if(fChart) fChart.destroy();
   fChart = new Chart(document.getElementById('fansChartCanvas'),{
     type:'bar',
     data:{labels:ML,datasets:[
-      {label:'總粉絲',data:cumFans,backgroundColor:'rgba(91,189,183,0.7)',borderRadius:3},
-      {label:'增粉',data:fans,backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3},
+      {label:'總粉絲',data:cumFans,backgroundColor:'rgba(91,189,183,0.7)',borderRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
+              y:{ticks:{font:{size:10}}}}},
+    plugins:[datalabelPlugin]
+  });
+
+  if(gChart) gChart.destroy();
+  gChart = new Chart(document.getElementById('fansGainCanvas'),{
+    type:'bar',
+    data:{labels:ML,datasets:[
+      {label:'增粉',data:fans,backgroundColor:fans.map(v=>v===null?'transparent':v>=0?'rgba(212,83,126,0.85)':'rgba(226,75,74,0.5)'),borderRadius:3},
       {type:'line',label:'影片',data:videos,borderColor:'#7F77DD',backgroundColor:'transparent',pointBackgroundColor:'#7F77DD',tension:0.3,yAxisID:'y2'}
     ]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
               y:{ticks:{font:{size:10}}},
-              y2:{position:'right',ticks:{font:{size:10}},grid:{display:false}}}}
+              y2:{position:'right',ticks:{font:{size:10}},grid:{display:false}}}},
+    plugins:[datalabelPlugin]
   });
 
   if(cChart) cChart.destroy();
@@ -605,7 +654,8 @@ async function loadFansCharts(totalYearProfit){
     ]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},
-              y:{stacked:true,ticks:{font:{size:10}}}}}
+              y:{stacked:true,ticks:{font:{size:10}}}}},
+    plugins:[datalabelPlugin]
   });
 }
 </script>
