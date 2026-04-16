@@ -19,9 +19,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .admin-header{background:linear-gradient(135deg,#C9A884,#A67C5B);padding:1.25rem 1.5rem;color:white;display:flex;justify-content:space-between;align-items:center;}
 .admin-header h1{font-size:18px;font-weight:500;letter-spacing:2px;}
 .logout-link{font-size:13px;color:rgba(255,255,255,0.8);cursor:pointer;}
-.tabs-wrap{background:white;border-bottom:0.5px solid #eee;overflow-x:auto;white-space:nowrap;}
-.tabs{display:inline-flex;padding:0 1rem;}
-.tab{padding:14px 16px;font-size:13px;color:#aaa;cursor:pointer;border-bottom:2px solid transparent;display:inline-block;}
+.tabs{display:flex;background:white;border-bottom:0.5px solid #eee;padding:0 1.5rem;}
+.tab{padding:14px 20px;font-size:14px;color:#aaa;cursor:pointer;border-bottom:2px solid transparent;}
 .tab.active{color:#A67C5B;border-bottom-color:#A67C5B;font-weight:500;}
 .content{padding:1.25rem 1.5rem;}
 .section{display:none;}
@@ -38,9 +37,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-reject{background:#ffeaea;color:#E24B4A;}
 .btn-save{background:#A4E5E0;color:#085041;}
 .btn-danger{background:#ffeaea;color:#E24B4A;}
-.btn-primary{background:linear-gradient(135deg,#A4E5E0,#5BBDB7);color:#085041;padding:10px 18px;font-size:14px;border-radius:10px;border:none;cursor:pointer;font-weight:600;}
 .level-select{padding:6px 10px;border-radius:8px;border:0.5px solid #ddd;font-size:12px;color:#333;background:white;}
 .status-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;}
+.status-pending{background:#fff3cd;color:#856404;}
+.status-approved{background:#e1f5ee;color:#0F6E56;}
+.status-rejected{background:#ffeaea;color:#E24B4A;}
 .empty{text-align:center;padding:2rem;color:#aaa;font-size:14px;}
 .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem;}
 .metric-card{background:white;border-radius:12px;padding:1rem;text-align:center;box-shadow:0 1px 8px rgba(0,0,0,0.05);}
@@ -51,21 +52,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .level-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
 .filter-btn{padding:5px 12px;border-radius:16px;border:0.5px solid #ddd;background:transparent;font-size:12px;color:#888;cursor:pointer;}
 .filter-btn.active{background:#A4E5E0;border-color:#76D5CF;color:#085041;font-weight:500;}
-.field{margin-bottom:12px;}
-.field label{font-size:12px;color:#888;display:block;margin-bottom:4px;}
-.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;color:#333;font-family:inherit;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:#A4E5E0;background:white;}
-.announce-active{background:#e1f5ee;border-left:3px solid #0F6E56;}
-.announce-inactive{background:#f8f8f8;border-left:3px solid #ddd;opacity:0.6;}
-.prod-admin-card{background:white;border-radius:12px;padding:1rem 1.2rem;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.05);}
-.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:8px;font-weight:500;}
 </style>
 </head>
 <body>
 
 <div id="loginPage">
   <div class="login-card">
-    <h2>HT 管理端</h2>
+    <h2 style="color:#333;">HT 管理端</h2>
     <input type="password" id="adminPwd" placeholder="輸入管理員密碼" />
     <button class="login-btn" onclick="adminLogin()">進入管理端</button>
     <div class="msg" id="adminMsg"></div>
@@ -77,15 +70,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <h1>HT 管理端</h1>
     <span class="logout-link" onclick="adminLogout()">登出</span>
   </div>
-  <div class="tabs-wrap">
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('pending')">待審核</div>
-      <div class="tab" onclick="switchTab('members')">全部夥伴</div>
-      <div class="tab" onclick="switchTab('stats')">數據總覽</div>
-      <div class="tab" onclick="switchTab('courses')">課程管理</div>
-      <div class="tab" onclick="switchTab('announce')">📢 公告管理</div>
-      <div class="tab" onclick="switchTab('products')">🌿 客人端產品</div>
-    </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('pending')">待審核</div>
+    <div class="tab" onclick="switchTab('members')">全部夥伴</div>
+    <div class="tab" onclick="switchTab('stats')">數據總覽</div>
+    <div class="tab" onclick="switchTab('courses')">課程管理</div>
   </div>
   <div class="content">
 
@@ -142,111 +131,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="filter-btn active" onclick="setCourseFilter('all',this)">全部</button>
         <button class="filter-btn" onclick="setCourseFilter('新人啟航',this)">新人啟航</button>
         <button class="filter-btn" onclick="setCourseFilter('輔導督導',this)">輔導督導</button>
-        <button class="filter-btn" onclick="setCourseFilter('三大系列產品力',this)">三大系列產品力</button>
-        <button class="filter-btn" onclick="setCourseFilter('引爆社群平台',this)">引爆社群平台</button>
         <button class="filter-btn" onclick="setCourseFilter('高階領導',this)">高階領導</button>
-        <button class="filter-btn" onclick="setCourseFilter('引流',this)">引流</button>
-        <button class="filter-btn" onclick="setCourseFilter('版面打造',this)">版面打造</button>
-        <button class="filter-btn" onclick="setCourseFilter('售中諮詢',this)">售中諮詢</button>
-        <button class="filter-btn" onclick="setCourseFilter('售後服務',this)">售後服務</button>
       </div>
       <div id="courseAdminList"></div>
+
+      <!-- 新增/編輯課程表單 -->
       <div id="courseForm" style="display:none;">
         <div class="card" style="border:2px solid #A4E5E0;">
           <div class="card-title" id="courseFormTitle">新增課程</div>
           <input type="hidden" id="editCourseId" />
-          <div class="field">
-            <label>階段</label>
-            <select id="fStage">
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">階段</label>
+            <select id="fStage" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;">
               <option value="新人啟航">新人啟航</option>
               <option value="輔導督導">輔導督導</option>
-              <option value="三大系列產品力">三大系列產品力</option>
-              <option value="引爆社群平台">引爆社群平台</option>
               <option value="高階領導">高階領導</option>
-              <option value="引流">引流（零售四大循環）</option>
-              <option value="版面打造">版面打造（零售四大循環）</option>
-              <option value="售中諮詢">售中諮詢（零售四大循環）</option>
-              <option value="售後服務">售後服務（零售四大循環）</option>
             </select>
           </div>
-          <div class="field"><label>課程名稱</label><input type="text" id="fTitle" placeholder="例：新人戰技第一堂" /></div>
-          <div class="field"><label>課程簡介</label><textarea id="fDesc" rows="3" placeholder="這堂課的內容介紹..."></textarea></div>
-          <div class="field"><label>YouTube 連結</label><input type="text" id="fYoutube" placeholder="https://youtu.be/..." /></div>
-          <div class="field"><label>筆記格式（選填）</label><textarea id="fNote" rows="5" placeholder="📝 課程筆記格式&#10;&#10;課程名稱：&#10;今日學到：&#10;行動計畫："></textarea></div>
-          <div class="field"><label>順序（數字越小越前面）</label><input type="number" id="fOrder" value="0" /></div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">課程名稱</label>
+            <input type="text" id="fTitle" placeholder="例：新人戰技第一堂" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;" />
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">課程簡介</label>
+            <textarea id="fDesc" rows="3" placeholder="這堂課的內容介紹..." style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;resize:vertical;"></textarea>
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">YouTube 連結</label>
+            <input type="text" id="fYoutube" placeholder="https://youtu.be/..." style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;" />
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">筆記格式（選填）</label>
+            <textarea id="fNote" rows="5" placeholder="📝 課程筆記格式&#10;&#10;課程名稱：&#10;今日學到：&#10;行動計畫：" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;resize:vertical;"></textarea>
+          </div>
+          <div style="margin-bottom:10px;">
+            <label style="font-size:12px;color:#888;display:block;margin-bottom:4px;">順序（數字越小越前面）</label>
+            <input type="number" id="fOrder" value="0" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;" />
+          </div>
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn btn-approve" style="flex:1;" onclick="saveCourse()">儲存</button>
             <button class="btn btn-reject" style="flex:1;" onclick="hideCourseForm()">取消</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 公告管理 -->
-    <div class="section" id="section-announce">
-      <div class="card" style="background:linear-gradient(135deg,#f0fdfb,#e8f9f6);border:1px solid #A4E5E0;">
-        <div style="font-size:14px;font-weight:600;color:#085041;margin-bottom:6px;">📢 公告說明</div>
-        <div style="font-size:13px;color:#555;line-height:1.7;">
-          在這裡新增的公告，會即時顯示在客人端（纖體百寶庫）頂部的橫幅上。<br>
-          一次只能有一則啟用中的公告，點「停用」可以關閉橫幅。
-        </div>
-      </div>
-
-      <div class="card" style="border:2px solid #A4E5E0;">
-        <div class="card-title">✏️ 新增公告</div>
-        <div class="field">
-          <label>公告內容（會顯示在客人端橫幅）</label>
-          <textarea id="newAnnounceText" rows="3" placeholder="例：🎉 全系列限時優惠中，立即詢問您的賣家！" style="width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;outline:none;font-family:inherit;resize:vertical;"></textarea>
-        </div>
-        <button class="btn-primary" style="width:100%;" onclick="addAnnouncement()">🚀 發布公告</button>
-      </div>
-
-      <div class="card">
-        <div class="card-title">公告記錄</div>
-        <div id="announceList"><div class="empty">載入中...</div></div>
-      </div>
-    </div>
-
-    <!-- 客人端產品管理 -->
-    <div class="section" id="section-products">
-      <div class="card" style="background:linear-gradient(135deg,#f0fdfb,#e8f9f6);border:1px solid #A4E5E0;">
-        <div style="font-size:14px;font-weight:600;color:#085041;margin-bottom:6px;">🌿 客人端產品說明</div>
-        <div style="font-size:13px;color:#555;line-height:1.7;">
-          這裡管理的是「纖體百寶庫」（customer.html）中顯示的產品資料。<br>
-          ✅ 目前已內建所有主力產品，你可以在這裡新增/編輯/停用產品。<br>
-          ⚠️ 修改後會存入 Supabase，但 customer.html 的內建產品不受影響——新增的才會從資料庫讀取顯示。
-        </div>
-      </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-        <div style="font-size:15px;font-weight:500;color:#333;">額外產品（資料庫）</div>
-        <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddProduct()">＋ 新增產品</button>
-      </div>
-      <div id="productAdminList"><div class="empty">載入中...</div></div>
-
-      <div id="productForm" style="display:none;">
-        <div class="card" style="border:2px solid #5BBDB7;">
-          <div class="card-title" id="prodFormTitle">新增產品</div>
-          <input type="hidden" id="editProdId" />
-          <div class="field"><label>產品名稱</label><input type="text" id="pName" placeholder="例：新產品名稱" /></div>
-          <div class="field">
-            <label>分類</label>
-            <select id="pCat">
-              <option value="纖體系列">纖體系列</option>
-              <option value="保健系列">保健系列</option>
-              <option value="美肌系列">美肌系列</option>
-              <option value="護髮系列">護髮系列</option>
-            </select>
-          </div>
-          <div class="field"><label>標語（一句話說明）</label><input type="text" id="pTagline" placeholder="例：燃脂旗艦款 · 三高必備" /></div>
-          <div class="field"><label>主要功效（用逗號分隔）</label><input type="text" id="pEffects" placeholder="例：燃脂,消水腫,提升代謝" /></div>
-          <div class="field"><label>建議用量</label><textarea id="pDosage" rows="3" placeholder="例：一天 1-2 包，熱量最大餐前服用"></textarea></div>
-          <div class="field"><label>使用時機</label><input type="text" id="pTiming" placeholder="例：餐前 30 分鐘飲用" /></div>
-          <div class="field"><label>使用方式</label><textarea id="pHowto" rows="3" placeholder="詳細操作說明..."></textarea></div>
-          <div class="field"><label>小提醒 & 延伸吃法</label><textarea id="pTips" rows="4" placeholder="注意事項、延伸用法..."></textarea></div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-approve" style="flex:1;" onclick="saveProduct()">儲存</button>
-            <button class="btn btn-reject" style="flex:1;" onclick="hideProductForm()">取消</button>
           </div>
         </div>
       </div>
@@ -261,36 +185,57 @@ const SUPABASE_KEY='sb_publishable_OVv7ly-_nLpirm93hcR0Qg_GK71hyI_';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const ADMIN_PWD='0325';
 const LEVELS=['實習加盟','三級加盟','三級輔導','二級輔導','一級輔導','皇家輔導'];
-let allUsers=[];let currentLevelFilter='all';
+
+let allUsers=[];
+let currentLevelFilter='all';
 
 function adminLogin(){
   const pwd=document.getElementById('adminPwd').value;
-  if(pwd===ADMIN_PWD){document.getElementById('loginPage').style.display='none';document.getElementById('adminPage').style.display='block';loadAll();}
-  else{document.getElementById('adminMsg').textContent='密碼錯誤';}
+  if(pwd===ADMIN_PWD){
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('adminPage').style.display='block';
+    loadAll();
+  } else {
+    document.getElementById('adminMsg').textContent='密碼錯誤';
+  }
 }
-function adminLogout(){document.getElementById('adminPage').style.display='none';document.getElementById('loginPage').style.display='flex';document.getElementById('adminPwd').value='';}
 
-const ALL_TABS=['pending','members','stats','courses','announce','products'];
+function adminLogout(){
+  document.getElementById('adminPage').style.display='none';
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('adminPwd').value='';
+}
+
 function switchTab(tab){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ALL_TABS[i]===tab));
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['pending','members','stats','courses'][i]===tab));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('section-'+tab).classList.add('active');
-  if(tab==='stats')loadStats();
-  if(tab==='courses')loadCourseAdmin();
-  if(tab==='announce')loadAnnouncements();
-  if(tab==='products')loadProductAdmin();
+  if(tab==='stats') loadStats();
+  if(tab==='courses') loadCourseAdmin();
 }
 
 async function loadAll(){
   const {data}=await sb.from('users').select('*').order('id',{ascending:false});
-  allUsers=data||[];renderPending();renderMembers();
+  allUsers=data||[];
+  renderPending();
+  renderMembers();
 }
 
 function renderPending(){
   const pending=allUsers.filter(u=>u.status==='待審核');
   const el=document.getElementById('pendingList');
   if(!pending.length){el.innerHTML='<div class="empty">目前沒有待審核的申請</div>';return;}
-  el.innerHTML=pending.map(u=>`<div class="user-row"><div class="user-info"><h3>${u.name}</h3><p>${u.phone} ／ 上家：${u.upline||'—'} ／ 申請級別：${u.level}</p></div><div class="user-actions"><button class="btn btn-approve" onclick="approveUser(${u.id},'${u.level}')">審核通過</button><button class="btn btn-reject" onclick="rejectUser(${u.id})">拒絕</button></div></div>`).join('');
+  el.innerHTML=pending.map(u=>`
+    <div class="user-row">
+      <div class="user-info">
+        <h3>${u.name}</h3>
+        <p>${u.phone} ／ 上家：${u.upline||'—'} ／ 申請級別：${u.level}</p>
+      </div>
+      <div class="user-actions">
+        <button class="btn btn-approve" onclick="approveUser(${u.id},'${u.level}')">審核通過</button>
+        <button class="btn btn-reject" onclick="rejectUser(${u.id})">拒絕</button>
+      </div>
+    </div>`).join('');
 }
 
 function renderMembers(){
@@ -300,166 +245,203 @@ function renderMembers(){
   if(search) filtered=filtered.filter(u=>u.name.toLowerCase().includes(search)||u.phone.includes(search));
   const el=document.getElementById('memberList');
   if(!filtered.length){el.innerHTML='<div class="empty">沒有符合的夥伴</div>';return;}
-  el.innerHTML=filtered.map(u=>`<div class="user-row"><div class="user-info"><h3>${u.name}</h3><p>${u.phone} ／ 上家：${u.upline||'—'}</p></div><div class="user-actions"><select class="level-select" id="lvl-${u.id}">${LEVELS.map(l=>`<option value="${l}"${l===u.level?' selected':''}>${l}</option>`).join('')}</select><button class="btn btn-save" onclick="updateLevel(${u.id})">更新級別</button><button class="btn btn-danger" onclick="deleteUser(${u.id},'${u.name}')">刪除</button></div></div>`).join('');
+  el.innerHTML=filtered.map(u=>`
+    <div class="user-row">
+      <div class="user-info">
+        <h3>${u.name}</h3>
+        <p>${u.phone} ／ 上家：${u.upline||'—'}</p>
+      </div>
+      <div class="user-actions">
+        <select class="level-select" id="lvl-${u.id}">
+          ${LEVELS.map(l=>`<option value="${l}"${l===u.level?' selected':''}>${l}</option>`).join('')}
+        </select>
+        <button class="btn btn-save" onclick="updateLevel(${u.id})">更新級別</button>
+        <button class="btn btn-danger" onclick="deleteUser(${u.id},'${u.name}')">刪除</button>
+      </div>
+    </div>`).join('');
 }
 
 function filterMembers(){renderMembers();}
-function setLevelFilter(level,el){currentLevelFilter=level;document.querySelectorAll('#section-members .filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderMembers();}
-async function approveUser(id,level){await sb.from('users').update({status:'已審核',level}).eq('id',id);await loadAll();alert('已審核通過！');}
-async function rejectUser(id){if(!confirm('確定拒絕這個申請？'))return;await sb.from('users').update({status:'已拒絕'}).eq('id',id);await loadAll();alert('已拒絕。');}
-async function updateLevel(id){const level=document.getElementById('lvl-'+id).value;await sb.from('users').update({level}).eq('id',id);await loadAll();alert('級別已更新！');}
-async function deleteUser(id,name){if(!confirm(`確定刪除 ${name} 的帳號？此操作無法復原！`))return;await sb.from('users').delete().eq('id',id);await loadAll();alert('已刪除！');}
 
-// COURSES
-let allCourses=[];let courseFilter='all';
-async function loadCourseAdmin(){const{data}=await sb.from('courses').select('*').order('stage').order('order_num');allCourses=data||[];renderCourseAdmin();}
-function setCourseFilter(f,el){courseFilter=f;document.querySelectorAll('#section-courses .filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCourseAdmin();}
+function setLevelFilter(level,el){
+  currentLevelFilter=level;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderMembers();
+}
+
+async function approveUser(id,level){
+  await sb.from('users').update({status:'已審核',level}).eq('id',id);
+  await loadAll();
+  alert('已審核通過！');
+}
+
+async function rejectUser(id){
+  if(!confirm('確定拒絕這個申請？')) return;
+  await sb.from('users').update({status:'已拒絕'}).eq('id',id);
+  await loadAll();
+  alert('已拒絕。');
+}
+
+async function updateLevel(id){
+  const level=document.getElementById('lvl-'+id).value;
+  await sb.from('users').update({level}).eq('id',id);
+  await loadAll();
+  alert('級別已更新！');
+}
+
+async function deleteUser(id,name){
+  if(!confirm(`確定刪除 ${name} 的帳號？此操作無法復原！`)) return;
+  await sb.from('users').delete().eq('id',id);
+  await loadAll();
+  alert('已刪除！');
+}
+
+let allCourses=[];
+let courseFilter='all';
+
+async function loadCourseAdmin(){
+  const {data}=await sb.from('courses').select('*').order('stage').order('order_num');
+  allCourses=data||[];
+  renderCourseAdmin();
+}
+
+function setCourseFilter(f,el){
+  courseFilter=f;
+  document.querySelectorAll('#section-courses .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderCourseAdmin();
+}
+
 function renderCourseAdmin(){
   const filtered=courseFilter==='all'?allCourses:allCourses.filter(c=>c.stage===courseFilter);
   const el=document.getElementById('courseAdminList');
   if(!filtered.length){el.innerHTML='<div class="empty">暫無課程</div>';return;}
-  el.innerHTML=filtered.map(c=>`<div class="card" style="margin-bottom:8px;opacity:${c.is_active?1:0.5};"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;"><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#f0f0f0;color:#888;">${c.stage}</span><span style="font-size:11px;color:#aaa;">順序 ${c.order_num}</span>${c.is_active?'<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#e1f5ee;color:#0F6E56;">上架中</span>':'<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#ffeaea;color:#E24B4A;">已下架</span>'}</div><div style="font-size:15px;font-weight:500;color:#333;margin-bottom:3px;">${c.title}</div><div style="font-size:12px;color:#aaa;">${c.description||'無簡介'}</div>${c.youtube_url?'<div style="font-size:12px;color:#5BBDB7;margin-top:4px;">▶ 有影片連結</div>':''}</div><div style="display:flex;flex-direction:column;gap:6px;margin-left:12px;"><button class="btn btn-save" style="padding:6px 12px;font-size:12px;" onclick="editCourse(${c.id})">編輯</button><button class="btn ${c.is_active?'btn-reject':'btn-approve'}" style="padding:6px 12px;font-size:12px;" onclick="toggleCourse(${c.id},${c.is_active})">${c.is_active?'下架':'上架'}</button><button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteCourse(${c.id})">刪除</button></div></div></div>`).join('');
-}
-function showAddCourse(){document.getElementById('courseFormTitle').textContent='新增課程';document.getElementById('editCourseId').value='';document.getElementById('fStage').value='新人啟航';document.getElementById('fTitle').value='';document.getElementById('fDesc').value='';document.getElementById('fYoutube').value='';document.getElementById('fNote').value='';document.getElementById('fOrder').value='0';document.getElementById('courseForm').style.display='block';document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});}
-function editCourse(id){const c=allCourses.find(x=>x.id===id);if(!c)return;document.getElementById('courseFormTitle').textContent='編輯課程';document.getElementById('editCourseId').value=id;document.getElementById('fStage').value=c.stage;document.getElementById('fTitle').value=c.title;document.getElementById('fDesc').value=c.description||'';document.getElementById('fYoutube').value=c.youtube_url||'';document.getElementById('fNote').value=c.note_template||'';document.getElementById('fOrder').value=c.order_num||0;document.getElementById('courseForm').style.display='block';document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});}
-async function saveCourse(){const id=document.getElementById('editCourseId').value;const data={stage:document.getElementById('fStage').value,title:document.getElementById('fTitle').value.trim(),description:document.getElementById('fDesc').value.trim(),youtube_url:document.getElementById('fYoutube').value.trim(),note_template:document.getElementById('fNote').value.trim(),order_num:parseInt(document.getElementById('fOrder').value)||0,is_active:true};if(!data.title){alert('請填寫課程名稱');return;}if(id){await sb.from('courses').update(data).eq('id',id);}else{await sb.from('courses').insert(data);}hideCourseForm();await loadCourseAdmin();alert('課程已儲存！');}
-function hideCourseForm(){document.getElementById('courseForm').style.display='none';}
-async function toggleCourse(id,isActive){await sb.from('courses').update({is_active:!isActive}).eq('id',id);await loadCourseAdmin();}
-async function deleteCourse(id){if(!confirm('確定刪除這堂課程？'))return;await sb.from('courses').delete().eq('id',id);await loadCourseAdmin();}
-
-// STATS
-async function loadStats(){
-  const approved=allUsers.filter(u=>u.status==='已審核');const pending=allUsers.filter(u=>u.status==='待審核');
-  document.getElementById('statTotal').textContent=allUsers.length;document.getElementById('statPending').textContent=pending.length;document.getElementById('statApproved').textContent=approved.length;
-  const levelCount={};LEVELS.forEach(l=>levelCount[l]=0);approved.forEach(u=>{if(levelCount[u.level]!==undefined)levelCount[u.level]++;});
-  document.getElementById('levelStats').innerHTML=LEVELS.map(l=>levelCount[l]>0?`<div class="user-row"><span style="font-size:14px;color:#333;">${l}</span><span style="font-size:15px;font-weight:500;color:#A67C5B;">${levelCount[l]} 人</span></div>`:'').join('')||'<div class="empty">暫無數據</div>';
-  const now=new Date();const year=now.getFullYear();const month=now.getMonth()+1;
-  const{data:sales}=await sb.from('sales_data').select('user_id,total_revenue,cost').eq('year',year).eq('month',month);
-  if(sales&&sales.length){
-    const profitMap={};sales.forEach(s=>{if(!profitMap[s.user_id])profitMap[s.user_id]=0;profitMap[s.user_id]+=(s.total_revenue-s.cost);});
-    const ranked=Object.entries(profitMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    document.getElementById('profitRank').innerHTML=ranked.map(([uid,profit],i)=>{const user=allUsers.find(u=>u.id==uid);const name=user?user.name:'未知';return`<div class="user-row"><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:16px;font-weight:500;color:#888;min-width:24px;">${i+1}</span><div><div style="font-size:14px;font-weight:500;color:#333;">${name}</div><div style="font-size:12px;color:#aaa;">${user?user.level:''}</div></div></div><span style="font-size:15px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span></div>`;}).join('');
-  } else {document.getElementById('profitRank').innerHTML='<div class="empty">本月尚無業績數據</div>';}
-}
-
-// ===== ANNOUNCEMENTS =====
-async function loadAnnouncements(){
-  const{data}=await sb.from('announcements').select('*').order('created_at',{ascending:false});
-  const el=document.getElementById('announceList');
-  if(!data||!data.length){el.innerHTML='<div class="empty">尚無公告記錄</div>';return;}
-  el.innerHTML=data.map(a=>{
-    const date=new Date(a.created_at).toLocaleDateString('zh-TW');
-    return `<div class="${a.is_active?'announce-active':'announce-inactive'}" style="border-radius:10px;padding:12px 14px;margin-bottom:8px;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+  el.innerHTML=filtered.map(c=>`
+    <div class="card" style="margin-bottom:8px;opacity:${c.is_active?1:0.5};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
         <div style="flex:1;">
-          ${a.is_active?'<span style="font-size:10px;background:#e1f5ee;color:#0F6E56;padding:2px 8px;border-radius:8px;font-weight:600;display:inline-block;margin-bottom:6px;">📢 顯示中</span>':'<span style="font-size:10px;background:#f0f0f0;color:#aaa;padding:2px 8px;border-radius:8px;display:inline-block;margin-bottom:6px;">停用</span>'}
-          <div style="font-size:14px;color:#333;line-height:1.6;">${a.content}</div>
-          <div style="font-size:11px;color:#bbb;margin-top:4px;">${date}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#f0f0f0;color:#888;">${c.stage}</span>
+            <span style="font-size:11px;color:#aaa;">順序 ${c.order_num}</span>
+            ${c.is_active?'<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#e1f5ee;color:#0F6E56;">上架中</span>':'<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#ffeaea;color:#E24B4A;">已下架</span>'}
+          </div>
+          <div style="font-size:15px;font-weight:500;color:#333;margin-bottom:3px;">${c.title}</div>
+          <div style="font-size:12px;color:#aaa;">${c.description||'無簡介'}</div>
+          ${c.youtube_url?`<div style="font-size:12px;color:#5BBDB7;margin-top:4px;">▶ 有影片連結</div>`:''}
+          ${c.note_template?`<div style="font-size:12px;color:#888;margin-top:2px;">📝 有筆記格式</div>`:''}
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <button class="btn ${a.is_active?'btn-reject':'btn-approve'}" onclick="toggleAnnounce(${a.id},${a.is_active})">${a.is_active?'停用':'啟用'}</button>
-          <button class="btn btn-danger" onclick="deleteAnnounce(${a.id})">刪除</button>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-left:12px;">
+          <button class="btn btn-save" style="padding:6px 12px;font-size:12px;" onclick="editCourse(${c.id})">編輯</button>
+          <button class="btn ${c.is_active?'btn-reject':'btn-approve'}" style="padding:6px 12px;font-size:12px;" onclick="toggleCourse(${c.id},${c.is_active})">${c.is_active?'下架':'上架'}</button>
+          <button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteCourse(${c.id})">刪除</button>
         </div>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 
-async function addAnnouncement(){
-  const content=document.getElementById('newAnnounceText').value.trim();
-  if(!content){alert('請輸入公告內容');return;}
-  // Deactivate all existing first
-  await sb.from('announcements').update({is_active:false}).neq('id',0);
-  await sb.from('announcements').insert({content,is_active:true,created_at:new Date().toISOString()});
-  document.getElementById('newAnnounceText').value='';
-  await loadAnnouncements();
-  alert('✅ 公告已發布！客人端橫幅已更新。');
+function showAddCourse(){
+  document.getElementById('courseFormTitle').textContent='新增課程';
+  document.getElementById('editCourseId').value='';
+  document.getElementById('fStage').value='新人啟航';
+  document.getElementById('fTitle').value='';
+  document.getElementById('fDesc').value='';
+  document.getElementById('fYoutube').value='';
+  document.getElementById('fNote').value='';
+  document.getElementById('fOrder').value='0';
+  document.getElementById('courseForm').style.display='block';
+  document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});
 }
 
-async function toggleAnnounce(id,isActive){
-  if(!isActive){
-    // Activating — deactivate others first
-    await sb.from('announcements').update({is_active:false}).neq('id',0);
-  }
-  await sb.from('announcements').update({is_active:!isActive}).eq('id',id);
-  await loadAnnouncements();
+function editCourse(id){
+  const c=allCourses.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('courseFormTitle').textContent='編輯課程';
+  document.getElementById('editCourseId').value=id;
+  document.getElementById('fStage').value=c.stage;
+  document.getElementById('fTitle').value=c.title;
+  document.getElementById('fDesc').value=c.description||'';
+  document.getElementById('fYoutube').value=c.youtube_url||'';
+  document.getElementById('fNote').value=c.note_template||'';
+  document.getElementById('fOrder').value=c.order_num||0;
+  document.getElementById('courseForm').style.display='block';
+  document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});
 }
 
-async function deleteAnnounce(id){
-  if(!confirm('確定刪除這則公告？'))return;
-  await sb.from('announcements').delete().eq('id',id);
-  await loadAnnouncements();
-}
-
-// ===== PRODUCT ADMIN =====
-let dbProducts=[];
-async function loadProductAdmin(){
-  const{data}=await sb.from('customer_products').select('*').order('created_at',{ascending:false});
-  dbProducts=data||[];renderProductAdmin();
-}
-
-function renderProductAdmin(){
-  const el=document.getElementById('productAdminList');
-  if(!dbProducts.length){el.innerHTML='<div class="empty">尚無額外產品（customer.html 內建的產品不在這裡顯示）</div>';return;}
-  el.innerHTML=dbProducts.map(p=>`<div class="prod-admin-card" style="opacity:${p.is_active?1:0.5};">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <div style="flex:1;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
-          <span style="font-size:15px;font-weight:600;color:#333;">${p.name}</span>
-          <span class="tag" style="background:#f0f0f0;color:#888;">${p.category||''}</span>
-          ${p.is_active?'<span class="tag" style="background:#e1f5ee;color:#0F6E56;">上架中</span>':'<span class="tag" style="background:#ffeaea;color:#E24B4A;">已下架</span>'}
-        </div>
-        <div style="font-size:12px;color:#aaa;">${p.tagline||''}</div>
-        ${p.effects?`<div style="font-size:12px;color:#5BBDB7;margin-top:4px;">${JSON.parse(p.effects||'[]').join(' · ')}</div>`:''}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;margin-left:10px;">
-        <button class="btn btn-save" onclick="editProduct(${p.id})">編輯</button>
-        <button class="btn ${p.is_active?'btn-reject':'btn-approve'}" onclick="toggleProduct(${p.id},${p.is_active})">${p.is_active?'下架':'上架'}</button>
-        <button class="btn btn-danger" onclick="deleteProduct(${p.id})">刪除</button>
-      </div>
-    </div>
-  </div>`).join('');
-}
-
-function showAddProduct(){document.getElementById('prodFormTitle').textContent='新增產品';document.getElementById('editProdId').value='';['pName','pTagline','pEffects','pTiming'].forEach(id=>document.getElementById(id).value='');['pDosage','pHowto','pTips'].forEach(id=>document.getElementById(id).value='');document.getElementById('pCat').value='纖體系列';document.getElementById('productForm').style.display='block';document.getElementById('productForm').scrollIntoView({behavior:'smooth'});}
-function editProduct(id){
-  const p=dbProducts.find(x=>x.id===id);if(!p)return;
-  document.getElementById('prodFormTitle').textContent='編輯產品';
-  document.getElementById('editProdId').value=id;
-  document.getElementById('pName').value=p.name||'';
-  document.getElementById('pCat').value=p.category||'纖體系列';
-  document.getElementById('pTagline').value=p.tagline||'';
-  document.getElementById('pEffects').value=JSON.parse(p.effects||'[]').join(',');
-  document.getElementById('pDosage').value=p.dosage||'';
-  document.getElementById('pTiming').value=p.timing||'';
-  document.getElementById('pHowto').value=p.howto||'';
-  document.getElementById('pTips').value=p.tips||'';
-  document.getElementById('productForm').style.display='block';
-  document.getElementById('productForm').scrollIntoView({behavior:'smooth'});
-}
-async function saveProduct(){
-  const id=document.getElementById('editProdId').value;
-  const effectsRaw=document.getElementById('pEffects').value;
-  const effectsArr=effectsRaw.split(',').map(e=>e.trim()).filter(Boolean);
+async function saveCourse(){
+  const id=document.getElementById('editCourseId').value;
   const data={
-    name:document.getElementById('pName').value.trim(),
-    category:document.getElementById('pCat').value,
-    tagline:document.getElementById('pTagline').value.trim(),
-    effects:JSON.stringify(effectsArr),
-    dosage:document.getElementById('pDosage').value.trim(),
-    timing:document.getElementById('pTiming').value.trim(),
-    howto:document.getElementById('pHowto').value.trim(),
-    tips:document.getElementById('pTips').value.trim(),
+    stage:document.getElementById('fStage').value,
+    title:document.getElementById('fTitle').value.trim(),
+    description:document.getElementById('fDesc').value.trim(),
+    youtube_url:document.getElementById('fYoutube').value.trim(),
+    note_template:document.getElementById('fNote').value.trim(),
+    order_num:parseInt(document.getElementById('fOrder').value)||0,
     is_active:true
   };
-  if(!data.name){alert('請填寫產品名稱');return;}
-  if(id){await sb.from('customer_products').update(data).eq('id',id);}
-  else{await sb.from('customer_products').insert({...data,created_at:new Date().toISOString()});}
-  hideProductForm();await loadProductAdmin();alert('產品已儲存！');
+  if(!data.title){alert('請填寫課程名稱');return;}
+  if(id){await sb.from('courses').update(data).eq('id',id);}
+  else{await sb.from('courses').insert(data);}
+  hideCourseForm();
+  await loadCourseAdmin();
+  alert('課程已儲存！');
 }
-function hideProductForm(){document.getElementById('productForm').style.display='none';}
-async function toggleProduct(id,isActive){await sb.from('customer_products').update({is_active:!isActive}).eq('id',id);await loadProductAdmin();}
-async function deleteProduct(id){if(!confirm('確定刪除這個產品？'))return;await sb.from('customer_products').delete().eq('id',id);await loadProductAdmin();}
+
+function hideCourseForm(){document.getElementById('courseForm').style.display='none';}
+
+async function toggleCourse(id,isActive){
+  await sb.from('courses').update({is_active:!isActive}).eq('id',id);
+  await loadCourseAdmin();
+}
+
+async function deleteCourse(id){
+  if(!confirm('確定刪除這堂課程？'))return;
+  await sb.from('courses').delete().eq('id',id);
+  await loadCourseAdmin();
+}
+
+async function loadStats(){
+  const approved=allUsers.filter(u=>u.status==='已審核');
+  const pending=allUsers.filter(u=>u.status==='待審核');
+  document.getElementById('statTotal').textContent=allUsers.length;
+  document.getElementById('statPending').textContent=pending.length;
+  document.getElementById('statApproved').textContent=approved.length;
+
+  const levelCount={};
+  LEVELS.forEach(l=>levelCount[l]=0);
+  approved.forEach(u=>{if(levelCount[u.level]!==undefined)levelCount[u.level]++;});
+  document.getElementById('levelStats').innerHTML=LEVELS.map(l=>levelCount[l]>0?`
+    <div class="user-row">
+      <span style="font-size:14px;color:#333;">${l}</span>
+      <span style="font-size:15px;font-weight:500;color:#A67C5B;">${levelCount[l]} 人</span>
+    </div>`:'').join('')||'<div class="empty">暫無數據</div>';
+
+  const now=new Date();
+  const year=now.getFullYear();
+  const month=now.getMonth()+1;
+  const {data:sales}=await sb.from('sales_data').select('user_id,total_revenue,cost').eq('year',year).eq('month',month);
+  if(sales&&sales.length){
+    const profitMap={};
+    sales.forEach(s=>{
+      if(!profitMap[s.user_id])profitMap[s.user_id]=0;
+      profitMap[s.user_id]+=(s.total_revenue-s.cost);
+    });
+    const ranked=Object.entries(profitMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    document.getElementById('profitRank').innerHTML=ranked.map(([uid,profit],i)=>{
+      const user=allUsers.find(u=>u.id==uid);
+      const name=user?user.name:'未知';
+      return `<div class="user-row">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;font-weight:500;color:#888;min-width:24px;">${i+1}</span>
+          <div><div style="font-size:14px;font-weight:500;color:#333;">${name}</div><div style="font-size:12px;color:#aaa;">${user?user.level:''}</div></div>
+        </div>
+        <span style="font-size:15px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span>
+      </div>`;
+    }).join('');
+  } else {
+    document.getElementById('profitRank').innerHTML='<div class="empty">本月尚無業績數據</div>';
+  }
+}
 </script>
 </body>
 </html>
