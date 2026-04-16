@@ -197,9 +197,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="certModal">
   <canvas id="certCanvas" width="800" height="560"></canvas>
   <div class="cert-btns">
-    <button class="cert-btn cert-btn-dl" onclick="downloadCert()">⬇ 下載證書 PNG</button>
+    <button class="cert-btn cert-btn-dl" onclick="downloadCert()">⬇ 下載吃法小卡</button>
     <button class="cert-btn cert-btn-close" onclick="closeCert()">關閉</button>
   </div>
+  <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin-top:10px;max-width:360px;">💛 點擊後按更多再按儲存影像即可傳給客人寶寶！</div>
 </div>
 
 <!-- MAIN APP -->
@@ -313,6 +314,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <!-- 零售四大循環 -->
       <div class="quest-section-label">🔄 零售四大循環</div>
       <div id="retail-cards"></div>
+
+      <!-- 三大系列產品 -->
+      <div class="quest-section-label">💊 三大系列產品</div>
+      <div id="product-cards"></div>
     </div>
 
     <!-- Course list view -->
@@ -477,10 +482,12 @@ let pChart,yChart,fChart,cChart;
 // ===== QUEST STAGES =====
 const STAGES=[
   {key:'新人啟航',icon:'🌱',desc:'從零開始，掌握核心銷售力',color:'#A4E5E0',textColor:'#085041',recommend:'實習加盟、三級加盟',minLevel:null},
-  {key:'輔導督導',icon:'🚀',desc:'帶人複製，打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'三級輔導、二級輔導',minLevel:null},
-  {key:'三大系列產品力',icon:'💊',desc:'掌握產品知識，提升成交率',color:'#F5C6CB',textColor:'#7a1a2a',recommend:'全級別',minLevel:null},
-  {key:'引爆社群平台',icon:'📱',desc:'打造個人品牌，引爆流量',color:'#FAD7A0',textColor:'#7a4400',recommend:'全級別',minLevel:null},
-  {key:'高階領導',icon:'👑',desc:'領袖思維，拓展事業版圖',color:'#E8D5A3',textColor:'#7a5200',recommend:'二級輔導以上',minLevel:'二級輔導'}
+  {key:'輔導督導',icon:'🚀',desc:'帶人複製,打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'三級輔導、二級輔導',minLevel:null}
+];
+const PRODUCT_STAGES=[
+  {key:'纖體系列',icon:'💧',desc:'燃脂瘦身，輕盈有感',color:'#E8F4FD',accent:'#4A9EE0'},
+  {key:'美肌系列',icon:'✨',desc:'內外兼修，水光透亮',color:'#F5E8FD',accent:'#9B59B6'},
+  {key:'大健康系列',icon:'💪',desc:'全方位守護，健康活力',color:'#E8FDF0',accent:'#2ECC71'}
 ];
 const RETAIL_STAGES=[
   {key:'引流',icon:'🎯',desc:'精準吸引目標客群，讓對的人找到你',color:'#FFECD2',accent:'#FF8C42'},
@@ -500,9 +507,9 @@ function canAccessStage(stage){
 const COMPLETE_MSG={
   '新人啟航':{title:'🌱 新人啟航 — 完關！',msg:'你已掌握核心銷售基礎，是時候出發了！繼續挑戰下一關吧！'},
   '輔導督導':{title:'🚀 輔導督導 — 完關！',msg:'你已具備帶領團隊的能力，複製你的成功吧！'},
-  '三大系列產品力':{title:'💊 產品力 — 完關！',msg:'你現在是產品達人，客人問不倒你了！'},
-  '引爆社群平台':{title:'📱 社群引爆 — 完關！',msg:'你的個人品牌正在發光，繼續燃燒！'},
-  '高階領導':{title:'👑 高階領導 — 完關！',msg:'真正的領袖已經覺醒，帶著你的團隊飛翔！'},
+  '纖體系列':{title:'💧 纖體系列 — 完關！',msg:'燃脂瘦身產品力滿點，客人問不倒你了！'},
+  '美肌系列':{title:'✨ 美肌系列 — 完關！',msg:'美肌保養專家就是你，水光透亮全靠你！'},
+  '大健康系列':{title:'💪 大健康系列 — 完關！',msg:'健康守護達人誕生，全方位照顧客人！'},
   '引流':{title:'🎯 引流 — 完關！',msg:'精準引流，讓對的客人源源不絕！'},
   '版面打造':{title:'✨ 版面打造 — 完關！',msg:'你的主頁現在就是你最強的銷售員！'},
   '售中諮詢':{title:'💬 售中諮詢 — 完關！',msg:'成交高手就是你！話術已成你的本能！'},
@@ -760,7 +767,8 @@ async function loadCourses(){
 function renderStageCards(){
   const el=document.getElementById('stage-cards');
   const rel=document.getElementById('retail-cards');
-  if(!el||!rel)return;
+  const pel=document.getElementById('product-cards');
+  if(!el||!rel||!pel)return;
 
   // Main quest stages
   el.innerHTML=STAGES.map((s,idx)=>{
@@ -778,7 +786,7 @@ function renderStageCards(){
         ${locked?'<div class="quest-lock-overlay">🔒</div>':''}
       </div>
       <div class="quest-info">
-        <div class="quest-name">第${['一','二','三','四','五'][idx]}關　${s.key}</div>
+        <div class="quest-name">第${['一','二'][idx]}關　${s.key}</div>
         <div class="quest-desc">${s.desc}</div>
         <div class="quest-meta"><span class="quest-tag">👥 ${s.recommend}</span></div>
         ${total>0?`<div class="quest-progress-bar"><div class="quest-progress-fill" style="width:${pct}%;background:${s.color};filter:saturate(1.5) brightness(0.85);"></div></div><div class="quest-progress-text">${done}／${total} 堂完成 · ${pct}%</div>`:'<div class="quest-progress-text" style="color:#ccc;">課程準備中</div>'}
@@ -789,6 +797,27 @@ function renderStageCards(){
 
   // Retail 4-cycle
   rel.innerHTML=RETAIL_STAGES.map(s=>{
+    const stageCourses=allCourses.filter(c=>c.stage===s.key);
+    const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+    const total=stageCourses.length;
+    const pct=total?Math.round(done/total*100):0;
+    const isComplete=total>0&&done===total;
+    return `<div onclick="openStage('${s.key}')" class="retail-card" style="border-left-color:${s.accent};">
+      <div style="width:46px;height:46px;border-radius:12px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${s.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+          <div style="font-size:15px;font-weight:600;color:#222;">${s.key}</div>
+          ${isComplete?`<span style="font-size:10px;background:${s.color};color:${s.accent};padding:2px 7px;border-radius:8px;font-weight:700;">✓ 完成</span>`:''}
+        </div>
+        <div style="font-size:12px;color:#999;margin-bottom:6px;">${s.desc}</div>
+        ${total>0?`<div style="background:#f0f0f0;border-radius:4px;height:4px;overflow:hidden;"><div style="background:${s.accent};height:100%;width:${pct}%;border-radius:4px;"></div></div><div style="font-size:11px;color:#bbb;margin-top:3px;">${done}／${total} 堂 · ${pct}%</div>`:'<div style="font-size:11px;color:#ccc;">課程準備中</div>'}
+      </div>
+      <div style="font-size:18px;color:#ddd;">›</div>
+    </div>`;
+  }).join('');
+
+  // Product stages
+  pel.innerHTML=PRODUCT_STAGES.map(s=>{
     const stageCourses=allCourses.filter(c=>c.stage===s.key);
     const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
     const total=stageCourses.length;
@@ -1063,12 +1092,12 @@ function drawMealCard(clientName,grouped){
 
   // Background
   const bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#f0fdfb');bg.addColorStop(1,'#e8f9f6');
+  bg.addColorStop(0,'#5D4E37');bg.addColorStop(1,'#8B7355');
   ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
 
   // Header bar
   const hg=ctx.createLinearGradient(0,0,W,0);
-  hg.addColorStop(0,'#5BBDB7');hg.addColorStop(1,'#A4E5E0');
+  hg.addColorStop(0,'#A0826D');hg.addColorStop(1,'#8B6F47');
   ctx.fillStyle=hg;ctx.fillRect(0,0,W,110);
 
   // Brand
@@ -1076,17 +1105,20 @@ function drawMealCard(clientName,grouped){
   ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText('JEROSSE × HT 團隊', W/2, 32);
 
-  // Title
-  ctx.fillStyle='white';ctx.font='bold 30px -apple-system,sans-serif';
-  ctx.fillText('🌿 專屬吃法計劃', W/2, 68);
+  // Client name (large)
+  ctx.fillStyle='white';ctx.font='bold 26px -apple-system,sans-serif';
+  ctx.fillText(clientName, W/2, 58);
 
-  // Client name
-  ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font='16px -apple-system,sans-serif';
-  ctx.fillText('為 ' + clientName + ' 量身打造', W/2, 97);
+  // Title
+  ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font='bold 20px -apple-system,sans-serif';
+  ctx.fillText('🤎 專屬吃法計劃', W/2, 85);
+  
+  ctx.fillStyle='rgba(255,255,255,0.75)';ctx.font='14px -apple-system,sans-serif';
+  ctx.fillText('為你量身打造', W/2, 105);
 
   // Meal rows
-  const mealColors=['#FF8C42','#4A9EE0','#7B68EE','#2ECC71'];
-  const mealBg=['#FFF5EE','#EEF5FF','#F5F0FF','#EEFFEE'];
+  const mealColors=['#8B6F47','#A0826D','#6B5344','#9C7A5E'];
+  const mealBg=['#F5EDE4','#EFE7DC','#E8DED1','#F0E8DD'];
   const mealIcons=['🌅','🌞','🌙','⏰'];
   const mealLabels=['第一餐（早餐）','第二餐（午餐）','第三餐（晚餐）','任何時刻'];
 
@@ -1117,8 +1149,8 @@ function drawMealCard(clientName,grouped){
   // Bottom note
   const now=new Date();
   const dateStr=`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
-  ctx.fillStyle='#999';ctx.font='13px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('具體吃法請隨時諮詢您的賣家，因人而異 💛　' + dateStr, W/2, H-25);
+  ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='13px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('體質每個人不同　問我們最安心！　' + dateStr, W/2, H-25);
 }
 
 // Override downloadCert to handle both cert types — it already reads from canvas
