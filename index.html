@@ -197,7 +197,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="certModal">
   <canvas id="certCanvas" width="800" height="560"></canvas>
   <div class="cert-btns">
-    <button class="cert-btn cert-btn-dl" onclick="downloadCert()">⬇ 下載吃法小卡</button>
+    <button class="cert-btn cert-btn-dl" onclick="downloadCert();showDownloadHint()">⬇ 下載吃法小卡</button>
     <button class="cert-btn cert-btn-close" onclick="closeCert()">關閉</button>
   </div>
   <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin-top:10px;max-width:360px;">💛 點擊後按更多再按儲存影像即可傳給客人寶寶！</div>
@@ -482,7 +482,8 @@ let pChart,yChart,fChart,cChart;
 // ===== QUEST STAGES =====
 const STAGES=[
   {key:'新人啟航',icon:'🌱',desc:'從零開始，掌握核心銷售力',color:'#A4E5E0',textColor:'#085041',recommend:'實習加盟、三級加盟',minLevel:null},
-  {key:'輔導督導',icon:'🚀',desc:'帶人複製,打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'三級輔導、二級輔導',minLevel:null}
+  {key:'輔導督導',icon:'🚀',desc:'帶人複製，打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'三級輔導、二級輔導',minLevel:null},
+  {key:'高階領導',icon:'👑',desc:'領袖思維，拓展事業版圖',color:'#E8D5A3',textColor:'#7a5200',recommend:'二級輔導以上',minLevel:'二級輔導'}
 ];
 const PRODUCT_STAGES=[
   {key:'纖體系列',icon:'💧',desc:'燃脂瘦身，輕盈有感',color:'#E8F4FD',accent:'#4A9EE0'},
@@ -507,6 +508,7 @@ function canAccessStage(stage){
 const COMPLETE_MSG={
   '新人啟航':{title:'🌱 新人啟航 — 完關！',msg:'你已掌握核心銷售基礎，是時候出發了！繼續挑戰下一關吧！'},
   '輔導督導':{title:'🚀 輔導督導 — 完關！',msg:'你已具備帶領團隊的能力，複製你的成功吧！'},
+  '高階領導':{title:'👑 高階領導 — 完關！',msg:'真正的領袖已經覺醒，帶著你的團隊飛翔！'},
   '纖體系列':{title:'💧 纖體系列 — 完關！',msg:'燃脂瘦身產品力滿點，客人問不倒你了！'},
   '美肌系列':{title:'✨ 美肌系列 — 完關！',msg:'美肌保養專家就是你，水光透亮全靠你！'},
   '大健康系列':{title:'💪 大健康系列 — 完關！',msg:'健康守護達人誕生，全方位照顧客人！'},
@@ -1013,7 +1015,7 @@ function drawCertificate(){
   ctx.fillStyle='#C9A84C';ctx.font='bold 12px -apple-system,sans-serif';ctx.fillText('HT', W/2, 507);ctx.font='10px -apple-system,sans-serif';ctx.fillText('TEAM', W/2, 520);
 }
 
-function downloadCert(){
+function downloadCert();showDownloadHint(){
   const canvas=document.getElementById('certCanvas');
   const link=document.createElement('a');
   link.download='HT_完課證書_'+certStageName+'_'+(currentUser?.name||'')+'.png';
