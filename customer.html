@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="纖體百寶庫">
+<title>🌿 纖體百寶庫</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans TC',-apple-system,sans-serif;background:#f7fdf9;min-height:100vh;padding-bottom:30px;}
+
+/* Announcement banner */
+#announceBanner{display:none;background:linear-gradient(135deg,#5BBDB7,#A4E5E0);padding:10px 20px;text-align:center;color:white;font-size:13px;font-weight:500;letter-spacing:0.3px;position:relative;}
+#announceBanner .close-banner{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.3);border:none;color:white;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
+
+/* Header */
+.app-header{background:linear-gradient(135deg,#3ea89f,#5BBDB7);padding:1.5rem 1.25rem 1.25rem;color:white;}
+.header-brand{font-size:11px;font-weight:500;letter-spacing:3px;opacity:0.75;margin-bottom:4px;}
+.header-title{font-size:26px;font-weight:700;letter-spacing:1px;margin-bottom:4px;}
+.header-sub{font-size:13px;opacity:0.75;line-height:1.5;}
+
+/* Search */
+.search-wrap{padding:1rem 1rem 0.5rem;position:sticky;top:0;z-index:50;background:#f7fdf9;}
+.search-box{display:flex;align-items:center;gap:10px;background:white;border-radius:14px;padding:10px 14px;box-shadow:0 2px 12px rgba(0,0,0,0.08);}
+.search-box input{flex:1;border:none;outline:none;font-size:15px;color:#333;font-family:inherit;background:transparent;}
+.search-box input::placeholder{color:#ccc;}
+.search-icon{font-size:17px;color:#aaa;}
+.clear-search{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;display:none;}
+
+/* Category filter */
+.cat-scroll{overflow-x:auto;padding:0.75rem 1rem;display:flex;gap:8px;scrollbar-width:none;}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #e0e0e0;background:white;font-size:13px;color:#666;cursor:pointer;white-space:nowrap;font-family:inherit;font-weight:500;transition:all 0.2s;}
+.cat-btn.active{background:#5BBDB7;border-color:#5BBDB7;color:white;}
+
+/* Product grid */
+.prod-list{padding:0.5rem 1rem;}
+.prod-card{background:white;border-radius:16px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);overflow:hidden;cursor:pointer;}
+.prod-card-header{padding:1rem 1.2rem 0.8rem;display:flex;align-items:flex-start;gap:12px;}
+.prod-icon-wrap{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.prod-name{font-size:16px;font-weight:700;color:#1a2a1a;margin-bottom:3px;}
+.prod-tagline{font-size:12px;color:#999;line-height:1.4;}
+.prod-cat-tag{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:600;display:inline-block;}
+.prod-preview-tags{display:flex;flex-wrap:wrap;gap:5px;padding:0 1.2rem 1rem;}
+.effect-chip{font-size:11px;padding:3px 9px;border-radius:10px;background:#f0fdfb;color:#3ea89f;font-weight:500;}
+
+/* Expanded detail */
+.prod-detail{display:none;border-top:1px solid #f0f0f0;padding:1rem 1.2rem;}
+.prod-detail.open{display:block;}
+.detail-section{margin-bottom:1rem;}
+.detail-label{font-size:11px;font-weight:700;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.detail-content{font-size:14px;color:#444;line-height:1.8;}
+.detail-content.highlight{background:linear-gradient(135deg,#f0fdfb,#e8f9f6);border-radius:10px;padding:10px 12px;color:#085041;font-weight:500;}
+.how-to-card{background:#fff9f0;border-radius:10px;padding:12px 14px;border-left:3px solid #FF8C42;}
+.how-to-card .detail-content{color:#5a3a1a;}
+.tip-card{background:#fffbf0;border-radius:10px;padding:12px 14px;border-left:3px solid #C9A84C;}
+.dosage-badge{display:inline-block;background:linear-gradient(135deg,#5BBDB7,#3ea89f);color:white;font-size:13px;font-weight:700;padding:6px 14px;border-radius:10px;margin-bottom:8px;}
+.disclaimer{font-size:12px;color:#bbb;text-align:center;padding:8px 0;line-height:1.6;}
+
+/* Notice box at bottom */
+.global-note{margin:0.5rem 1rem 1rem;background:white;border-radius:14px;padding:1rem 1.2rem;border:1.5px solid #A4E5E0;}
+.global-note p{font-size:13px;color:#555;line-height:1.8;}
+
+/* No results */
+.no-results{text-align:center;padding:3rem 1rem;color:#bbb;}
+.no-results .icon{font-size:48px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<!-- Announcement Banner -->
+<div id="announceBanner">
+  <span id="announceText"></span>
+  <button class="close-banner" onclick="closeBanner()">×</button>
+</div>
+
+<!-- Header -->
+<div class="app-header">
+  <div class="header-brand">JEROSSE × DCT 專屬</div>
+  <div class="header-title">🌿 纖體百寶庫</div>
+  <div class="header-sub">姵樂纖系列完整指南 · 科學纖體 · 健康生活</div>
+</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="搜尋產品、功效、吃法、Q&A..." oninput="doSearch()" />
+    <button class="clear-search" id="clearBtn" onclick="clearSearch()">×</button>
+  </div>
+</div>
+
+<!-- Category filter -->
+<div class="cat-scroll" id="catRow"></div>
+
+<!-- Product list -->
+<div class="prod-list" id="prodList"></div>
+
+<!-- Global notice -->
+<div class="global-note">
+  <p>📌 <strong>重要提醒</strong><br>
+  所有產品均通過人體實驗與國家國際認證，放心使用！<br>
+  具體吃法與用量因人而異，請諮詢您的專屬賣家獲得最適合您的方案 💛<br>
+  <br>
+  孩子、寶寶或身體有特殊狀況者，請先詢問加盟商再次確認。<br>
+  我們有線上 8 位全職國家高考營養師隨時為您服務！</p>
+</div>
+
+<script>
+const SUPABASE_URL='https://lsurinqdrybvqtvhiqim.supabase.co';
+const SUPABASE_KEY='sb_publishable_OVv7ly-_nLpirm93hcR0Qg_GK71hyI_';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+// ===== PRODUCT DATA =====
+const PRODUCTS=[
+  {
+    id:1,cat:'纖體系列',icon:'🥤',color:'#e8f9f6',catColor:'#5BBDB7',catBg:'#e0f5f3',
+    name:'纖纖飲',
+    tagline:'燃脂旗艦款 · 三高必備',
+    effects:['溶脂肪','燃脂','降三高','抗發炎','提升代謝','控制食慾'],
+    dosage:'熱量最大那一餐前 1–2 包',
+    timing:'餐前飲用效果最佳',
+    howto:'加 300–450ml 冷水或常溫水搖勻後飲用，餐前 30 分鐘效果更好。',
+    tips:'早餐 = 起床後的第一餐，幾點起床都沒關係。建議多喝水幫助代謝！\n經期期間也可以使用，裡面不含雌激素，安心放心。',
+    qa:[
+      {q:'一定要餐前嗎？',a:'建議餐前，但餐後喝也沒關係，只是餐前效果較佳。'},
+      {q:'可以加熱水嗎？',a:'建議冷水或常溫水，熱水可能影響部分成分活性。'},
+    ]
+  },
+  {
+    id:2,cat:'纖體系列',icon:'💊',color:'#e8f9f6',catColor:'#5BBDB7',catBg:'#e0f5f3',
+    name:'纖飄錠',
+    tagline:'早晚必備 · 持續燃脂',
+    effects:['燃脂','抑制脂肪吸收','提升代謝','輕盈感'],
+    dosage:'早餐各 2 顆、晚餐各 2 顆，一天 4 顆',
+    timing:'早晚餐搭配服用',
+    howto:'隨早餐服用 2 顆、隨晚餐服用 2 顆，以水吞服。',
+    tips:'規律服用效果累積明顯，不要忘記喔！',
+    qa:[
+      {q:'早晚餐外可以多吃嗎？',a:'按照建議用量即可，不需要增加。'},
+    ]
+  },
+  {
+    id:3,cat:'纖體系列',icon:'🫐',color:'#f3eeff',catColor:'#9B59B6',catBg:'#f0e8ff',
+    name:'紫纖飲',
+    tagline:'隨時享用 · 美味又纖體',
+    effects:['抑制食慾','控制血糖','飽足感','抗氧化','嘴饞救星'],
+    dosage:'隨餐或嘴饞時 1–2 杯，一天不超過 2 杯',
+    timing:'隨餐或任何時刻皆可',
+    howto:'加 300–450ml 的冰水或常溫水調製，依個人喜歡的濃淡調整水量。\n會有微氣泡感，如果不喜歡可以放 2 分鐘再喝就不會有氣泡了！\n小包白色的是雪耳（白木耳），增加口感用的，不喜歡可以不加，不影響效果。',
+    tips:'額外吃法大公開 ✨\n▪ 加氣泡水：喜歡汽水的一定超愛！根本在喝飲料還更飽\n▪ 加優酪乳＋優格：搭配穀物脆片或堅果，變成莓果優格碗，健康又像在吃甜點\n▪ 加可可：很像葡萄巧克力的味道\n▪ 加奶茶：草莓奶茶的味道！\n\n喝完比較有飽足感 ✅\n喝完晚上睡眠品質變好 ✅\n喝完覺得容易口渴想喝水 ✅\n→ 這些都是正常反應！！！',
+    qa:[
+      {q:'可以加熱水嗎？',a:'建議冷水或常溫水，加熱水口感較差。'},
+      {q:'雪耳一定要加嗎？',a:'不一定！雪耳是增加口感的，不喜歡可以不加。'},
+    ]
+  },
+  {
+    id:4,cat:'纖體系列',icon:'🔥',color:'#fff3ee',catColor:'#FF8C42',catBg:'#ffe8d6',
+    name:'爆纖錠',
+    tagline:'三餐必搭 · 消水腫神器',
+    effects:['消水腫','燃脂','促進代謝','緊緻'],
+    dosage:'減脂消水腫：三餐各 3 顆（一天 9 顆）\n一般日常補充：早午餐各 3 顆（一天 6 顆）',
+    timing:'三餐隨餐服用',
+    howto:'隨三餐（或早午餐）以水吞服。',
+    tips:'水腫嚴重時三餐各 3 顆效果最明顯！記得搭配多喝水。',
+    qa:[
+      {q:'可以只吃早午餐嗎？',a:'可以！一般日常保養吃早午餐各 3 顆就足夠了。'},
+    ]
+  },
+  {
+    id:5,cat:'纖體系列',icon:'🌿',color:'#e8f9f0',catColor:'#2ECC71',catBg:'#d6f5e3',
+    name:'纖酵宿',
+    tagline:'腸道保養 · 排便順暢',
+    effects:['促進腸胃蠕動','排便順暢','腸道保養','代謝廢物'],
+    dosage:'保養腸道：晚餐前 1 顆\n便秘：2–4 顆（依個人狀況增減）',
+    timing:'晚餐前服用',
+    howto:'晚餐前以水吞服，便秘時可增加至 2–4 顆。個人體質不同，從 1 顆開始試試效果再調整。',
+    tips:'排便狀況因人而異，建議先從 1 顆開始，觀察 2–3 天後再依需求調整用量。',
+    qa:[
+      {q:'可以跟其他產品一起吃嗎？',a:'可以！纖酵宿可以搭配其他纖體產品一起使用。'},
+      {q:'會拉肚子嗎？',a:'用量過多可能產生輕微腹瀉，建議從 1 顆開始嘗試。'},
+    ]
+  },
+  {
+    id:6,cat:'纖體系列',icon:'🍫',color:'#fff0e8',catColor:'#C9A84C',catBg:'#fff3d6',
+    name:'肽纖飲可可/奶茶',
+    tagline:'代餐首選 · 美味不挨餓',
+    effects:['高蛋白低卡','代餐','增加飽足感','補充營養','抑制食慾'],
+    dosage:'取代一餐或代替飲料，一天 1–2 杯',
+    timing:'任一餐或肚子餓時皆可',
+    howto:'用牛奶、豆漿或水沖泡，約 350–400cc 左右。\n豆漿：比較瘦、飽足感更長✅\n牛奶：口感更濃郁\n水：可可版會比較苦一點點；奶茶版茶味較重\n\n沖泡建議：用無糖豆漿（例如每朝無糖紅聽）效果最讚！',
+    tips:'半夜肚子餓的最佳選擇！擋宵夜神器 😄\n很多人拿來當作每天的早餐，美味又方便。',
+    qa:[
+      {q:'用熱水可以嗎？',a:'可以，但口感可能略有不同，建議溫水或冷水效果較好。'},
+      {q:'可以每天喝嗎？',a:'可以！代替一餐效果最佳，每天喝沒問題。'},
+    ]
+  },
+  {
+    id:7,cat:'保健系列',icon:'👁️',color:'#eef5ff',catColor:'#4A9EE0',catBg:'#daeeff',
+    name:'複方金盞花葉黃素EX飲',
+    tagline:'護眼首選 · 3C族必備',
+    effects:['護眼','過濾藍光','緩解眼睛疲勞','抗氧化','改善視力'],
+    dosage:'任意餐後 1–2 包，一天 1–2 包',
+    timing:'任一餐後皆可',
+    howto:'餐後直接飲用，不需要額外加水。',
+    tips:'長期使用效果累積明顯，3C 族、學生、用眼過度者特別推薦！',
+    qa:[
+      {q:'可以空腹吃嗎？',a:'建議餐後服用，效果更好且不刺激腸胃。'},
+    ]
+  },
+  {
+    id:8,cat:'保健系列',icon:'✨',color:'#eef5ff',catColor:'#4A9EE0',catBg:'#daeeff',
+    name:'葉黃素高鈣晶亮凍',
+    tagline:'好吃凍凍 · 護眼補鈣',
+    effects:['護眼','補鈣','強化骨骼','兒童適用','美味健康'],
+    dosage:'任一餐後 2–3 包',
+    timing:'任一餐後',
+    howto:'直接食用，口感像果凍，大人小孩都喜歡！',
+    tips:'特別適合不愛吃錠劑的小孩或長輩，補鈣護眼一次完成。',
+    qa:[
+      {q:'小孩可以吃嗎？',a:'可以！是很適合孩童的護眼補鈣選擇，但具體用量請諮詢賣家。'},
+    ]
+  },
+  {
+    id:9,cat:'保健系列',icon:'🦠',color:'#e8fff0',catColor:'#2ECC71',catBg:'#d6f5e3',
+    name:'高機能益生菌',
+    tagline:'腸道守護神 · 全家適用',
+    effects:['改善腸道菌相','提升免疫力','改善過敏','助消化','全齡適用'],
+    dosage:'4個月–1歲：1/3–1/2 包\n1–12歲：1 包\n12歲以上：2 包\n過敏、加強補充或懷孕哺乳婦：3–4 包',
+    timing:'任何時間皆可',
+    howto:'直接食用或加入溫涼液體中食用（不超過 40°C，避免破壞活菌）。',
+    tips:'懷孕哺乳媽媽也可以吃，過敏體質建議加強用量。\n身體有特殊狀況或給嬰幼兒食用，請先諮詢加盟商確認。',
+    qa:[
+      {q:'嬰兒可以吃嗎？',a:'4個月以上可以，用量為 1/3–1/2 包，身體有特殊狀況請先諮詢。'},
+      {q:'可以加在熱飲裡嗎？',a:'不建議，溫度超過 40°C 會影響益生菌活性，請加入溫涼液體。'},
+    ]
+  },
+  {
+    id:10,cat:'保健系列',icon:'🍺',color:'#fff8e0',catColor:'#C9A84C',catBg:'#fff3d6',
+    name:'酒國英雄極速錠',
+    tagline:'喝酒必備 · 護肝好幫手',
+    effects:['護肝','解酒','促進酒精代謝','喝酒前後必備'],
+    dosage:'喝酒前中後：2–4 顆\n護肝睡前補充：2 顆',
+    timing:'喝酒前、中、後皆可服用',
+    howto:'以水吞服，喝酒前服用效果最佳，飲酒過程中或酒後也可補充。',
+    tips:'聚餐喝酒必備！護肝同時幫助代謝酒精，隔天不頭痛。',
+    qa:[
+      {q:'不喝酒也能吃嗎？',a:'可以！睡前 2 顆有護肝保養效果，適合日常補充。'},
+    ]
+  },
+  {
+    id:11,cat:'保健系列',icon:'🫁',color:'#e8f5ff',catColor:'#4A9EE0',catBg:'#daeeff',
+    name:'療肺草正冠茶',
+    tagline:'喉嚨保養 · 呼吸道守護',
+    effects:['舒緩喉嚨','呼吸道保養','消炎','免疫支持'],
+    dosage:'一天 1–2 杯，喉嚨不舒服或發炎時可視情況增加',
+    timing:'任何時間皆可',
+    howto:'以熱水沖泡後飲用，喉嚨不舒服時可以多喝幾杯。',
+    tips:'喉嚨發炎、不舒服時增量飲用效果更快。平時保養一天 1–2 杯就很足夠。',
+    qa:[]
+  },
+  {
+    id:12,cat:'保健系列',icon:'💪',color:'#f0fff0',catColor:'#2ECC71',catBg:'#d6f5e3',
+    name:'固樂纖',
+    tagline:'關節守護 · 行動自如',
+    effects:['補充膠原蛋白','保護關節','強化骨骼','改善活動度'],
+    dosage:'一天 3 顆',
+    timing:'任一餐後皆可',
+    howto:'隨餐以水吞服 3 顆即可。',
+    tips:'長期服用效果更佳，建議持續使用 3 個月以上感受明顯改善。',
+    qa:[]
+  },
+  {
+    id:13,cat:'美肌系列',icon:'💎',color:'#f5eeff',catColor:'#9B59B6',catBg:'#ede0ff',
+    name:'水光錠',
+    tagline:'玻尿酸口服 · 從裡補水',
+    effects:['深層保濕','提升皮膚含水量','淡化細紋','皮膚彈性','術後修復'],
+    dosage:'一般保養：早晚各 1 顆（一天 2 顆）\n加強保濕：早晚各 4 顆\n醫美術後加強：早晚各 3 顆\n易出油/痘痘肌/酒糟肌：建議每天 1 顆就好',
+    timing:'早晚各服用',
+    howto:'早晚以水吞服，隨餐或空腹皆可。',
+    tips:'醫美術後加強補充修復超快！\n油肌、痘痘肌、酒糟肌從 1 顆開始，避免過度刺激。',
+    qa:[
+      {q:'每天 1 顆夠嗎？',a:'油肌或敏感肌先從 1 顆開始，穩定後可以視情況增加。'},
+      {q:'做醫美前後可以吃嗎？',a:'可以！術後早晚 3 顆有助加速修復。'},
+    ]
+  },
+  {
+    id:14,cat:'美肌系列',icon:'🩹',color:'#fff0f5',catColor:'#E91E8C',catBg:'#ffd6ea',
+    name:'水光繃帶面膜',
+    tagline:'密集修護 · 每天都能敷',
+    effects:['深度保濕','修護屏障','舒緩敏感','提亮膚色','密集修護'],
+    dosage:'混合/中性肌：一週 1–2 次，可每天敷\n乾肌：一週 2–4 次，可每天敷\n油肌/酒糟肌/痘痘肌：一週 1–2 次，不用每天敷',
+    timing:'洗臉後使用',
+    howto:'清潔後敷上面膜，依據膚質選擇頻率（詳見用量說明）。',
+    tips:'乾肌可以每天敷效果超好！\n油肌跟痘痘肌不需要天天敷，過度保濕反而容易悶痘。',
+    qa:[
+      {q:'敏感肌可以用嗎？',a:'可以！有舒緩敏感的效果，但初次使用建議先做局部測試。'},
+    ]
+  },
+  {
+    id:15,cat:'美肌系列',icon:'❄️',color:'#e8f5ff',catColor:'#4A9EE0',catBg:'#daeeff',
+    name:'雪聚露',
+    tagline:'痘痘肌救星 · 消炎舒緩',
+    effects:['消炎','舒緩痘痘','泛紅改善','脫皮修護','濕敷加強'],
+    dosage:'早晚洗完臉後搖勻擦拭；有痘痘泛紅脫皮處可濕敷 5 分鐘',
+    timing:'早晚洗臉後',
+    howto:'使用前搖勻，洗臉後擦拭全臉或局部問題肌膚。\n痘痘、泛紅、脫皮嚴重處：用化妝棉沾取濕敷 5 分鐘效果更顯著。',
+    tips:'痘痘紅腫時加強濕敷，消炎效果很明顯！\n平時保養也可以全臉使用，保持清爽。',
+    qa:[
+      {q:'要搖勻嗎？',a:'要！使用前一定要搖勻，確保成分均勻混合。'},
+    ]
+  },
+  {
+    id:16,cat:'美肌系列',icon:'🧴',color:'#f0fff5',catColor:'#2ECC71',catBg:'#d6f5e3',
+    name:'婕肌零',
+    tagline:'卸妝清潔二合一',
+    effects:['溫和卸妝','深層清潔','保濕','不緊繃','適合敏感肌'],
+    dosage:'乾手乾臉：擠 6–8 下卸妝\n濕手濕臉：擠 3–5 下搓揉起泡清潔',
+    timing:'每日卸妝/洗臉時使用',
+    howto:'乾手乾臉模式：擠 6–8 下在手心，按摩全臉溶解彩妝，再用水沖洗。\n濕手濕臉模式：擠 3–5 下搓揉起泡後清潔，適合輕量妝感。',
+    tips:'兩種用法依照當天妝感選擇即可，非常方便！',
+    qa:[
+      {q:'卸濃妝夠嗎？',a:'建議乾手乾臉模式擠足量，可以完整卸除一般妝感；防水彩妝建議先用卸妝棉處理後再使用。'},
+    ]
+  },
+  {
+    id:17,cat:'美肌系列',icon:'💧',color:'#e8f9ff',catColor:'#4A9EE0',catBg:'#d6efff',
+    name:'玻尿酸',
+    tagline:'精華補水 · 輕盈不黏膩',
+    effects:['深層補水','提升保濕力','淡化細紋','輕盈好吸收'],
+    dosage:'清潔後擠一泵上臉',
+    timing:'清潔後（化妝水前）使用',
+    howto:'洗臉後擠一泵在手心，以清柔打圈方式輕輕按摩至完全吸收。',
+    tips:'用量一泵就夠，輕柔打圈讓皮膚完整吸收。後續可再疊加乳液或面霜鎖水。',
+    qa:[]
+  },
+  {
+    id:18,cat:'美肌系列',icon:'🤍',color:'#fafafa',catColor:'#888',catBg:'#f0f0f0',
+    name:'急救小白瓶',
+    tagline:'全身修護 · 疤痕淡化',
+    effects:['淡化疤痕','緊緻拉提','全身保濕','脖紋改善','修護受損'],
+    dosage:'全身尤其是比較乾、有疤痕、脖紋等需要緊緻的部位都可以使用',
+    timing:'每日護膚時使用',
+    howto:'取適量在手心搓熱，再輕壓至臉上或需要護理的部位，讓皮膚完整吸收。\n全身都可以使用，疤痕、脖紋、乾燥部位重點加強。',
+    tips:'擦臉記得先在手心搓熱再輕壓吸收，效果更好！\n疤痕、妊娠紋、脖紋都可以使用，全身護理超方便。',
+    qa:[]
+  },
+  {
+    id:19,cat:'美肌系列',icon:'🌸',color:'#fff0f5',catColor:'#E91E8C',catBg:'#ffd6ea',
+    name:'積雪草護手霜',
+    tagline:'全效護手 · 不只護手',
+    effects:['深層滋潤','美白','止癢','修護乾燥','全身可用'],
+    dosage:'擠在手心後擦在需要保濕滋潤、美白止癢的部位即可',
+    timing:'隨時隨地',
+    howto:'擠適量在手心，擦拭雙手及身體需要滋潤的部位。\n全身乾燥處、止癢處都可以使用。',
+    tips:'不只是護手霜，腿部乾燥、止癢都很好用！隨身攜帶超方便。',
+    qa:[]
+  },
+  {
+    id:20,cat:'護髮系列',icon:'💆',color:'#fff8e8',catColor:'#C9A84C',catBg:'#fff3d0',
+    name:'法樂蓬洗髮露',
+    tagline:'頭皮活化 · 改善掉髮',
+    effects:['活化頭皮','減少掉髮','滋養髮絲','深層清潔','改善頭皮油脂分泌'],
+    dosage:'每天晚上洗頭 1 次，每次洗 2 遍',
+    timing:'每日晚上洗頭',
+    howto:'第 1 遍：按壓 3–5 下洗髮露，清洗掉頭皮髒污和油脂。\n第 2 遍：再按壓 3–5 下，加強按摩頭皮 1–2 分鐘，活化頭皮滋養髮絲。\n每次洗頭務必洗 2 遍效果才最好！',
+    tips:'一定要洗 2 遍！第一遍清潔，第二遍才是真正的保養。\n按摩的時候多花一點時間，頭皮活化了掉髮自然改善。',
+    qa:[
+      {q:'早上可以用嗎？',a:'建議晚上使用，讓頭皮在夜間修護再生效果最好。'},
+      {q:'洗一遍不夠嗎？',a:'建議一定要洗 2 遍！洗髮露的養髮成分需要第二遍才能完整發揮。'},
+    ]
+  },
+  {
+    id:21,cat:'護髮系列',icon:'🌱',color:'#f0fff5',catColor:'#2ECC71',catBg:'#d6f5e3',
+    name:'法樂蓬養髮原液',
+    tagline:'不需沖洗 · 髮根直達養護',
+    effects:['促進頭髮生長','強化髮根','減少斷裂','頭皮養護','改善髮質'],
+    dosage:'一般保養：洗髮後 1 次\n加強效果：早晚各 1 次',
+    timing:'洗髮後（或早晚）使用，不需沖洗',
+    howto:'撥開頭髮，噴於髮根處，每個區域按壓 3–4 下養髮原液。\n用指腹按摩頭皮讓精華滲透，養髮原液不需要沖洗掉！',
+    tips:'不需沖洗超方便！洗完頭直接噴，按摩後自然晾乾即可。\n掉髮嚴重建議早晚各一次加強。',
+    qa:[
+      {q:'一定要配洗髮露用嗎？',a:'建議搭配法樂蓬洗髮露效果最佳，但也可以單獨使用。'},
+      {q:'真的不用沖掉嗎？',a:'真的不用！養髮原液設計成免沖洗，讓有效成分持續作用。'},
+    ]
+  }
+];
+
+const CATEGORIES=['全部','纖體系列','保健系列','美肌系列','護髮系列'];
+let currentCat='全部';
+let searchQuery='';
+
+// ===== INIT =====
+async function init(){
+  renderCatRow();
+  renderProducts();
+  loadAnnouncement();
+}
+
+async function loadAnnouncement(){
+  try{
+    const{data}=await sb.from('announcements').select('*').eq('is_active',true).order('created_at',{ascending:false}).limit(1);
+    if(data&&data.length&&data[0].content){
+      document.getElementById('announceText').textContent=data[0].content;
+      document.getElementById('announceBanner').style.display='block';
+    }
+  }catch(e){}
+}
+
+function closeBanner(){document.getElementById('announceBanner').style.display='none';}
+
+function renderCatRow(){
+  const el=document.getElementById('catRow');
+  el.innerHTML=CATEGORIES.map(c=>`<button class="cat-btn${c===currentCat?' active':''}" onclick="setCat('${c}')">${c}</button>`).join('');
+}
+
+function setCat(cat){
+  currentCat=cat;
+  renderCatRow();
+  renderProducts();
+}
+
+function doSearch(){
+  const val=document.getElementById('searchInput').value;
+  searchQuery=val.toLowerCase();
+  document.getElementById('clearBtn').style.display=val?'block':'none';
+  renderProducts();
+}
+
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  searchQuery='';
+  document.getElementById('clearBtn').style.display='none';
+  renderProducts();
+}
+
+function matchesSearch(p){
+  if(!searchQuery)return true;
+  const fields=[p.name,p.tagline,p.cat,...p.effects,p.dosage,p.howto,p.tips,...p.qa.map(q=>q.q+' '+q.a)].join(' ').toLowerCase();
+  return fields.includes(searchQuery);
+}
+
+function renderProducts(){
+  let list=PRODUCTS;
+  if(currentCat!=='全部') list=list.filter(p=>p.cat===currentCat);
+  if(searchQuery) list=list.filter(matchesSearch);
+  const el=document.getElementById('prodList');
+  if(!list.length){el.innerHTML=`<div class="no-results"><div class="icon">🔍</div><div>找不到「${searchQuery||currentCat}」相關產品</div><div style="font-size:12px;margin-top:6px;">試試其他關鍵字</div></div>`;return;}
+  el.innerHTML=list.map(p=>renderProdCard(p)).join('');
+}
+
+function renderProdCard(p){
+  const effectChips=p.effects.map(e=>`<span class="effect-chip">${e}</span>`).join('');
+  const qaRows=p.qa.map(q=>`<div style="background:#fafafa;border-radius:8px;padding:10px 12px;margin-bottom:6px;"><div style="font-size:13px;font-weight:600;color:#333;margin-bottom:4px;">Q：${q.q}</div><div style="font-size:13px;color:#666;line-height:1.6;">A：${q.a}</div></div>`).join('');
+
+  const dosageLines=p.dosage.split('\n').map(l=>`<div>${l}</div>`).join('');
+  const howtoLines=p.howto.split('\n').map(l=>`<div>${l}</div>`).join('');
+  const tipLines=p.tips.split('\n').map(l=>`<div>${l}</div>`).join('');
+
+  return `<div class="prod-card" id="card-${p.id}">
+    <div class="prod-card-header" onclick="toggleCard(${p.id})">
+      <div class="prod-icon-wrap" style="background:${p.color};">${p.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
+          <div class="prod-name">${p.name}</div>
+          <span class="prod-cat-tag" style="background:${p.catBg};color:${p.catColor};">${p.cat}</span>
+        </div>
+        <div class="prod-tagline">${p.tagline}</div>
+      </div>
+      <div style="font-size:18px;color:#ddd;transition:transform 0.3s;" id="arrow-${p.id}">›</div>
+    </div>
+    <div class="prod-preview-tags">${effectChips}</div>
+    <div class="prod-detail" id="detail-${p.id}">
+      <div class="detail-section">
+        <div class="detail-label">📏 建議用量</div>
+        <div class="dosage-badge">一天用量</div>
+        <div class="detail-content highlight">${dosageLines}</div>
+        ${p.timing?`<div style="font-size:12px;color:#5BBDB7;margin-top:6px;">⏰ ${p.timing}</div>`:''}
+      </div>
+      ${p.howto?`<div class="detail-section"><div class="detail-label">🫧 使用方式</div><div class="how-to-card"><div class="detail-content">${howtoLines}</div></div></div>`:''}
+      ${p.tips?`<div class="detail-section"><div class="detail-label">💛 小提醒 & 延伸吃法</div><div class="tip-card"><div class="detail-content">${tipLines}</div></div></div>`:''}
+      ${qaRows?`<div class="detail-section"><div class="detail-label">❓ 常見問題</div>${qaRows}</div>`:''}
+      <div class="disclaimer">具體用量因人而異，請諮詢您的專屬賣家取得最適合您的方案</div>
+    </div>
+  </div>`;
+}
+
+let openCards=new Set();
+function toggleCard(id){
+  const detail=document.getElementById('detail-'+id);
+  const arrow=document.getElementById('arrow-'+id);
+  if(openCards.has(id)){
+    detail.classList.remove('open');
+    arrow.style.transform='rotate(0deg)';
+    openCards.delete(id);
+  } else {
+    detail.classList.add('open');
+    arrow.style.transform='rotate(90deg)';
+    openCards.add(id);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
