@@ -1015,7 +1015,7 @@ function drawCertificate(){
   ctx.fillStyle='#C9A84C';ctx.font='bold 12px -apple-system,sans-serif';ctx.fillText('HT', W/2, 507);ctx.font='10px -apple-system,sans-serif';ctx.fillText('TEAM', W/2, 520);
 }
 
-function downloadCert() , showDownloadHint(){
+function downloadCert() ; showDownloadHint(){
   const canvas=document.getElementById('certCanvas');
   const link=document.createElement('a');
   link.download='HT_完課證書_'+certStageName+'_'+(currentUser?.name||'')+'.png';
