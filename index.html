@@ -197,7 +197,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="certModal">
   <canvas id="certCanvas" width="800" height="560"></canvas>
   <div class="cert-btns">
-    <button class="cert-btn cert-btn-dl" onclick="downloadCert();showDownloadHint()">⬇ 下載吃法小卡</button>
+    <button class="cert-btn cert-btn-dl" onclick="downloadCert()">⬇ 下載吃法小卡</button>
     <button class="cert-btn cert-btn-close" onclick="closeCert()">關閉</button>
   </div>
   <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin-top:10px;max-width:360px;">💛 點擊後按更多再按儲存影像即可傳給客人寶寶！</div>
@@ -482,8 +482,7 @@ let pChart,yChart,fChart,cChart;
 // ===== QUEST STAGES =====
 const STAGES=[
   {key:'新人啟航',icon:'🌱',desc:'從零開始，掌握核心銷售力',color:'#A4E5E0',textColor:'#085041',recommend:'實習加盟、三級加盟',minLevel:null},
-  {key:'輔導督導',icon:'🚀',desc:'帶人複製，打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'三級輔導、二級輔導',minLevel:null},
-  {key:'高階領導',icon:'👑',desc:'領袖思維，拓展事業版圖',color:'#E8D5A3',textColor:'#7a5200',recommend:'二級輔導以上',minLevel:'二級輔導'}
+  {key:'輔導督導',icon:'🚀',desc:'帶人複製,打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'三級輔導、二級輔導',minLevel:null}
 ];
 const PRODUCT_STAGES=[
   {key:'纖體系列',icon:'💧',desc:'燃脂瘦身，輕盈有感',color:'#E8F4FD',accent:'#4A9EE0'},
@@ -508,7 +507,6 @@ function canAccessStage(stage){
 const COMPLETE_MSG={
   '新人啟航':{title:'🌱 新人啟航 — 完關！',msg:'你已掌握核心銷售基礎，是時候出發了！繼續挑戰下一關吧！'},
   '輔導督導':{title:'🚀 輔導督導 — 完關！',msg:'你已具備帶領團隊的能力，複製你的成功吧！'},
-  '高階領導':{title:'👑 高階領導 — 完關！',msg:'真正的領袖已經覺醒，帶著你的團隊飛翔！'},
   '纖體系列':{title:'💧 纖體系列 — 完關！',msg:'燃脂瘦身產品力滿點，客人問不倒你了！'},
   '美肌系列':{title:'✨ 美肌系列 — 完關！',msg:'美肌保養專家就是你，水光透亮全靠你！'},
   '大健康系列':{title:'💪 大健康系列 — 完關！',msg:'健康守護達人誕生，全方位照顧客人！'},
@@ -1015,14 +1013,14 @@ function drawCertificate(){
   ctx.fillStyle='#C9A84C';ctx.font='bold 12px -apple-system,sans-serif';ctx.fillText('HT', W/2, 507);ctx.font='10px -apple-system,sans-serif';ctx.fillText('TEAM', W/2, 520);
 }
 
-function downloadCert() { 
-const canvas = document.getElementById('certCanvas');
-  const link = document.createElement('a');
-link.download = 'HT_完課證書_' + certStageName + '_' + (currentUser?.name || '') + '.png';
-  link.href = canvas.toDataURL('image/png');
+function downloadCert(){
+  const canvas=document.getElementById('certCanvas');
+  const link=document.createElement('a');
+  link.download='HT_完課證書_'+certStageName+'_'+(currentUser?.name||'')+'.png';
+  link.href=canvas.toDataURL('image/png');
   link.click();
 }
-  
+
 // ===== MEAL PLAN GENERATOR =====
 let mealProds=[];
 
@@ -1089,73 +1087,65 @@ function generateMealCard(){
 function drawMealCard(clientName,grouped){
   const canvas=document.getElementById('certCanvas');
   const ctx=canvas.getContext('2d');
-  const W=800,H=640;
+  const W=800,H=680;
   canvas.width=W;canvas.height=H;
 
-  // Background
+  // Dark brown gradient background
   const bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#5D4E37');bg.addColorStop(1,'#8B7355');
+  bg.addColorStop(0,'#5a4a3a');bg.addColorStop(1,'#3d2f24');
   ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
 
-  // Header bar
+  // Header bar - brown gradient
   const hg=ctx.createLinearGradient(0,0,W,0);
-  hg.addColorStop(0,'#A0826D');hg.addColorStop(1,'#8B6F47');
-  ctx.fillStyle=hg;ctx.fillRect(0,0,W,110);
+  hg.addColorStop(0,'#8B6F47');hg.addColorStop(1,'#A67C5B');
+  ctx.fillStyle=hg;ctx.fillRect(0,0,W,120);
 
   // Brand
-  ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='bold 12px -apple-system,sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='bold 11px -apple-system,sans-serif';
   ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('JEROSSE × HT 團隊', W/2, 32);
+  ctx.fillText('JEROSSE × HT 團隊', W/2, 28);
 
-  // Client name (large)
-  ctx.fillStyle='white';ctx.font='bold 26px -apple-system,sans-serif';
-  ctx.fillText(clientName, W/2, 58);
+  // Title with hearts and client name (no line break)
+  ctx.fillStyle='white';ctx.font='bold 24px -apple-system,sans-serif';
+  ctx.fillText('🤎 專屬吃法計劃 🤎 為 ' + clientName + ' 量身打造', W/2, 70);
 
-  // Title
-  ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font='bold 20px -apple-system,sans-serif';
-  ctx.fillText('🤎 專屬吃法計劃', W/2, 85);
-  
-  ctx.fillStyle='rgba(255,255,255,0.75)';ctx.font='14px -apple-system,sans-serif';
-  ctx.fillText('為你量身打造', W/2, 105);
-
-  // Meal rows
-  const mealColors=['#8B6F47','#A0826D','#6B5344','#9C7A5E'];
-  const mealBg=['#F5EDE4','#EFE7DC','#E8DED1','#F0E8DD'];
+  // Meal rows - all brown tones
+  const mealColors=['#D2691E','#A0522D','#8B4513','#6B4423'];
+  const mealBg=['#F4E7D7','#F0DCC8','#E8D4BE','#E0CBAF'];
   const mealIcons=['🌅','🌞','🌙','⏰'];
   const mealLabels=['第一餐（早餐）','第二餐（午餐）','第三餐（晚餐）','任何時刻'];
 
   MEAL_TIMES.forEach((t,idx)=>{
-    const y=130+idx*116;
-    // Card bg
+    const y=140+idx*124;
     ctx.fillStyle=mealBg[idx];ctx.beginPath();
-    ctx.roundRect(40,y,W-80,100,12);ctx.fill();
-    // Left accent
-    ctx.fillStyle=mealColors[idx];ctx.fillRect(40,y,6,100);ctx.beginPath();ctx.roundRect(40,y,6,100,3);ctx.fill();
-    // Icon circle
-    ctx.fillStyle=mealColors[idx];ctx.beginPath();ctx.arc(84,y+50,22,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='white';ctx.font='18px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(mealIcons[idx],84,y+50);
-    // Label
-    ctx.fillStyle=mealColors[idx];ctx.font='bold 14px -apple-system,sans-serif';ctx.textAlign='left';
-    ctx.fillText(mealLabels[idx],116,y+30);
-    // Products
+    ctx.roundRect(32,y,W-64,108,14);ctx.fill();
+    ctx.fillStyle=mealColors[idx];ctx.fillRect(32,y,7,108);ctx.beginPath();ctx.roundRect(32,y,7,108,3);ctx.fill();
+    ctx.fillStyle=mealColors[idx];ctx.beginPath();ctx.arc(78,y+54,24,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='white';ctx.font='20px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(mealIcons[idx],78,y+54);
+    ctx.fillStyle=mealColors[idx];ctx.font='bold 15px -apple-system,sans-serif';ctx.textAlign='left';
+    ctx.fillText(mealLabels[idx],116,y+34);
     const items=grouped[t];
-    ctx.fillStyle='#333';ctx.font='15px -apple-system,sans-serif';
+    ctx.fillStyle='#3d2f24';ctx.font='16px -apple-system,sans-serif';
     if(items.length){
-      ctx.fillText(items.join('　·　'),116,y+62);
+      ctx.fillText(items.join('　·　'),116,y+68);
     } else {
-      ctx.fillStyle='#bbb';ctx.fillText('—',116,y+62);
+      ctx.fillStyle='#bbb';ctx.fillText('—',116,y+68);
     }
   });
 
-  // Bottom note
-  const now=new Date();
-  const dateStr=`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
-  ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='13px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('體質每個人不同　問我們最安心！　' + dateStr, W/2, H-25);
+  // Bottom note - new warning message
+  ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='14px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('⚠️ 特殊時期吃法或有疑問請跟加盟商確認　體質因人而異　確認後最安心', W/2, H-28);
 }
 
-// Override downloadCert to handle both cert types — it already reads from canvas
+function downloadCert(){
+  const canvas=document.getElementById('certCanvas');
+  const link=document.createElement('a');
+  link.download='HT_完課證書_'+certStageName+'_'+(currentUser?.name||'')+'.png';
+  link.href=canvas.toDataURL('image/png');
+  link.click();
+}
 </script>
 </body>
 </html>
