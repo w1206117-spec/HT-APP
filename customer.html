@@ -7,7 +7,6 @@
 <meta name="apple-mobile-web-app-title" content="HT客人小錦囊">
 <title>HT 客人小錦囊</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -22,16 +21,29 @@ body{font-family:'Noto Sans TC',-apple-system,sans-serif;background:#f5f0e8;min-
 .login-card{background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-radius:18px;padding:2rem;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
 .login-card input{width:100%;padding:13px 16px;border:1px solid #d4c4b0;border-radius:12px;font-size:15px;margin-bottom:14px;outline:none;background:white;color:#3d2f24;font-family:inherit;}
 .login-card input:focus{border-color:#A67C5B;}
-.login-card input::placeholder{color:#bbb;}
 .login-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;font-size:16px;font-weight:600;cursor:pointer;letter-spacing:1px;}
-.login-msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:10px;min-height:20px;}
+.login-msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:10px;}
+
+/* PRODUCT SELECTION */
+#productSelectModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;}
+#productSelectModal.show{display:flex;}
+.select-box{background:white;border-radius:18px;padding:1.5rem;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;}
+.select-title{font-size:18px;font-weight:700;color:#5a4a3a;margin-bottom:8px;}
+.select-desc{font-size:13px;color:#999;margin-bottom:1.5rem;line-height:1.6;}
+.prod-select-item{display:flex;align-items:center;gap:12px;padding:12px;background:#fef9f3;border-radius:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;}
+.prod-select-item.selected{border-color:#8B7355;background:#f5f0e8;}
+.prod-select-icon{width:40px;height:40px;border-radius:10px;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.prod-select-info{flex:1;}
+.prod-select-name{font-size:14px;font-weight:600;color:#3d2f24;}
+.prod-select-cat{font-size:11px;color:#999;}
+.prod-select-check{width:24px;height:24px;border-radius:50%;border:2px solid #d4c4b0;background:white;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.prod-select-check.checked{background:#8B7355;border-color:#8B7355;color:white;}
 
 /* WELCOME MODAL */
 #welcomeModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;padding:1.5rem;}
 #welcomeModal.show{display:flex;}
 .welcome-box{background:white;border-radius:18px;padding:1.5rem 1.8rem;max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.3);position:relative;}
 .welcome-close{position:absolute;top:12px;right:12px;background:none;border:none;font-size:24px;color:#ccc;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
-.welcome-close:hover{background:#f0f0f0;}
 .welcome-title{font-size:18px;font-weight:700;color:#5a4a3a;margin-bottom:12px;text-align:center;line-height:1.5;}
 .welcome-announce{background:#fef9f3;border-left:4px solid #A67C5B;padding:12px 14px;border-radius:8px;font-size:14px;color:#5a4a3a;line-height:1.7;margin-top:10px;}
 
@@ -43,55 +55,62 @@ body{font-family:'Noto Sans TC',-apple-system,sans-serif;background:#f5f0e8;min-
 .header-sub{font-size:12px;opacity:0.75;line-height:1.6;}
 
 /* TABS */
-.tabs-wrap{background:white;border-bottom:1px solid #e8dcc8;padding:0 1rem;overflow-x:auto;white-space:nowrap;}
-.tabs{display:inline-flex;gap:4px;}
-.tab{padding:12px 18px;font-size:13px;color:#999;cursor:pointer;border-bottom:2px solid transparent;display:inline-block;white-space:nowrap;}
+.tabs-wrap{background:white;border-bottom:1px solid #e8dcc8;padding:0 0.5rem;overflow-x:auto;white-space:nowrap;}
+.tabs{display:inline-flex;gap:2px;}
+.tab{padding:12px 14px;font-size:12px;color:#999;cursor:pointer;border-bottom:2px solid transparent;display:inline-block;white-space:nowrap;}
 .tab.active{color:#8B7355;border-bottom-color:#A67C5B;font-weight:600;}
 
 /* PAGES */
 .page{display:none;padding:1rem;}
 .page.active{display:block;}
 
-/* PRODUCT CARDS */
-.prod-card{background:white;border-radius:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(139,115,85,0.1);overflow:hidden;border:1.5px solid transparent;transition:all 0.2s;}
-.prod-card.checked{border-color:#8B7355;background:#fef9f3;}
-.prod-header{padding:1rem 1.2rem;display:flex;align-items:center;gap:12px;cursor:pointer;}
-.prod-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;background:#f5f0e8;}
-.prod-icon img{width:100%;height:100%;object-fit:cover;border-radius:12px;}
-.prod-info{flex:1;min-width:0;}
-.prod-name{font-size:15px;font-weight:700;color:#3d2f24;margin-bottom:2px;}
-.prod-tag{font-size:11px;padding:2px 8px;border-radius:8px;background:#e8dcc8;color:#5a4a3a;font-weight:600;display:inline-block;}
-.prod-check{width:28px;height:28px;border-radius:50%;border:2px solid #d4c4b0;background:white;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0;}
-.prod-check.checked{background:#8B7355;border-color:#8B7355;color:white;}
-.prod-detail{display:none;border-top:1px solid #f5f0e8;padding:1rem 1.2rem;}
-.prod-detail.open{display:block;}
-.detail-section{margin-bottom:12px;}
-.detail-label{font-size:11px;font-weight:700;color:#999;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
-.detail-content{font-size:13px;color:#5a4a3a;line-height:1.7;}
-.note-input{width:100%;padding:10px 12px;border:1px solid #e8dcc8;border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;outline:none;min-height:80px;}
-.note-input:focus{border-color:#A67C5B;}
-.btn{padding:10px 16px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;}
-.btn-primary{background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;}
+/* CHECKIN PAGE */
+.checkin-hero{background:linear-gradient(135deg,#fef9f3,#f5f0e8);border-radius:16px;padding:1.5rem;margin-bottom:1rem;border:1.5px solid #e8dcc8;text-align:center;}
+.checkin-percent{font-size:48px;font-weight:700;color:#8B7355;margin-bottom:8px;}
+.checkin-msg{font-size:15px;font-weight:600;color:#5a4a3a;line-height:1.6;}
+.my-prod-card{background:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:10px;box-shadow:0 2px 10px rgba(139,115,85,0.08);display:flex;align-items:center;gap:12px;border:1.5px solid transparent;}
+.my-prod-card.checked-today{border-color:#8B7355;background:#fef9f3;}
+.my-prod-icon{width:44px;height:44px;border-radius:12px;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.my-prod-info{flex:1;min-width:0;}
+.my-prod-name{font-size:14px;font-weight:700;color:#3d2f24;margin-bottom:2px;}
+.my-prod-rate{font-size:12px;color:#999;}
+.my-prod-check{width:32px;height:32px;border-radius:50%;border:2px solid #d4c4b0;background:white;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;}
+.my-prod-check.checked{background:#8B7355;border-color:#8B7355;color:white;}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px;}
 .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:11px;color:#999;background:#fafafa;}
 .cal-day.checked{background:#8B7355;color:white;font-weight:600;}
 .cal-day.today{border:2px solid #A67C5B;}
 
-/* WEIGHT TRACKER */
-.weight-card{background:linear-gradient(135deg,#fef9f3,#f5f0e8);border-radius:16px;padding:1.2rem;margin-bottom:1rem;border:1.5px solid #e8dcc8;}
-.weight-hero{text-align:center;margin-bottom:1rem;}
-.weight-big{font-size:36px;font-weight:700;color:#8B7355;margin-bottom:4px;}
-.weight-label{font-size:13px;color:#999;margin-bottom:12px;}
-.weight-cheer{font-size:14px;font-weight:600;color:#5a4a3a;background:white;padding:10px 16px;border-radius:10px;display:inline-block;}
-.weight-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.weight-inputs input{padding:10px 12px;border:1px solid #e8dcc8;border-radius:10px;font-size:14px;text-align:center;outline:none;}
-.weight-inputs input:focus{border-color:#A67C5B;}
-.chart-wrap{background:white;border-radius:12px;padding:1rem;margin-top:12px;height:220px;}
+/* PRODUCT INFO PAGE */
+.search-box{display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.search-box input{flex:1;border:none;outline:none;font-size:14px;color:#333;background:transparent;}
+.search-icon{font-size:16px;color:#aaa;}
+.info-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:12px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
+.info-title{font-size:15px;font-weight:700;color:#3d2f24;margin-bottom:8px;}
+.info-cat{font-size:11px;padding:3px 10px;border-radius:8px;background:#e8dcc8;color:#5a4a3a;font-weight:600;display:inline-block;margin-bottom:10px;}
+.info-section{margin-bottom:12px;}
+.info-label{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.info-content{font-size:13px;color:#5a4a3a;line-height:1.7;}
+
+/* QA PAGE */
+.qa-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:10px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
+.qa-q{font-size:14px;font-weight:700;color:#3d2f24;margin-bottom:6px;}
+.qa-a{font-size:13px;color:#5a4a3a;line-height:1.7;}
+
+/* PROFILE PAGE */
+.profile-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
+.profile-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f0e8;}
+.profile-row:last-child{border-bottom:none;}
+.profile-label{font-size:13px;color:#999;}
+.profile-value{font-size:14px;font-weight:600;color:#3d2f24;}
+.btn{padding:12px 18px;border-radius:12px;border:none;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-primary{background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;}
+.btn-secondary{background:#f5f0e8;color:#5a4a3a;}
 
 /* BOTTOM NAV */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e8dcc8;display:flex;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,0.05);}
 .nav-item{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;}
-.nav-icon{font-size:20px;display:block;margin-bottom:2px;}
+.nav-icon{font-size:19px;display:block;margin-bottom:2px;}
 .nav-label{font-size:10px;color:#aaa;}
 .nav-item.active .nav-label{color:#8B7355;font-weight:600;}
 </style>
@@ -110,6 +129,16 @@ body{font-family:'Noto Sans TC',-apple-system,sans-serif;background:#f5f0e8;min-
     <input type="text" id="customerName" placeholder="你的名字" />
     <button class="login-btn" onclick="customerLogin()">進入小錦囊</button>
     <div class="login-msg" id="loginMsg"></div>
+  </div>
+</div>
+
+<!-- PRODUCT SELECTION MODAL -->
+<div id="productSelectModal">
+  <div class="select-box">
+    <div class="select-title">🎯 選擇你購買的產品</div>
+    <div class="select-desc">選擇後會顯示這些產品的吃法、功效和打卡記錄挑戰！</div>
+    <div id="productSelectList"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:1rem;" onclick="saveProductSelection()">確認選擇</button>
   </div>
 </div>
 
@@ -132,71 +161,70 @@ body{font-family:'Noto Sans TC',-apple-system,sans-serif;background:#f5f0e8;min-
 
   <div class="tabs-wrap">
     <div class="tabs">
-      <div class="tab active" onclick="switchTab('products')">📦 產品</div>
-      <div class="tab" onclick="switchTab('weight')">📊 體重記錄</div>
+      <div class="tab active" onclick="switchTab('checkin')">📋 產品打卡記錄</div>
+      <div class="tab" onclick="switchTab('info')">📖 產品功效/吃法</div>
+      <div class="tab" onclick="switchTab('qa')">❓ 產品Q&A</div>
       <div class="tab" onclick="switchTab('profile')">👤 我的</div>
     </div>
   </div>
 
-  <!-- PRODUCTS PAGE -->
-  <div class="page active" id="page-products">
-    <div style="display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px;">
-      <button class="btn btn-primary" style="white-space:nowrap;font-size:12px;padding:7px 14px;" onclick="filterCat('all')">全部</button>
-      <button class="btn" style="white-space:nowrap;font-size:12px;padding:7px 14px;background:#fef9f3;color:#5a4a3a;" onclick="filterCat('纖體系列')">纖體系列</button>
-      <button class="btn" style="white-space:nowrap;font-size:12px;padding:7px 14px;background:#fef9f3;color:#5a4a3a;" onclick="filterCat('美肌系列')">美肌系列</button>
-      <button class="btn" style="white-space:nowrap;font-size:12px;padding:7px 14px;background:#fef9f3;color:#5a4a3a;" onclick="filterCat('保健系列')">保健系列</button>
-      <button class="btn" style="white-space:nowrap;font-size:12px;padding:7px 14px;background:#fef9f3;color:#5a4a3a;" onclick="filterCat('養髮系列')">養髮系列</button>
+  <!-- CHECKIN PAGE -->
+  <div class="page active" id="page-checkin">
+    <div class="checkin-hero">
+      <div class="checkin-percent" id="checkinPercent">0%</div>
+      <div class="checkin-msg" id="checkinMsg">開始你的打卡挑戰！</div>
     </div>
-    <div id="prodList"></div>
+    <div id="myProductsList"></div>
   </div>
 
-  <!-- WEIGHT PAGE -->
-  <div class="page" id="page-weight">
-    <div class="weight-card">
-      <div class="weight-hero">
-        <div class="weight-label">總共減重</div>
-        <div class="weight-big" id="totalLoss">0 kg</div>
-        <div class="weight-cheer" id="cheerMsg">開始記錄你的美好轉變 💪</div>
-      </div>
-      <div class="weight-inputs">
-        <input type="number" id="startWeight" placeholder="起始體重 (kg)" step="0.1" />
-        <input type="number" id="targetWeight" placeholder="目標體重 (kg)" step="0.1" />
-      </div>
-      <button class="btn btn-primary" style="width:100%;" onclick="saveWeightGoals()">設定目標</button>
+  <!-- INFO PAGE -->
+  <div class="page" id="page-info">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="infoSearch" placeholder="搜尋產品名稱、功效..." oninput="filterInfo()" />
     </div>
+    <div id="infoList"></div>
+  </div>
 
-    <div style="background:white;border-radius:16px;padding:1.2rem;margin-bottom:1rem;">
-      <div style="font-size:14px;font-weight:700;color:#5a4a3a;margin-bottom:10px;">📝 今日體重記錄</div>
-      <div style="display:flex;gap:10px;align-items:flex-end;">
-        <input type="number" id="todayWeight" placeholder="今天體重 (kg)" step="0.1" style="flex:1;padding:10px 12px;border:1px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;" />
-        <button class="btn btn-primary" onclick="addWeightRecord()">記錄</button>
-      </div>
+  <!-- QA PAGE -->
+  <div class="page" id="page-qa">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="qaSearch" placeholder="搜尋問題..." oninput="filterQA()" />
     </div>
-
-    <div style="background:white;border-radius:16px;padding:1.2rem;">
-      <div style="font-size:14px;font-weight:700;color:#5a4a3a;margin-bottom:10px;">📈 體重變化曲線</div>
-      <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
-    </div>
+    <div id="qaList"></div>
   </div>
 
   <!-- PROFILE PAGE -->
   <div class="page" id="page-profile">
-    <div style="background:white;border-radius:16px;padding:1.2rem;margin-bottom:1rem;">
-      <div style="font-size:14px;font-weight:700;color:#5a4a3a;margin-bottom:10px;">👤 我的資訊</div>
-      <div style="font-size:13px;color:#666;line-height:1.8;">
-        <div>賣家：<strong id="profileSeller"></strong></div>
-        <div>我的名字：<strong id="profileName"></strong></div>
+    <div class="profile-card">
+      <div style="font-size:15px;font-weight:700;color:#5a4a3a;margin-bottom:10px;">👤 我的資訊</div>
+      <div class="profile-row">
+        <span class="profile-label">賣家</span>
+        <span class="profile-value" id="profileSeller"></span>
       </div>
+      <div class="profile-row">
+        <span class="profile-label">我的名字</span>
+        <span class="profile-value" id="profileName"></span>
+      </div>
+    </div>
+    <div class="profile-card">
+      <div style="font-size:15px;font-weight:700;color:#5a4a3a;margin-bottom:10px;">📦 我購買的產品</div>
+      <div id="myProductsDisplay" style="font-size:13px;color:#666;line-height:1.8;"></div>
+      <button class="btn btn-secondary" style="width:100%;margin-top:12px;" onclick="reopenProductSelect()">重新選擇產品</button>
     </div>
     <button class="btn" style="width:100%;background:#f0f0f0;color:#999;" onclick="customerLogout()">登出</button>
   </div>
 
   <div class="bottom-nav">
-    <button class="nav-item active" onclick="switchPage('products',this)">
-      <span class="nav-icon">📦</span><span class="nav-label">產品</span>
+    <button class="nav-item active" onclick="switchPage('checkin',this)">
+      <span class="nav-icon">📋</span><span class="nav-label">打卡記錄</span>
     </button>
-    <button class="nav-item" onclick="switchPage('weight',this)">
-      <span class="nav-icon">📊</span><span class="nav-label">體重</span>
+    <button class="nav-item" onclick="switchPage('info',this)">
+      <span class="nav-icon">📖</span><span class="nav-label">產品功效</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('qa',this)">
+      <span class="nav-icon">❓</span><span class="nav-label">Q&A</span>
     </button>
     <button class="nav-item" onclick="switchPage('profile',this)">
       <span class="nav-icon">👤</span><span class="nav-label">我的</span>
@@ -209,35 +237,35 @@ const SUPABASE_URL='https://lsurinqdrybvqtvhiqim.supabase.co';
 const SUPABASE_KEY='sb_publishable_OVv7ly-_nLpirm93hcR0Qg_GK71hyI_';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const PRODUCTS=[
-  {id:1,cat:'纖體系列',name:'纖纖飲',icon:'🥤',dosage:'熱量最大餐前1-2包',effects:['溶脂肪','燃脂','降三高']},
-  {id:2,cat:'纖體系列',name:'纖飄錠',icon:'💊',dosage:'早晚餐各2顆',effects:['燃脂','抑制脂肪吸收']},
-  {id:3,cat:'纖體系列',name:'紫纖飲',icon:'🫐',dosage:'隨餐或嘴饞時1-2杯',effects:['抑制食慾','飽足感']},
-  {id:4,cat:'纖體系列',name:'爆纖錠',icon:'🔥',dosage:'三餐各3顆或早午各3顆',effects:['消水腫','燃脂']},
-  {id:5,cat:'纖體系列',name:'纖酵宿',icon:'🌿',dosage:'晚餐前1-4顆',effects:['腸道保養','排便順暢']},
-  {id:6,cat:'纖體系列',name:'肽纖飲可可/奶茶',icon:'🍫',dosage:'一天1-2杯',effects:['代餐','飽足感']},
-  {id:7,cat:'保健系列',name:'複方金盞花葉黃素EX飲',icon:'👁️',dosage:'餐後1-2包',effects:['護眼','過濾藍光']},
-  {id:8,cat:'保健系列',name:'葉黃素高鈣晶亮凍',icon:'✨',dosage:'餐後2-3包',effects:['護眼','補鈣']},
-  {id:9,cat:'保健系列',name:'高機能益生菌',icon:'🦠',dosage:'依年齡1-4包',effects:['腸道菌相','提升免疫']},
-  {id:10,cat:'保健系列',name:'酒國英雄極速錠',icon:'🍺',dosage:'喝酒前中後2-4顆',effects:['護肝','解酒']},
-  {id:11,cat:'保健系列',name:'療肺草正冠茶',icon:'🫁',dosage:'一天1-2杯',effects:['舒緩喉嚨','呼吸道保養']},
-  {id:12,cat:'保健系列',name:'固樂纖',icon:'💪',dosage:'一天3顆',effects:['補充膠原蛋白','保護關節']},
-  {id:13,cat:'美肌系列',name:'水光錠',icon:'💎',dosage:'早晚各1-4顆',effects:['深層保濕','淡化細紋']},
-  {id:14,cat:'美肌系列',name:'水光繃帶面膜',icon:'🩹',dosage:'一週1-4次',effects:['深度保濕','修護屏障']},
-  {id:15,cat:'美肌系列',name:'雪聚露',icon:'❄️',dosage:'早晚洗臉後',effects:['消炎','舒緩痘痘']},
-  {id:16,cat:'美肌系列',name:'婕肌零',icon:'🧴',dosage:'卸妝清潔',effects:['溫和卸妝','深層清潔']},
-  {id:17,cat:'美肌系列',name:'玻尿酸',icon:'💧',dosage:'清潔後一泵',effects:['深層補水','淡化細紋']},
-  {id:18,cat:'美肌系列',name:'急救小白瓶',icon:'🤍',dosage:'全身使用',effects:['淡化疤痕','緊緻拉提']},
-  {id:19,cat:'美肌系列',name:'積雪草護手霜',icon:'🌸',dosage:'隨時使用',effects:['深層滋潤','美白止癢']},
-  {id:20,cat:'養髮系列',name:'法樂蓬洗髮露',icon:'💆',dosage:'每晚洗2遍',effects:['活化頭皮','減少掉髮']},
-  {id:21,cat:'養髮系列',name:'法樂蓬養髮原液',icon:'🌱',dosage:'洗髮後1-2次',effects:['促進生長','強化髮根']},
+const ALL_PRODUCTS=[
+  {id:1,cat:'纖體系列',name:'纖纖飲',icon:'🥤'},
+  {id:2,cat:'纖體系列',name:'纖飄錠',icon:'💊'},
+  {id:3,cat:'纖體系列',name:'紫纖飲',icon:'🫐'},
+  {id:4,cat:'纖體系列',name:'爆纖錠',icon:'🔥'},
+  {id:5,cat:'纖體系列',name:'纖酵宿',icon:'🌿'},
+  {id:6,cat:'纖體系列',name:'肽纖飲可可/奶茶',icon:'🍫'},
+  {id:7,cat:'保健系列',name:'複方金盞花葉黃素EX飲',icon:'👁️'},
+  {id:8,cat:'保健系列',name:'葉黃素高鈣晶亮凍',icon:'✨'},
+  {id:9,cat:'保健系列',name:'高機能益生菌',icon:'🦠'},
+  {id:10,cat:'保健系列',name:'酒國英雄極速錠',icon:'🍺'},
+  {id:11,cat:'保健系列',name:'療肺草正冠茶',icon:'🫁'},
+  {id:12,cat:'保健系列',name:'固樂纖',icon:'💪'},
+  {id:13,cat:'美肌系列',name:'水光錠',icon:'💎'},
+  {id:14,cat:'美肌系列',name:'水光繃帶面膜',icon:'🩹'},
+  {id:15,cat:'美肌系列',name:'雪聚露',icon:'❄️'},
+  {id:16,cat:'美肌系列',name:'婕肌零',icon:'🧴'},
+  {id:17,cat:'美肌系列',name:'玻尿酸',icon:'💧'},
+  {id:18,cat:'美肌系列',name:'急救小白瓶',icon:'🤍'},
+  {id:19,cat:'美肌系列',name:'積雪草護手霜',icon:'🌸'},
+  {id:20,cat:'養髮系列',name:'法樂蓬洗髮露',icon:'💆'},
+  {id:21,cat:'養髮系列',name:'法樂蓬養髮原液',icon:'🌱'},
 ];
 
 let currentUser=null;
+let selectedProducts=[];
 let checkIns={};
-let notes={};
-let weightChart=null;
-let currentCat='all';
+let productInfoData=[];
+let qaData=[];
 
 // ===== LOGIN =====
 async function customerLogin(){
@@ -246,16 +274,59 @@ async function customerLogin(){
   const msg=document.getElementById('loginMsg');
   if(!seller||!name){msg.textContent='請填寫賣家名字和你的名字';return;}
   
-  // Check if user exists
   const{data:existing}=await sb.from('customer_users').select('*').eq('seller_name',seller).eq('customer_name',name).single();
   if(existing){
     currentUser=existing;
   } else {
-    const{data:newUser}=await sb.from('customer_users').insert({seller_name:seller,customer_name:name,created_at:new Date().toISOString()}).select().single();
+    const{data:newUser}=await sb.from('customer_users').insert({seller_name:seller,customer_name:name,my_products:'[]',created_at:new Date().toISOString()}).select().single();
     currentUser=newUser;
   }
   
+  try{selectedProducts=JSON.parse(currentUser.my_products||'[]');}catch(e){selectedProducts=[];}
+  
+  if(selectedProducts.length===0){
+    showProductSelect();
+  } else {
+    enterApp();
+  }
+}
+
+function showProductSelect(){
+  document.getElementById('loginPage').style.display='none';
+  const modal=document.getElementById('productSelectModal');
+  const list=document.getElementById('productSelectList');
+  list.innerHTML=ALL_PRODUCTS.map(p=>`<div class="prod-select-item" onclick="toggleProductSelect(${p.id})"><div class="prod-select-icon">${p.icon}</div><div class="prod-select-info"><div class="prod-select-name">${p.name}</div><div class="prod-select-cat">${p.cat}</div></div><div class="prod-select-check" id="check-${p.id}"></div></div>`).join('');
+  modal.classList.add('show');
+}
+
+function toggleProductSelect(id){
+  if(selectedProducts.includes(id)){
+    selectedProducts=selectedProducts.filter(x=>x!==id);
+  } else {
+    selectedProducts.push(id);
+  }
+  const check=document.getElementById('check-'+id);
+  const item=check.closest('.prod-select-item');
+  if(selectedProducts.includes(id)){
+    check.classList.add('checked');check.textContent='✓';
+    item.classList.add('selected');
+  } else {
+    check.classList.remove('checked');check.textContent='';
+    item.classList.remove('selected');
+  }
+}
+
+async function saveProductSelection(){
+  if(selectedProducts.length===0){alert('請至少選擇一個產品');return;}
+  await sb.from('customer_users').update({my_products:JSON.stringify(selectedProducts)}).eq('id',currentUser.id);
+  currentUser.my_products=JSON.stringify(selectedProducts);
+  document.getElementById('productSelectModal').classList.remove('show');
   enterApp();
+}
+
+function reopenProductSelect(){
+  document.getElementById('mainPage').style.display='none';
+  showProductSelect();
 }
 
 async function enterApp(){
@@ -265,11 +336,12 @@ async function enterApp(){
   document.getElementById('profileName').textContent=currentUser.customer_name;
   
   await loadCheckIns();
-  await loadNotes();
-  await loadWeightData();
-  renderProducts();
+  await loadProductInfo();
+  await loadQA();
+  renderMyProducts();
+  renderInfo();
+  renderQA();
   
-  // Show welcome modal
   const{data:announce}=await sb.from('announcements').select('*').eq('is_active',true).order('created_at',{ascending:false}).limit(1);
   if(announce&&announce.length){
     document.getElementById('welcomeTitle').textContent='歡迎 '+currentUser.customer_name+' 回來記錄自己的美好轉變💌';
@@ -281,7 +353,7 @@ async function enterApp(){
 function closeWelcome(){document.getElementById('welcomeModal').classList.remove('show');}
 
 function customerLogout(){
-  currentUser=null;
+  currentUser=null;selectedProducts=[];
   document.getElementById('mainPage').style.display='none';
   document.getElementById('loginPage').style.display='flex';
   document.getElementById('sellerName').value='';
@@ -313,198 +385,117 @@ async function toggleCheck(prodId){
     checkIns[prodId].push(today);
   }
   
-  renderProducts();
+  renderMyProducts();
 }
 
-// ===== NOTES =====
-async function loadNotes(){
-  if(!currentUser)return;
-  const{data}=await sb.from('product_notes').select('*').eq('user_id',currentUser.id);
-  notes={};
-  (data||[]).forEach(n=>notes[n.product_id]=n.note_text);
+function getCheerMessage(pct){
+  if(pct===100)return'目前 100% 在變好的路上 加油！';
+  if(pct>=95)return'目前 '+pct+'% 在變好的路上 太棒了！';
+  if(pct>=90)return'目前 '+pct+'% 在變好的路上 不要放棄！';
+  if(pct>=80)return'目前 '+pct+'% 在變好的路上 繼續保持！';
+  if(pct>=70)return'目前 '+pct+'% 在變好的路上 你很棒！';
+  if(pct>=60)return'目前 '+pct+'% 在變好的路上 加油加油！';
+  if(pct>=50)return'目前 '+pct+'% 在變好的路上 別放棄！';
+  return'目前 '+pct+'% 在變好的路上 我們一起努力！';
 }
 
-async function saveNote(prodId){
-  if(!currentUser)return;
-  const text=document.getElementById('note-'+prodId).value.trim();
+function renderMyProducts(){
+  const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
+  document.getElementById('myProductsDisplay').textContent=myProds.map(p=>p.name).join('、')||'尚未選擇';
   
-  const{data:existing}=await sb.from('product_notes').select('id').eq('user_id',currentUser.id).eq('product_id',prodId).single();
-  if(existing){
-    await sb.from('product_notes').update({note_text:text}).eq('id',existing.id);
-  } else {
-    await sb.from('product_notes').insert({user_id:currentUser.id,product_id:prodId,note_text:text});
-  }
-  
-  notes[prodId]=text;
-  alert('心得已儲存 ✓');
-}
-
-// ===== WEIGHT TRACKING =====
-async function loadWeightData(){
-  if(!currentUser)return;
-  const{data}=await sb.from('weight_records').select('*').eq('user_id',currentUser.id).order('record_date');
-  const records=data||[];
-  
-  if(records.length){
-    const first=records[0];
-    const last=records[records.length-1];
-    document.getElementById('startWeight').value=first.weight;
-    if(currentUser.target_weight)document.getElementById('targetWeight').value=currentUser.target_weight;
-    
-    const loss=first.weight-last.weight;
-    document.getElementById('totalLoss').textContent=(loss>=0?'+':'')+loss.toFixed(1)+' kg';
-    
-    if(loss>=5)document.getElementById('cheerMsg').textContent='太棒了！你做得超好！🎉';
-    else if(loss>=2)document.getElementById('cheerMsg').textContent='很棒！繼續保持！💪';
-    else if(loss>=0.5)document.getElementById('cheerMsg').textContent='你正在進步中！加油！🌟';
-    else document.getElementById('cheerMsg').textContent='持續記錄，改變正在發生 ✨';
-  }
-  
-  renderWeightChart(records);
-}
-
-async function saveWeightGoals(){
-  if(!currentUser)return;
-  const start=parseFloat(document.getElementById('startWeight').value);
-  const target=parseFloat(document.getElementById('targetWeight').value);
-  if(!start||!target){alert('請填寫起始和目標體重');return;}
-  
-  await sb.from('customer_users').update({target_weight:target}).eq('id',currentUser.id);
-  currentUser.target_weight=target;
-  
-  // Add first record if none
-  const{data:existing}=await sb.from('weight_records').select('id').eq('user_id',currentUser.id).limit(1);
-  if(!existing||!existing.length){
-    const today=new Date().toISOString().split('T')[0];
-    await sb.from('weight_records').insert({user_id:currentUser.id,weight:start,record_date:today});
-  }
-  
-  await loadWeightData();
-  alert('目標已設定！開始記錄吧 💪');
-}
-
-async function addWeightRecord(){
-  if(!currentUser)return;
-  const weight=parseFloat(document.getElementById('todayWeight').value);
-  if(!weight){alert('請輸入今天的體重');return;}
-  
-  const today=new Date().toISOString().split('T')[0];
-  const{data:existing}=await sb.from('weight_records').select('id').eq('user_id',currentUser.id).eq('record_date',today).single();
-  
-  if(existing){
-    await sb.from('weight_records').update({weight}).eq('id',existing.id);
-  } else {
-    await sb.from('weight_records').insert({user_id:currentUser.id,weight,record_date:today});
-  }
-  
-  document.getElementById('todayWeight').value='';
-  await loadWeightData();
-  alert('記錄成功 ✓');
-}
-
-function renderWeightChart(records){
-  if(!records||!records.length)return;
-  
-  const labels=records.map(r=>r.record_date.slice(5));
-  const weights=records.map(r=>r.weight);
-  
-  const ctx=document.getElementById('weightChart');
-  if(weightChart)weightChart.destroy();
-  
-  weightChart=new Chart(ctx,{
-    type:'line',
-    data:{
-      labels,
-      datasets:[{
-        label:'體重 (kg)',
-        data:weights,
-        borderColor:'#8B7355',
-        backgroundColor:'rgba(139,115,85,0.1)',
-        borderWidth:2,
-        tension:0.3,
-        fill:true
-      }]
-    },
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{font:{size:10}}},
-        y:{ticks:{font:{size:10}}}
-      }
-    }
-  });
-}
-
-// ===== PRODUCTS =====
-function filterCat(cat){
-  currentCat=cat;
-  renderProducts();
-}
-
-function renderProducts(){
-  let list=currentCat==='all'?PRODUCTS:PRODUCTS.filter(p=>p.cat===currentCat);
-  const el=document.getElementById('prodList');
-  el.innerHTML=list.map(p=>renderProdCard(p)).join('');
-}
-
-function renderProdCard(p){
-  const today=new Date().toISOString().split('T')[0];
-  const isChecked=checkIns[p.id]&&checkIns[p.id].includes(today);
-  const noteText=notes[p.id]||'';
-  
-  // Calendar: last 14 days
-  const days=[];
-  for(let i=13;i>=0;i--){
+  // Calculate overall percentage
+  let totalDays=0,totalChecked=0;
+  const last7Days=[];
+  for(let i=6;i>=0;i--){
     const d=new Date();
     d.setDate(d.getDate()-i);
-    const dateStr=d.toISOString().split('T')[0];
-    const dayNum=d.getDate();
-    const checked=checkIns[p.id]&&checkIns[p.id].includes(dateStr);
-    const isToday=dateStr===today;
-    days.push(`<div class="cal-day${checked?' checked':''}${isToday?' today':''}">${dayNum}</div>`);
+    last7Days.push(d.toISOString().split('T')[0]);
   }
   
-  return `<div class="prod-card${isChecked?' checked':''}" id="card-${p.id}">
-    <div class="prod-header" onclick="toggleDetail(${p.id})">
-      <div class="prod-icon">${p.icon}</div>
-      <div class="prod-info">
-        <div class="prod-name">${p.name}</div>
-        <span class="prod-tag">${p.cat}</span>
-      </div>
-      <div class="prod-check${isChecked?' checked':''}" onclick="event.stopPropagation();toggleCheck(${p.id})">${isChecked?'✓':''}</div>
-    </div>
-    <div class="prod-detail" id="detail-${p.id}">
-      <div class="detail-section">
-        <div class="detail-label">💊 建議用量</div>
-        <div class="detail-content">${p.dosage}</div>
-      </div>
-      <div class="detail-section">
-        <div class="detail-label">✨ 主要功效</div>
-        <div class="detail-content">${p.effects.join(' · ')}</div>
-      </div>
-      <div class="detail-section">
-        <div class="detail-label">📅 最近 14 天打卡記錄</div>
-        <div class="calendar-grid">${days.join('')}</div>
-      </div>
-      <div class="detail-section">
-        <div class="detail-label">📝 使用心得</div>
-        <textarea class="note-input" id="note-${p.id}" placeholder="記錄你的使用心得...">${noteText}</textarea>
-        <button class="btn btn-primary" style="margin-top:8px;" onclick="saveNote(${p.id})">儲存心得</button>
-      </div>
-    </div>
-  </div>`;
+  myProds.forEach(p=>{
+    last7Days.forEach(date=>{
+      totalDays++;
+      if(checkIns[p.id]&&checkIns[p.id].includes(date))totalChecked++;
+    });
+  });
+  
+  const pct=totalDays?Math.round(totalChecked/totalDays*100):0;
+  document.getElementById('checkinPercent').textContent=pct+'%';
+  document.getElementById('checkinMsg').textContent=getCheerMessage(pct);
+  
+  const today=new Date().toISOString().split('T')[0];
+  const el=document.getElementById('myProductsList');
+  el.innerHTML=myProds.map(p=>{
+    const prodDays=last7Days.filter(d=>checkIns[p.id]&&checkIns[p.id].includes(d)).length;
+    const prodPct=Math.round(prodDays/7*100);
+    const isChecked=checkIns[p.id]&&checkIns[p.id].includes(today);
+    
+    const days=[];
+    for(let i=13;i>=0;i--){
+      const d=new Date();
+      d.setDate(d.getDate()-i);
+      const dateStr=d.toISOString().split('T')[0];
+      const dayNum=d.getDate();
+      const checked=checkIns[p.id]&&checkIns[p.id].includes(dateStr);
+      const isToday=dateStr===today;
+      days.push(`<div class="cal-day${checked?' checked':''}${isToday?' today':''}">${dayNum}</div>`);
+    }
+    
+    return `<div class="my-prod-card${isChecked?' checked-today':''}"><div class="my-prod-icon">${p.icon}</div><div class="my-prod-info"><div class="my-prod-name">${p.name}</div><div class="my-prod-rate">近7天完成率 ${prodPct}%</div></div><div class="my-prod-check${isChecked?' checked':''}" onclick="toggleCheck(${p.id})">${isChecked?'✓':''}</div></div><div style="padding:0 1rem 1rem;"><div style="font-size:11px;color:#999;margin-bottom:6px;">最近14天打卡記錄</div><div class="calendar-grid">${days.join('')}</div></div>`;
+  }).join('');
 }
 
-function toggleDetail(id){
-  const detail=document.getElementById('detail-'+id);
-  detail.classList.toggle('open');
+// ===== PRODUCT INFO =====
+async function loadProductInfo(){
+  const{data}=await sb.from('customer_products').select('*').eq('is_active',true);
+  productInfoData=data||[];
+}
+
+function filterInfo(){
+  renderInfo();
+}
+
+function renderInfo(){
+  const query=document.getElementById('infoSearch').value.toLowerCase();
+  let list=productInfoData;
+  if(query){
+    list=list.filter(p=>(p.name||'').toLowerCase().includes(query)||(p.effects||'').toLowerCase().includes(query)||(p.dosage||'').toLowerCase().includes(query));
+  }
+  
+  const el=document.getElementById('infoList');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;">找不到相關產品</div>';return;}
+  el.innerHTML=list.map(p=>{
+    const effects=p.effects?JSON.parse(p.effects):[];
+    return `<div class="info-card"><div class="info-title">${p.name}</div><span class="info-cat">${p.category||''}</span>${p.dosage?`<div class="info-section"><div class="info-label">💊 建議用量</div><div class="info-content">${p.dosage}</div></div>`:''}${effects.length?`<div class="info-section"><div class="info-label">✨ 主要功效</div><div class="info-content">${effects.join(' · ')}</div></div>`:''}${p.howto?`<div class="info-section"><div class="info-label">📖 使用方式</div><div class="info-content">${p.howto}</div></div>`:''}${p.tips?`<div class="info-section"><div class="info-label">💡 小提醒</div><div class="info-content">${p.tips}</div></div>`:''}</div>`;
+  }).join('');
+}
+
+// ===== QA =====
+async function loadQA(){
+  const{data}=await sb.from('product_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
+  qaData=data||[];
+}
+
+function filterQA(){
+  renderQA();
+}
+
+function renderQA(){
+  const query=document.getElementById('qaSearch').value.toLowerCase();
+  let list=qaData;
+  if(query){
+    list=list.filter(q=>(q.question||'').toLowerCase().includes(query)||(q.answer||'').toLowerCase().includes(query));
+  }
+  
+  const el=document.getElementById('qaList');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;">找不到相關問題</div>';return;}
+  el.innerHTML=list.map(q=>`<div class="qa-card"><div class="qa-q">Q：${q.question}</div><div class="qa-a">A：${q.answer}</div></div>`).join('');
 }
 
 // ===== NAVIGATION =====
 function switchTab(tab){
-  // Tabs are just visual in this simplified version
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
 }
 
 function switchPage(page,el){
