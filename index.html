@@ -197,7 +197,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="certModal">
   <canvas id="certCanvas" width="800" height="560"></canvas>
   <div class="cert-btns">
-    <button class="cert-btn cert-btn-dl" onclick="downloadCert()">⬇ 下載吃法小卡</button>
+    <button class="cert-btn cert-btn-dl" onclick="downloadCert()">⬇ 下載小卡</button>
     <button class="cert-btn cert-btn-close" onclick="closeCert()">關閉</button>
   </div>
   <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin-top:10px;max-width:360px;">💛 點擊後按更多再按儲存影像即可傳給客人寶寶！</div>
@@ -482,7 +482,8 @@ let pChart,yChart,fChart,cChart;
 // ===== QUEST STAGES =====
 const STAGES=[
   {key:'新人啟航',icon:'🌱',desc:'從零開始，掌握核心銷售力',color:'#A4E5E0',textColor:'#085041',recommend:'實習加盟、三級加盟',minLevel:null},
-  {key:'輔導督導',icon:'🚀',desc:'帶人複製,打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'三級輔導、二級輔導',minLevel:null}
+  {key:'輔導督導',icon:'🚀',desc:'帶人複製，打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'三級輔導、二級輔導',minLevel:null},
+  {key:'高階領導',icon:'👑',desc:'領袖思維，拓展事業版圖',color:'#E8D5A3',textColor:'#7a5200',recommend:'二級輔導、一級輔導、皇家輔導',minLevel:'二級輔導'}
 ];
 const PRODUCT_STAGES=[
   {key:'纖體系列',icon:'💧',desc:'燃脂瘦身，輕盈有感',color:'#E8F4FD',accent:'#4A9EE0'},
@@ -1017,7 +1018,7 @@ function drawCertificate(){
 function downloadCert(){
   const canvas=document.getElementById('certCanvas');
   const link=document.createElement('a');
-  link.download='HT_完課證書_'+certStageName+'_'+(currentUser?.name||'')+'.png';
+  link.download='HT_結訓證書_'+certStageName+'_'+(currentUser?.name||'')+'.png';
   link.href=canvas.toDataURL('image/png');
   link.click();
 }
@@ -1143,7 +1144,7 @@ function drawMealCard(clientName,grouped){
 function downloadCert(){
   const canvas=document.getElementById('certCanvas');
   const link=document.createElement('a');
-  link.download='HT_完課證書_'+certStageName+'_'+(currentUser?.name||'')+'.png';
+  link.download='HT_結訓證書_'+certStageName+'_'+(currentUser?.name||'')+'.png';
   link.href=canvas.toDataURL('image/png');
   link.click();
 }
