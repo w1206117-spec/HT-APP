@@ -782,16 +782,17 @@ function renderStageCards(){
     const isComplete=total>0&&done===total;
     const locked=!canAccess;
 
-    return `<div onclick="${locked?'alert(\"需要達到'+s.minLevel+'才能解鎖此關卡\")':(`openStage('${s.key}')`)}" class="quest-card${locked?' locked':''}${isComplete?' completed':''}">
+    return `<div class="quest-card${locked?' locked':''}${isComplete?' completed':''}">
       <div class="quest-icon-wrap" style="background:${s.color};">
         <span style="font-size:26px;">${s.icon}</span>
         ${locked?'<div class="quest-lock-overlay">🔒</div>':''}
       </div>
-      <div class="quest-info">
+      <div class="quest-info" onclick="${locked?'alert(\"需要達到'+s.minLevel+'才能解鎖此關卡\")':(!isComplete?`openStage('${s.key}')`:'')}" style="${isComplete?'cursor:default;':'cursor:pointer;'}">
         <div class="quest-name">第${['一','二','三'][idx]}關　${s.key}</div>
         <div class="quest-desc">${s.desc}</div>
         <div class="quest-meta"><span class="quest-tag">👥 ${s.recommend}</span></div>
         ${total>0?`<div class="quest-progress-bar"><div class="quest-progress-fill" style="width:${pct}%;background:${s.color};filter:saturate(1.5) brightness(0.85);"></div></div><div class="quest-progress-text">${done}／${total} 堂完成 · ${pct}%</div>`:'<div class="quest-progress-text" style="color:#ccc;">課程準備中</div>'}
+        ${isComplete?`<button onclick="event.stopPropagation();certStageName='${s.key}';drawCertificate();document.getElementById('certModal').classList.add('show');const btn=document.getElementById('downloadBtn');if(btn)btn.innerHTML='⬇ 下載小卡';" style="margin-top:10px;padding:8px 16px;background:linear-gradient(135deg,#C9A84C,#E8D5A3);color:#7a5200;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🔄 重新下載證書</button>`:''}
       </div>
       ${isComplete?'<div class="quest-badge-complete">✓ 完關</div>':'<div class="quest-arrow">›</div>'}
     </div>`;
@@ -948,7 +949,7 @@ function closeCert(){
 function drawCertificate(){
   const canvas=document.getElementById('certCanvas');
   const ctx=canvas.getContext('2d');
-  const W=1000,H=720;
+  const W=1000,H=700;
   canvas.width=W;canvas.height=H;
 
   // Soft pink gradient background
@@ -959,61 +960,66 @@ function drawCertificate(){
   ctx.fillStyle=bg;
   ctx.fillRect(0,0,W,H);
 
-  // Enhanced mystical decorative elements
-  ctx.globalAlpha=0.15;
+  // Enhanced mystical decorative elements (visible but not overpowering)
+  ctx.globalAlpha=0.25;
   
   // Top left corner - stars and cosmic elements
-  ctx.fillStyle='#d4a5b0';
-  ctx.beginPath();ctx.moveTo(80,60);ctx.lineTo(90,80);ctx.lineTo(70,80);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(120,50,3,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(100,80,2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(130,90,2,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#c89aa5';
+  ctx.beginPath();ctx.moveTo(75,55);ctx.lineTo(85,75);ctx.lineTo(65,75);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(115,45,4,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(95,75,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(125,85,3,0,Math.PI*2);ctx.fill();
   
   // Top right - moon, stars and orbital paths
-  ctx.strokeStyle='#c89aa5';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(880,80,25,0.3,Math.PI*1.7);ctx.stroke();
-  ctx.fillStyle='#d4a5b0';
-  ctx.beginPath();ctx.moveTo(920,60);ctx.lineTo(924,68);ctx.lineTo(916,68);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(850,120,2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(910,100,2,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1;
-  ctx.beginPath();ctx.ellipse(900,90,30,15,0.2,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='#b89099';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(880,75,30,0.3,Math.PI*1.7);ctx.stroke();
+  ctx.fillStyle='#c89aa5';
+  ctx.beginPath();ctx.moveTo(920,55);ctx.lineTo(925,65);ctx.lineTo(915,65);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(850,115,4,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(910,95,3,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#b89099';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.ellipse(900,85,35,18,0.2,0,Math.PI*2);ctx.stroke();
   
   // Left middle - floating leaves/petals
-  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1;
+  ctx.strokeStyle='#b89099';ctx.lineWidth=2;
   ctx.beginPath();
-  ctx.moveTo(70,350);ctx.bezierCurveTo(75,345,85,350,90,355);ctx.stroke();
+  ctx.moveTo(65,350);ctx.bezierCurveTo(72,343,88,350,95,358);ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(80,390);ctx.bezierCurveTo(85,385,95,390,100,395);ctx.stroke();
+  ctx.moveTo(75,390);ctx.bezierCurveTo(82,383,98,390,105,398);ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(70,430);ctx.bezierCurveTo(77,423,93,430,100,438);ctx.stroke();
   
   // Right middle - mystical sparkles
-  ctx.fillStyle='#d4a5b0';
-  ctx.beginPath();ctx.moveTo(930,350);ctx.lineTo(933,357);ctx.lineTo(927,357);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(920,380);ctx.lineTo(923,387);ctx.lineTo(917,387);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(910,410,2,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#c89aa5';
+  ctx.beginPath();ctx.moveTo(930,345);ctx.lineTo(935,357);ctx.lineTo(925,357);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(920,380);ctx.lineTo(925,392);ctx.lineTo(915,392);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(910,415,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(925,440,2,0,Math.PI*2);ctx.fill();
   
   // Bottom left - planet with rings
-  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.arc(100,630,20,0,Math.PI*2);ctx.stroke();
-  ctx.beginPath();ctx.ellipse(100,630,35,8,0.3,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#d4a5b0';
-  ctx.beginPath();ctx.arc(70,650,2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#b89099';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.arc(95,620,25,0,Math.PI*2);ctx.stroke();
+  ctx.lineWidth=1.8;
+  ctx.beginPath();ctx.ellipse(95,620,42,12,0.3,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#c89aa5';
+  ctx.beginPath();ctx.arc(65,640,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(125,635,2,0,Math.PI*2);ctx.fill();
   
   // Bottom right - star constellation
-  ctx.fillStyle='#d4a5b0';
-  ctx.beginPath();ctx.moveTo(900,610);ctx.lineTo(905,625);ctx.lineTo(895,625);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(920,640,2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(880,660,2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(930,670,2,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#c89aa5';ctx.lineWidth=0.5;
-  ctx.beginPath();ctx.moveTo(900,615);ctx.lineTo(920,640);ctx.lineTo(880,660);ctx.stroke();
+  ctx.fillStyle='#c89aa5';
+  ctx.beginPath();ctx.moveTo(900,600);ctx.lineTo(907,617);ctx.lineTo(893,617);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(920,630,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(880,655,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(930,665,2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#b89099';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(900,610);ctx.lineTo(920,630);ctx.lineTo(880,655);ctx.stroke();
   
   // Decorative flowers near center
-  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1;
+  ctx.strokeStyle='#b89099';ctx.lineWidth=1.5;
   ctx.beginPath();
-  ctx.moveTo(180,200);ctx.bezierCurveTo(190,195,200,200,200,210);ctx.stroke();
+  ctx.moveTo(175,195);ctx.bezierCurveTo(185,188,200,195,205,205);ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(820,200);ctx.bezierCurveTo(810,195,800,200,800,210);ctx.stroke();
+  ctx.moveTo(825,195);ctx.bezierCurveTo(815,188,800,195,795,205);ctx.stroke();
   
   ctx.globalAlpha=1;
 
@@ -1109,17 +1115,8 @@ function drawCertificate(){
   ctx.fillStyle='#d4a5b0';
   ctx.font='20px serif';
   for(let i=0;i<5;i++){
-    ctx.fillText('★',W/2-50+i*25,625);
+    ctx.fillText('★',W/2-50+i*25,630);
   }
-
-  // HT Team badge - moved up to avoid border
-  ctx.strokeStyle='#d4a5b0';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(W/2,670,25,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#c89aa5';
-  ctx.font='bold 11px sans-serif';
-  ctx.fillText('HT',W/2,667);
-  ctx.font='9px sans-serif';
-  ctx.fillText('TEAM',W/2,679);
 }
 
 function downloadCert(){
