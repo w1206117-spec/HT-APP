@@ -355,7 +355,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="font-size:56px;margin-bottom:0.75rem;animation:pop 0.5s ease;">🎉</div>
       <div style="font-size:21px;font-weight:700;color:#222;margin-bottom:8px;" id="completeTitle"></div>
       <div style="font-size:14px;color:#888;line-height:1.7;margin-bottom:1.5rem;" id="completeMsg"></div>
-      <button onclick="showCertificate()" style="width:100%;padding:14px;background:linear-gradient(135deg,#C9A84C,#E8D5A3,#C9A84C);color:#7a5200;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;letter-spacing:1px;">🏅 領取完課證書</button>
+      <button id="certBtn" onclick="showCertificate()" style="width:100%;padding:14px;background:linear-gradient(135deg,#C9A84C,#E8D5A3,#C9A84C);color:#7a5200;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;letter-spacing:1px;">🏅 領取結訓證書</button>
       <a id="completeVideoBtn" href="#" target="_blank" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:1rem;">▶ 觀看鼓勵影片</a>
       <br>
       <button onclick="backToStages()" class="btn btn-primary" style="margin-top:12px;">繼續下一關</button>
@@ -936,12 +936,19 @@ function showCertificate(){
     btn.innerHTML='⬇ 下載小卡';
   }
 }
-function closeCert(){document.getElementById('certModal').classList.remove('show');}
+function closeCert(){
+  document.getElementById('certModal').classList.remove('show');
+  // Change completion page button to redownload
+  const certBtn=document.getElementById('certBtn');
+  if(certBtn){
+    certBtn.innerHTML='🔄 重新下載結訓證書';
+  }
+}
 
 function drawCertificate(){
   const canvas=document.getElementById('certCanvas');
   const ctx=canvas.getContext('2d');
-  const W=1000,H=700;
+  const W=1000,H=720;
   canvas.width=W;canvas.height=H;
 
   // Soft pink gradient background
@@ -952,33 +959,56 @@ function drawCertificate(){
   ctx.fillStyle=bg;
   ctx.fillRect(0,0,W,H);
 
-  // Mystical decorative elements (semi-transparent)
+  // Enhanced mystical decorative elements
   ctx.globalAlpha=0.15;
-  // Top left stars cluster
+  
+  // Top left corner - stars and cosmic elements
   ctx.fillStyle='#d4a5b0';
   ctx.beginPath();ctx.moveTo(80,60);ctx.lineTo(90,80);ctx.lineTo(70,80);ctx.closePath();ctx.fill();
   ctx.beginPath();ctx.arc(120,50,3,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(100,80,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(130,90,2,0,Math.PI*2);ctx.fill();
   
-  // Top right moon and stars
+  // Top right - moon, stars and orbital paths
   ctx.strokeStyle='#c89aa5';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(880,80,25,0.3,Math.PI*1.7);ctx.stroke(); // Crescent moon
+  ctx.beginPath();ctx.arc(880,80,25,0.3,Math.PI*1.7);ctx.stroke();
   ctx.fillStyle='#d4a5b0';
   ctx.beginPath();ctx.moveTo(920,60);ctx.lineTo(924,68);ctx.lineTo(916,68);ctx.closePath();ctx.fill();
   ctx.beginPath();ctx.arc(850,120,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(910,100,2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1;
+  ctx.beginPath();ctx.ellipse(900,90,30,15,0.2,0,Math.PI*2);ctx.stroke();
   
-  // Bottom left planet with ring
-  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.arc(100,620,20,0,Math.PI*2);ctx.stroke();
-  ctx.beginPath();ctx.ellipse(100,620,35,8,0.3,0,Math.PI*2);ctx.stroke();
+  // Left middle - floating leaves/petals
+  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(70,350);ctx.bezierCurveTo(75,345,85,350,90,355);ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(80,390);ctx.bezierCurveTo(85,385,95,390,100,395);ctx.stroke();
   
-  // Bottom right sparkles
+  // Right middle - mystical sparkles
   ctx.fillStyle='#d4a5b0';
-  ctx.beginPath();ctx.moveTo(900,600);ctx.lineTo(905,615);ctx.lineTo(895,615);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(920,630,2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(880,650,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(930,350);ctx.lineTo(933,357);ctx.lineTo(927,357);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(920,380);ctx.lineTo(923,387);ctx.lineTo(917,387);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(910,410,2,0,Math.PI*2);ctx.fill();
   
-  // Centered decorative flowers (line art)
+  // Bottom left - planet with rings
+  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(100,630,20,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(100,630,35,8,0.3,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#d4a5b0';
+  ctx.beginPath();ctx.arc(70,650,2,0,Math.PI*2);ctx.fill();
+  
+  // Bottom right - star constellation
+  ctx.fillStyle='#d4a5b0';
+  ctx.beginPath();ctx.moveTo(900,610);ctx.lineTo(905,625);ctx.lineTo(895,625);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(920,640,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(880,660,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(930,670,2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#c89aa5';ctx.lineWidth=0.5;
+  ctx.beginPath();ctx.moveTo(900,615);ctx.lineTo(920,640);ctx.lineTo(880,660);ctx.stroke();
+  
+  // Decorative flowers near center
   ctx.strokeStyle='#c89aa5';ctx.lineWidth=1;
   ctx.beginPath();
   ctx.moveTo(180,200);ctx.bezierCurveTo(190,195,200,200,200,210);ctx.stroke();
@@ -1026,7 +1056,7 @@ function drawCertificate(){
   ctx.lineTo(W/2+150,300);
   ctx.stroke();
 
-  // Completion badge area with mystical elements
+  // Completion badge area
   ctx.fillStyle='rgba(212,165,176,0.12)';
   ctx.beginPath();
   ctx.arc(W/2,420,90,0,Math.PI*2);
@@ -1041,14 +1071,14 @@ function drawCertificate(){
   ctx.font='13px "Noto Sans TC",sans-serif';
   ctx.fillText('恭喜完成',W/2,390);
 
-  // Name (smaller font for long names)
+  // Name
   const userName=currentUser?.name||'';
   const nameSize=userName.length>4?32:38;
   ctx.font=`bold ${nameSize}px "Noto Sans TC",sans-serif`;
   ctx.fillStyle='#5a4a54';
   ctx.fillText(userName,W/2,430);
 
-  // Decorative elements under name (stars and sparkles)
+  // Decorative elements under name
   ctx.fillStyle='#d4a5b0';
   ctx.font='20px serif';
   ctx.fillText('✦',W/2-30,465);
@@ -1082,14 +1112,14 @@ function drawCertificate(){
     ctx.fillText('★',W/2-50+i*25,625);
   }
 
-  // HT Team badge
+  // HT Team badge - moved up to avoid border
   ctx.strokeStyle='#d4a5b0';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(W/2,665,25,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(W/2,670,25,0,Math.PI*2);ctx.stroke();
   ctx.fillStyle='#c89aa5';
   ctx.font='bold 11px sans-serif';
-  ctx.fillText('HT',W/2,662);
+  ctx.fillText('HT',W/2,667);
   ctx.font='9px sans-serif';
-  ctx.fillText('TEAM',W/2,674);
+  ctx.fillText('TEAM',W/2,679);
 }
 
 function downloadCert(){
