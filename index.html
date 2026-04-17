@@ -200,7 +200,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="cert-btn cert-btn-dl" onclick="downloadCert()">⬇ 下載小卡</button>
     <button class="cert-btn cert-btn-close" onclick="closeCert()">關閉</button>
   </div>
-  <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin-top:10px;max-width:360px;">💛 點擊後按更多再按儲存影像即可傳給客人寶寶！</div>
+  <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin-top:10px;max-width:360px;">💛 點擊後按更多 儲存影像即可留存使用</div>
 </div>
 
 <!-- MAIN APP -->
@@ -788,7 +788,7 @@ function renderStageCards(){
         ${locked?'<div class="quest-lock-overlay">🔒</div>':''}
       </div>
       <div class="quest-info">
-        <div class="quest-name">第${['一','二'][idx]}關　${s.key}</div>
+        <div class="quest-name">第${['一','二','三'][idx]}關　${s.key}</div>
         <div class="quest-desc">${s.desc}</div>
         <div class="quest-meta"><span class="quest-tag">👥 ${s.recommend}</span></div>
         ${total>0?`<div class="quest-progress-bar"><div class="quest-progress-fill" style="width:${pct}%;background:${s.color};filter:saturate(1.5) brightness(0.85);"></div></div><div class="quest-progress-text">${done}／${total} 堂完成 · ${pct}%</div>`:'<div class="quest-progress-text" style="color:#ccc;">課程準備中</div>'}
@@ -935,84 +935,155 @@ function closeCert(){document.getElementById('certModal').classList.remove('show
 function drawCertificate(){
   const canvas=document.getElementById('certCanvas');
   const ctx=canvas.getContext('2d');
-  const W=800,H=560;
+  const W=1000,H=700;
   canvas.width=W;canvas.height=H;
 
-  // Background gradient
-  const bg=ctx.createLinearGradient(0,0,W,H);
-  bg.addColorStop(0,'#fffdf7');bg.addColorStop(1,'#f0fdfb');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  // Soft pink gradient background
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#fde1e5');
+  bg.addColorStop(0.5,'#f5d5da');
+  bg.addColorStop(1,'#ecc9cf');
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
 
-  // Gold border frame
-  ctx.strokeStyle='#C9A84C';ctx.lineWidth=3;ctx.strokeRect(18,18,W-36,H-36);
-  ctx.strokeStyle='rgba(201,168,76,0.3)';ctx.lineWidth=1;ctx.strokeRect(26,26,W-52,H-52);
+  // Mystical decorative elements (semi-transparent)
+  ctx.globalAlpha=0.15;
+  // Top left stars cluster
+  ctx.fillStyle='#d4a5b0';
+  ctx.beginPath();ctx.moveTo(80,60);ctx.lineTo(90,80);ctx.lineTo(70,80);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(120,50,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(100,80,2,0,Math.PI*2);ctx.fill();
+  
+  // Top right moon and stars
+  ctx.strokeStyle='#c89aa5';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(880,80,25,0.3,Math.PI*1.7);ctx.stroke(); // Crescent moon
+  ctx.fillStyle='#d4a5b0';
+  ctx.beginPath();ctx.moveTo(920,60);ctx.lineTo(924,68);ctx.lineTo(916,68);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(850,120,2,0,Math.PI*2);ctx.fill();
+  
+  // Bottom left planet with ring
+  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(100,620,20,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(100,620,35,8,0.3,0,Math.PI*2);ctx.stroke();
+  
+  // Bottom right sparkles
+  ctx.fillStyle='#d4a5b0';
+  ctx.beginPath();ctx.moveTo(900,600);ctx.lineTo(905,615);ctx.lineTo(895,615);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(920,630,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(880,650,2,0,Math.PI*2);ctx.fill();
+  
+  // Centered decorative flowers (line art)
+  ctx.strokeStyle='#c89aa5';ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(180,200);ctx.bezierCurveTo(190,195,200,200,200,210);ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(820,200);ctx.bezierCurveTo(810,195,800,200,800,210);ctx.stroke();
+  
+  ctx.globalAlpha=1;
 
-  // Corner ornaments
-  const corners=[[34,34],[W-34,34],[34,H-34],[W-34,H-34]];
-  corners.forEach(([x,y])=>{
-    ctx.fillStyle='#C9A84C';ctx.font='bold 20px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('✦',x,y);
-  });
+  // Border frame
+  ctx.strokeStyle='#d4a5b0';ctx.lineWidth=3;
+  ctx.strokeRect(40,40,W-80,H-80);
+  ctx.strokeStyle='#e8bac4';ctx.lineWidth=1.5;
+  ctx.strokeRect(50,50,W-100,H-100);
 
-  // Header decoration
-  ctx.fillStyle='rgba(164,229,224,0.25)';ctx.fillRect(0,0,W,120);
+  // Header
+  ctx.fillStyle='#a67c87';
+  ctx.font='bold 16px Georgia,serif';
+  ctx.textAlign='center';
+  ctx.fillText('JEROSSE × HT 團隊',W/2,100);
+  
+  ctx.font='14px Georgia,serif';
+  ctx.fillStyle='#c89aa5';
+  ctx.fillText('— 結訓證書 CERTIFICATE OF COMPLETION —',W/2,130);
 
-  // Top brand tag
-  ctx.fillStyle='#5BBDB7';ctx.font='bold 13px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('JEROSSE × HT 團隊', W/2, 55);
+  // Stage icon
+  const stg=STAGES.find(s=>s.key===certStageName)||PRODUCT_STAGES.find(s=>s.key===certStageName)||RETAIL_STAGES.find(s=>s.key===certStageName);
+  if(stg){
+    ctx.font='60px serif';
+    ctx.fillStyle='#a67c87';
+    ctx.fillText(stg.icon,W/2,210);
+  }
+  
+  ctx.fillStyle='#5a4a54';
+  ctx.font='bold 42px "Noto Sans TC",sans-serif';
+  ctx.fillText(certStageName,W/2,280);
 
-  // Title
-  ctx.fillStyle='#C9A84C';ctx.font='bold 13px -apple-system,sans-serif';
-  ctx.fillText('— 完課證書 CERTIFICATE OF COMPLETION —', W/2, 80);
+  // Decorative line under stage name
+  ctx.strokeStyle='#d4a5b0';ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.moveTo(W/2-150,300);
+  ctx.lineTo(W/2-50,300);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(W/2+50,300);
+  ctx.lineTo(W/2+150,300);
+  ctx.stroke();
 
-  // Big title
-  ctx.fillStyle='#1a2a2a';ctx.font='bold 36px -apple-system,sans-serif';ctx.textBaseline='middle';
-  ctx.fillText('高速晉升圖書館', W/2, 150);
+  // Completion badge area with mystical elements
+  ctx.fillStyle='rgba(212,165,176,0.12)';
+  ctx.beginPath();
+  ctx.arc(W/2,420,90,0,Math.PI*2);
+  ctx.fill();
+  
+  ctx.strokeStyle='#d4a5b0';ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.arc(W/2,420,85,0,Math.PI*2);
+  ctx.stroke();
+  
+  ctx.fillStyle='#c89aa5';
+  ctx.font='13px "Noto Sans TC",sans-serif';
+  ctx.fillText('恭喜完成',W/2,390);
 
-  // Divider
-  const grad=ctx.createLinearGradient(100,0,W-100,0);
-  grad.addColorStop(0,'transparent');grad.addColorStop(0.5,'#C9A84C');grad.addColorStop(1,'transparent');
-  ctx.strokeStyle=grad;ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(100,175);ctx.lineTo(W-100,175);ctx.stroke();
+  // Name (smaller font for long names)
+  const userName=currentUser?.name||'';
+  const nameSize=userName.length>4?32:38;
+  ctx.font=`bold ${nameSize}px "Noto Sans TC",sans-serif`;
+  ctx.fillStyle='#5a4a54';
+  ctx.fillText(userName,W/2,430);
 
-  // Congrats text
-  ctx.fillStyle='#666';ctx.font='16px -apple-system,sans-serif';
-  ctx.fillText('恭喜完成', W/2, 215);
+  // Decorative elements under name (stars and sparkles)
+  ctx.fillStyle='#d4a5b0';
+  ctx.font='20px serif';
+  ctx.fillText('✦',W/2-30,465);
+  ctx.fillText('✦',W/2+30,465);
+  ctx.font='14px serif';
+  ctx.fillText('✧',W/2-50,470);
+  ctx.fillText('✧',W/2+50,470);
+  ctx.fillText('·',W/2-65,468);
+  ctx.fillText('·',W/2+65,468);
 
-  // Stage name
-  ctx.fillStyle='#085041';ctx.font='bold 42px -apple-system,sans-serif';
-  ctx.fillText(certStageName, W/2, 275);
-
-  // Completion seal circle
-  ctx.fillStyle='rgba(164,229,224,0.2)';ctx.beginPath();ctx.arc(W/2,275,80,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#A4E5E0';ctx.lineWidth=2;ctx.stroke();
-
-  // User name
-  ctx.fillStyle='#333';ctx.font='22px -apple-system,sans-serif';
-  ctx.fillText(currentUser?.name||'', W/2, 340);
+  ctx.fillStyle='#a67c87';
+  ctx.font='13px "Noto Sans TC",sans-serif';
+  ctx.fillText('完成',W/2,485);
 
   // Date
   const now=new Date();
-  const dateStr=`${now.getFullYear()} 年 ${now.getMonth()+1} 月 ${now.getDate()} 日`;
-  ctx.fillStyle='#999';ctx.font='14px -apple-system,sans-serif';
-  ctx.fillText(dateStr, W/2, 375);
-
-  // Bottom divider
-  ctx.strokeStyle=grad;ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(100,400);ctx.lineTo(W-100,400);ctx.stroke();
+  const y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
+  ctx.fillStyle='#b89099';
+  ctx.font='14px Georgia,serif';
+  ctx.fillText(`${y} 年 ${m} 月 ${d} 日`,W/2,530);
 
   // Bottom message
-  ctx.fillStyle='#A67C5B';ctx.font='bold 15px -apple-system,sans-serif';
-  ctx.fillText('你有權利改寫人生 ✦ 繼續前進，下一個版本的你正在等你', W/2, 428);
+  ctx.fillStyle='#a67c87';
+  ctx.font='16px "Noto Sans TC",sans-serif';
+  ctx.fillText('你有權利改變人生 ✦ 繼續前進，下一個版本的你正在等你',W/2,590);
 
-  // Stars row
-  ctx.fillStyle='#C9A84C';ctx.font='18px serif';
-  ctx.fillText('★ ★ ★ ★ ★', W/2, 460);
+  // Five stars
+  ctx.fillStyle='#d4a5b0';
+  ctx.font='20px serif';
+  for(let i=0;i<5;i++){
+    ctx.fillText('★',W/2-50+i*25,625);
+  }
 
-  // Bottom seal
-  ctx.fillStyle='rgba(201,168,76,0.15)';ctx.beginPath();ctx.arc(W/2,510,28,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#C9A84C';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='#C9A84C';ctx.font='bold 12px -apple-system,sans-serif';ctx.fillText('HT', W/2, 507);ctx.font='10px -apple-system,sans-serif';ctx.fillText('TEAM', W/2, 520);
+  // HT Team badge
+  ctx.strokeStyle='#d4a5b0';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(W/2,665,25,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#c89aa5';
+  ctx.font='bold 11px sans-serif';
+  ctx.fillText('HT',W/2,662);
+  ctx.font='9px sans-serif';
+  ctx.fillText('TEAM',W/2,674);
 }
 
 function downloadCert(){
