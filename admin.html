@@ -176,6 +176,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
 
+    <!-- 產品功效/吃法管理 -->
+    <div class="section" id="section-productinfo">
+      <div style="font-size:14px;font-weight:600;color:#333;margin-bottom:1rem;">📖 產品功效/吃法內容管理</div>
+      <div class="card" style="background:#f0fdfb;border:1px solid #A4E5E0;">
+        <div style="font-size:13px;color:#555;line-height:1.7;">
+          這裡管理的是客人端「產品功效/吃法」頁面顯示的內容。<br>
+          與「客人端產品」tab 共用同一張資料表 (customer_products)。
+        </div>
+      </div>
+      <div id="productInfoAdminList"><div class="empty">載入中...</div></div>
+    </div>
+
+    <!-- 產品Q&A管理 -->
+    <div class="section" id="section-productqa">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div style="font-size:14px;font-weight:600;color:#333;">❓ 產品Q&A管理</div>
+        <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddQA()">＋ 新增Q&A</button>
+      </div>
+      <div id="qaAdminList"><div class="empty">載入中...</div></div>
+      
+      <div id="qaForm" style="display:none;">
+        <div class="card" style="border:2px solid #5BBDB7;">
+          <div class="card-title" id="qaFormTitle">新增Q&A</div>
+          <input type="hidden" id="editQAId" />
+          <div class="field"><label>問題</label><input type="text" id="qQuestion" placeholder="例：可以空腹吃嗎？" /></div>
+          <div class="field"><label>回答</label><textarea id="qAnswer" rows="4" placeholder="詳細回答..."></textarea></div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn btn-approve" style="flex:1;" onclick="saveQA()">儲存</button>
+            <button class="btn btn-reject" style="flex:1;" onclick="hideQAForm()">取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -442,6 +476,82 @@ async function loadStats(){
     document.getElementById('profitRank').innerHTML='<div class="empty">本月尚無業績數據</div>';
   }
 }
+
+// ===== PRODUCT INFO ADMIN (same as products, just different view) =====
+async function loadProductInfoAdmin(){
+  const{data}=await sb.from('customer_products').select('*').order('created_at',{ascending:false});
+  const el=document.getElementById('productInfoAdminList');
+  if(!data||!data.length){el.innerHTML='<div class="empty">尚無產品資料</div>';return;}
+  el.innerHTML=data.map(p=>`<div class="prod-admin-card" style="opacity:${p.is_active?1:0.5};"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div style="flex:1;"><div style="font-size:15px;font-weight:600;color:#333;margin-bottom:4px;">${p.name}</div><div style="font-size:12px;color:#aaa;">${p.category||''}</div>${p.dosage?`<div style="font-size:12px;color:#666;margin-top:4px;">用量：${p.dosage}</div>`:''}</div><div style="display:flex;gap:6px;margin-left:10px;"><button class="btn btn-save" onclick="editProduct(${p.id})">編輯</button><button class="btn ${p.is_active?'btn-reject':'btn-approve'}" onclick="toggleProduct(${p.id},${p.is_active})">${p.is_active?'下架':'上架'}</button></div></div></div>`).join('');
+}
+
+// ===== Q&A ADMIN =====
+let qaAdminData=[];
+async function loadQAAdmin(){
+  const{data}=await sb.from('product_qa').select('*').order('created_at',{ascending:false});
+  qaAdminData=data||[];
+  renderQAAdmin();
+}
+
+function renderQAAdmin(){
+  const el=document.getElementById('qaAdminList');
+  if(!qaAdminData.length){el.innerHTML='<div class="empty">尚無Q&A</div>';return;}
+  el.innerHTML=qaAdminData.map(q=>`<div class="prod-admin-card" style="opacity:${q.is_active?1:0.5};"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#333;margin-bottom:4px;">Q：${q.question}</div><div style="font-size:13px;color:#666;line-height:1.6;">A：${q.answer}</div>${q.is_active?'<span class="tag" style="background:#e1f5ee;color:#0F6E56;margin-top:6px;">上架中</span>':'<span class="tag" style="background:#ffeaea;color:#E24B4A;margin-top:6px;">已下架</span>'}</div><div style="display:flex;flex-direction:column;gap:6px;margin-left:10px;"><button class="btn btn-save" onclick="editQA(${q.id})">編輯</button><button class="btn ${q.is_active?'btn-reject':'btn-approve'}" onclick="toggleQA(${q.id},${q.is_active})">${q.is_active?'下架':'上架'}</button><button class="btn btn-danger" onclick="deleteQA(${q.id})">刪除</button></div></div></div>`).join('');
+}
+
+function showAddQA(){
+  document.getElementById('qaFormTitle').textContent='新增Q&A';
+  document.getElementById('editQAId').value='';
+  document.getElementById('qQuestion').value='';
+  document.getElementById('qAnswer').value='';
+  document.getElementById('qaForm').style.display='block';
+  document.getElementById('qaForm').scrollIntoView({behavior:'smooth'});
+}
+
+function editQA(id){
+  const q=qaAdminData.find(x=>x.id===id);
+  if(!q)return;
+  document.getElementById('qaFormTitle').textContent='編輯Q&A';
+  document.getElementById('editQAId').value=id;
+  document.getElementById('qQuestion').value=q.question||'';
+  document.getElementById('qAnswer').value=q.answer||'';
+  document.getElementById('qaForm').style.display='block';
+  document.getElementById('qaForm').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveQA(){
+  const id=document.getElementById('editQAId').value;
+  const data={
+    question:document.getElementById('qQuestion').value.trim(),
+    answer:document.getElementById('qAnswer').value.trim(),
+    is_active:true
+  };
+  if(!data.question||!data.answer){alert('請填寫問題和回答');return;}
+  if(id){
+    await sb.from('product_qa').update(data).eq('id',id);
+  } else {
+    await sb.from('product_qa').insert({...data,created_at:new Date().toISOString()});
+  }
+  hideQAForm();
+  await loadQAAdmin();
+  alert('Q&A已儲存！');
+}
+
+function hideQAForm(){
+  document.getElementById('qaForm').style.display='none';
+}
+
+async function toggleQA(id,isActive){
+  await sb.from('product_qa').update({is_active:!isActive}).eq('id',id);
+  await loadQAAdmin();
+}
+
+async function deleteQA(id){
+  if(!confirm('確定刪除這則Q&A？'))return;
+  await sb.from('product_qa').delete().eq('id',id);
+  await loadQAAdmin();
+}
+
 </script>
 </body>
 </html>
