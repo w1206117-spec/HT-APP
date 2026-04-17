@@ -960,66 +960,69 @@ function drawCertificate(){
   ctx.fillStyle=bg;
   ctx.fillRect(0,0,W,H);
 
-  // Enhanced mystical decorative elements (visible but not overpowering)
-  ctx.globalAlpha=0.25;
+  // EXTRA LARGE decorative elements (2x previous size)
+  ctx.globalAlpha=0.35;
   
-  // Top left corner - stars and cosmic elements
+  // Top left corner - EXTRA LARGE stars cluster
   ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.moveTo(75,55);ctx.lineTo(85,75);ctx.lineTo(65,75);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(115,45,4,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(95,75,3,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(125,85,3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(55,35);ctx.lineTo(90,95);ctx.lineTo(20,95);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(125,25,12,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(85,70,10,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(140,85,10,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(165,55,8,0,Math.PI*2);ctx.fill();
   
-  // Top right - moon, stars and orbital paths
+  // Top right - EXTRA LARGE moon, stars and orbital paths
+  ctx.strokeStyle='#b89099';ctx.lineWidth=6;
+  ctx.beginPath();ctx.arc(900,55,60,0.3,Math.PI*1.7);ctx.stroke();
+  ctx.fillStyle='#c89aa5';
+  ctx.beginPath();ctx.moveTo(930,35);ctx.lineTo(940,55);ctx.lineTo(920,55);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(835,105,10,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(920,85,8,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(860,140,8,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='#b89099';ctx.lineWidth=3;
-  ctx.beginPath();ctx.arc(880,75,30,0.3,Math.PI*1.7);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(910,70,60,30,0.2,0,Math.PI*2);ctx.stroke();
+  
+  // Left middle - EXTRA LARGE floating leaves/petals
+  ctx.strokeStyle='#b89099';ctx.lineWidth=4;
+  ctx.beginPath();
+  ctx.moveTo(45,330);ctx.bezierCurveTo(60,315,90,330,105,350);ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(50,380);ctx.bezierCurveTo(65,365,95,380,110,400);ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(55,430);ctx.bezierCurveTo(70,415,100,430,115,450);ctx.stroke();
+  
+  // Right middle - EXTRA LARGE mystical sparkles
   ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.moveTo(920,55);ctx.lineTo(925,65);ctx.lineTo(915,65);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(850,115,4,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(910,95,3,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#b89099';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.ellipse(900,85,35,18,0.2,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(940,325);ctx.lineTo(950,350);ctx.lineTo(930,350);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(930,370);ctx.lineTo(940,395);ctx.lineTo(920,395);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(920,425,8,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(935,460,6,0,Math.PI*2);ctx.fill();
   
-  // Left middle - floating leaves/petals
-  ctx.strokeStyle='#b89099';ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(65,350);ctx.bezierCurveTo(72,343,88,350,95,358);ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(75,390);ctx.bezierCurveTo(82,383,98,390,105,398);ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(70,430);ctx.bezierCurveTo(77,423,93,430,100,438);ctx.stroke();
-  
-  // Right middle - mystical sparkles
+  // Bottom left - EXTRA LARGE planet with rings
+  ctx.strokeStyle='#b89099';ctx.lineWidth=5;
+  ctx.beginPath();ctx.arc(80,615,45,0,Math.PI*2);ctx.stroke();
+  ctx.lineWidth=3.5;
+  ctx.beginPath();ctx.ellipse(80,615,70,20,0.3,0,Math.PI*2);ctx.stroke();
   ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.moveTo(930,345);ctx.lineTo(935,357);ctx.lineTo(925,357);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(920,380);ctx.lineTo(925,392);ctx.lineTo(915,392);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(910,415,3,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(925,440,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(40,640,8,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(140,630,6,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(160,610,5,0,Math.PI*2);ctx.fill();
   
-  // Bottom left - planet with rings
+  // Bottom right - EXTRA LARGE star constellation
+  ctx.fillStyle='#c89aa5';
+  ctx.beginPath();ctx.moveTo(910,585);ctx.lineTo(925,615);ctx.lineTo(895,615);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.arc(930,630,8,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(875,655,8,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(945,665,6,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='#b89099';ctx.lineWidth=2.5;
-  ctx.beginPath();ctx.arc(95,620,25,0,Math.PI*2);ctx.stroke();
-  ctx.lineWidth=1.8;
-  ctx.beginPath();ctx.ellipse(95,620,42,12,0.3,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.arc(65,640,3,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(125,635,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(910,605);ctx.lineTo(930,630);ctx.lineTo(875,655);ctx.stroke();
   
-  // Bottom right - star constellation
-  ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.moveTo(900,600);ctx.lineTo(907,617);ctx.lineTo(893,617);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(920,630,3,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(880,655,3,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(930,665,2,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#b89099';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(900,610);ctx.lineTo(920,630);ctx.lineTo(880,655);ctx.stroke();
-  
-  // Decorative flowers near center
-  ctx.strokeStyle='#b89099';ctx.lineWidth=1.5;
+  // Decorative flowers near center - EXTRA LARGE
+  ctx.strokeStyle='#b89099';ctx.lineWidth=3.5;
   ctx.beginPath();
-  ctx.moveTo(175,195);ctx.bezierCurveTo(185,188,200,195,205,205);ctx.stroke();
+  ctx.moveTo(150,175);ctx.bezierCurveTo(170,160,210,175,225,195);ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(825,195);ctx.bezierCurveTo(815,188,800,195,795,205);ctx.stroke();
+  ctx.moveTo(850,175);ctx.bezierCurveTo(830,160,790,175,775,195);ctx.stroke();
   
   ctx.globalAlpha=1;
 
@@ -1065,58 +1068,63 @@ function drawCertificate(){
   // Completion badge area
   ctx.fillStyle='rgba(212,165,176,0.12)';
   ctx.beginPath();
-  ctx.arc(W/2,420,90,0,Math.PI*2);
+  ctx.arc(W/2,410,90,0,Math.PI*2);
   ctx.fill();
   
   ctx.strokeStyle='#d4a5b0';ctx.lineWidth=1.5;
   ctx.beginPath();
-  ctx.arc(W/2,420,85,0,Math.PI*2);
+  ctx.arc(W/2,410,85,0,Math.PI*2);
   ctx.stroke();
-  
-  ctx.fillStyle='#c89aa5';
-  ctx.font='13px "Noto Sans TC",sans-serif';
-  ctx.fillText('恭喜完成',W/2,390);
 
   // Name
   const userName=currentUser?.name||'';
   const nameSize=userName.length>4?32:38;
   ctx.font=`bold ${nameSize}px "Noto Sans TC",sans-serif`;
   ctx.fillStyle='#5a4a54';
-  ctx.fillText(userName,W/2,430);
+  ctx.fillText(userName,W/2,410);
 
   // Decorative elements under name
   ctx.fillStyle='#d4a5b0';
   ctx.font='20px serif';
-  ctx.fillText('✦',W/2-30,465);
-  ctx.fillText('✦',W/2+30,465);
+  ctx.fillText('✦',W/2-30,450);
+  ctx.fillText('✦',W/2+30,450);
   ctx.font='14px serif';
-  ctx.fillText('✧',W/2-50,470);
-  ctx.fillText('✧',W/2+50,470);
-  ctx.fillText('·',W/2-65,468);
-  ctx.fillText('·',W/2+65,468);
+  ctx.fillText('✧',W/2-50,455);
+  ctx.fillText('✧',W/2+50,455);
+  ctx.fillText('·',W/2-65,453);
+  ctx.fillText('·',W/2+65,453);
 
   ctx.fillStyle='#a67c87';
   ctx.font='13px "Noto Sans TC",sans-serif';
-  ctx.fillText('完成',W/2,485);
+  ctx.fillText('結訓',W/2,475);
 
-  // Date
+  // Date - moved further down from circle
   const now=new Date();
   const y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
   ctx.fillStyle='#b89099';
   ctx.font='14px Georgia,serif';
-  ctx.fillText(`${y} 年 ${m} 月 ${d} 日`,W/2,530);
+  ctx.fillText(`${y} 年 ${m} 月 ${d} 日`,W/2,515);
 
   // Bottom message
   ctx.fillStyle='#a67c87';
   ctx.font='16px "Noto Sans TC",sans-serif';
-  ctx.fillText('你有權利改變人生 ✦ 繼續前進，下一個版本的你正在等你',W/2,590);
+  ctx.fillText('你有權利改變人生 ✦ 繼續前進，下一個版本的你正在等你',W/2,565);
 
   // Five stars
   ctx.fillStyle='#d4a5b0';
   ctx.font='20px serif';
   for(let i=0;i<5;i++){
-    ctx.fillText('★',W/2-50+i*25,630);
+    ctx.fillText('★',W/2-50+i*25,605);
   }
+
+  // HT Team solid badge - covers border line
+  ctx.fillStyle='#a67c87';
+  ctx.beginPath();ctx.arc(W/2,665,28,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='white';
+  ctx.font='bold 12px sans-serif';
+  ctx.fillText('HT',W/2,662);
+  ctx.font='10px sans-serif';
+  ctx.fillText('TEAM',W/2,675);
 }
 
 function downloadCert(){
