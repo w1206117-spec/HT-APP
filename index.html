@@ -483,23 +483,43 @@ const ML=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月'
 let currentUser=null,saleItems=[{productIdx:0,qty:1}],salesCache=[];
 let pChart,yChart,fChart,cChart;
 
-// ===== QUEST STAGES =====
-const STAGES=[
-  {key:'新人啟航',icon:'🌱',desc:'從零開始，掌握核心銷售力',color:'#A4E5E0',textColor:'#085041',recommend:'實習加盟、三級加盟',minLevel:null},
-  {key:'輔導督導',icon:'🚀',desc:'帶人複製，打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'三級輔導、二級輔導',minLevel:null},
-  {key:'高階領導',icon:'👑',desc:'領袖思維，拓展事業版圖',color:'#E8D5A3',textColor:'#7a5200',recommend:'二級輔導、一級輔導、皇家輔導',minLevel:'二級輔導'}
-];
-const PRODUCT_STAGES=[
-  {key:'纖體系列',icon:'💧',desc:'燃脂瘦身，輕盈有感',color:'#E8F4FD',accent:'#4A9EE0'},
-  {key:'美肌系列',icon:'✨',desc:'內外兼修，水光透亮',color:'#F5E8FD',accent:'#9B59B6'},
-  {key:'大健康系列',icon:'💪',desc:'全方位守護，健康活力',color:'#E8FDF0',accent:'#2ECC71'}
-];
-const RETAIL_STAGES=[
-  {key:'引流',icon:'🎯',desc:'精準吸引目標客群，讓對的人找到你',color:'#FFECD2',accent:'#FF8C42'},
-  {key:'版面打造',icon:'✨',desc:'打造吸睛主頁，讓人一看就想買',color:'#E8F4FD',accent:'#4A9EE0'},
-  {key:'售中諮詢',icon:'💬',desc:'成交話術、解決疑慮、提升轉換率',color:'#E8FDF0',accent:'#2ECC71'},
-  {key:'售後服務',icon:'🤝',desc:'建立回購，打造鐵粉長期關係',color:'#F5E8FD',accent:'#9B59B6'}
-];
+// ===== QUEST STAGES (動態載入) =====
+let STAGES=[];
+let PRODUCT_STAGES=[];
+let RETAIL_STAGES=[];
+
+// 動態載入分類
+async function loadCategories(){
+  const{data}=await sb.from('course_categories').select('*').eq('is_active',true).order('display_order');
+  if(!data)return;
+  
+  // 根據 group_name 分類
+  STAGES=data.filter(c=>c.group_name==='必修闖關').map(c=>({
+    key:c.name,
+    icon:c.icon||'📚',
+    desc:c.description||'',
+    color:c.color||'#E8F4FD',
+    textColor:c.text_color||'#085041',
+    recommend:c.recommend||'',
+    minLevel:null
+  }));
+  
+  PRODUCT_STAGES=data.filter(c=>c.group_name==='三大系列產品').map(c=>({
+    key:c.name,
+    icon:c.icon||'📚',
+    desc:c.description||'',
+    color:c.color||'#E8F4FD',
+    accent:c.accent_color||'#4A9EE0'
+  }));
+  
+  RETAIL_STAGES=data.filter(c=>c.group_name==='零售四大循環').map(c=>({
+    key:c.name,
+    icon:c.icon||'📚',
+    desc:c.description||'',
+    color:c.color||'#E8F4FD',
+    accent:c.accent_color||'#4A9EE0'
+  }));
+}
 const LEVEL_ORDER=['實習加盟','三級加盟','三級輔導','二級輔導','一級輔導','皇家輔導'];
 
 function canAccessStage(stage){
@@ -763,6 +783,9 @@ async function loadFansCharts(totalYearProfit){
 // ===== COURSES (QUEST STYLE) =====
 async function loadCourses(){
   if(!currentUser)return;
+  // 先載入分類
+  await loadCategories();
+  // 再載入課程
   const {data:courses}=await sb.from('courses').select('*').eq('is_active',true).order('order_num');
   allCourses=courses||[];
   const {data:progress}=await sb.from('course_progress').select('*').eq('user_id',currentUser.id);
