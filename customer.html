@@ -286,7 +286,10 @@ function showProductSelect(){
   document.getElementById('loginPage').style.display='none';
   const modal=document.getElementById('productSelectModal');
   const list=document.getElementById('productSelectList');
-  list.innerHTML=ALL_PRODUCTS.map(p=>`<div class="prod-select-item" onclick="toggleProductSelect(${p.id})"><div class="prod-select-icon">${p.icon}</div><div class="prod-select-info"><div class="prod-select-name">${p.name}</div><div class="prod-select-cat">${p.cat}</div></div><div class="prod-select-check" id="check-${p.id}"></div></div>`).join('');
+  list.innerHTML=ALL_PRODUCTS.map(p=>{
+    const isSelected=selectedProducts.includes(p.id);
+    return `<div class="prod-select-item${isSelected?' selected':''}" onclick="toggleProductSelect(${p.id})"><div class="prod-select-icon">${p.icon}</div><div class="prod-select-info"><div class="prod-select-name">${p.name}</div><div class="prod-select-cat">${p.cat}</div></div><div class="prod-select-check${isSelected?' checked':''}" id="check-${p.id}">${isSelected?'✓':''}</div></div>`;
+  }).join('');
   modal.classList.add('show');
 }
 
@@ -450,14 +453,18 @@ function renderInfo(){
   const query=document.getElementById('infoSearch').value.toLowerCase();
   let list=productInfoData;
   if(query){
-    list=list.filter(p=>(p.name||'').toLowerCase().includes(query)||(p.effects||'').toLowerCase().includes(query)||(p.dosage||'').toLowerCase().includes(query));
+    list=list.filter(p=>(p.name||'').toLowerCase().includes(query)||(p.effect||'').toLowerCase().includes(query)||(p.usage||'').toLowerCase().includes(query));
   }
   
   const el=document.getElementById('infoList');
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;">找不到相關產品</div>';return;}
   el.innerHTML=list.map(p=>{
-    const effects=p.effects?JSON.parse(p.effects):[];
-    return `<div class="info-card"><div class="info-title">${p.name}</div><span class="info-cat">${p.category||''}</span>${p.dosage?`<div class="info-section"><div class="info-label">💊 建議用量</div><div class="info-content">${p.dosage}</div></div>`:''}${effects.length?`<div class="info-section"><div class="info-label">✨ 主要功效</div><div class="info-content">${effects.join(' · ')}</div></div>`:''}${p.howto?`<div class="info-section"><div class="info-label">📖 使用方式</div><div class="info-content">${p.howto}</div></div>`:''}${p.tips?`<div class="info-section"><div class="info-label">💡 小提醒</div><div class="info-content">${p.tips}</div></div>`:''}</div>`;
+    return `<div class="info-card">
+      <div class="info-title">${p.name}</div>
+      <span class="info-cat">${p.category||''}</span>
+      ${p.effect?`<div class="info-section"><div class="info-label">✨ 產品功效</div><div class="info-content">${p.effect}</div></div>`:''}
+      ${p.usage?`<div class="info-section"><div class="info-label">📖 使用方法/吃法</div><div class="info-content">${p.usage}</div></div>`:''}
+    </div>`;
   }).join('');
 }
 
