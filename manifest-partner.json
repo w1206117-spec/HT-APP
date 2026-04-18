@@ -1,0 +1,18 @@
+{
+  "name": "HT 團隊系統",
+  "short_name": "HT 團隊",
+  "description": "HT 團隊夥伴系統 · 課程學習 · 業績管理",
+  "start_url": "/HT-APP/index.html",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#C9A884",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/HT-APP/app1.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
