@@ -200,6 +200,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <input type="hidden" id="editCategoryId" />
           <div class="field"><label>分類名稱</label><input type="text" id="cName" placeholder="例：新人啟航" /></div>
           <div class="field"><label>分組名稱（選填）</label><input type="text" id="cGroup" placeholder="例：必修闖關" /></div>
+          <div class="field"><label>圖示 Emoji</label><input type="text" id="cIcon" placeholder="例：🌱" maxlength="2" /></div>
+          <div class="field"><label>描述</label><input type="text" id="cDesc" placeholder="例：從零開始，掌握核心銷售力" /></div>
+          <div class="field"><label>背景顏色</label><input type="color" id="cColor" value="#E8F4FD" /></div>
+          <div class="field"><label>強調色</label><input type="color" id="cAccent" value="#4A9EE0" /></div>
+          <div class="field"><label>文字顏色</label><input type="color" id="cTextColor" value="#085041" /></div>
+          <div class="field"><label>推薦對象（選填）</label><input type="text" id="cRecommend" placeholder="例：實習加盟、三級加盟" /></div>
           <div class="field"><label>顯示順序</label><input type="number" id="cOrder" value="0" placeholder="數字越小越前面" /></div>
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn btn-approve" style="flex:1;" onclick="saveCategory()">儲存</button>
@@ -728,6 +734,12 @@ function showAddCategory(){
   document.getElementById('editCategoryId').value='';
   document.getElementById('cName').value='';
   document.getElementById('cGroup').value='';
+  document.getElementById('cIcon').value='📚';
+  document.getElementById('cDesc').value='';
+  document.getElementById('cColor').value='#E8F4FD';
+  document.getElementById('cAccent').value='#4A9EE0';
+  document.getElementById('cTextColor').value='#085041';
+  document.getElementById('cRecommend').value='';
   document.getElementById('cOrder').value='0';
   document.getElementById('categoryForm').style.display='block';
   document.getElementById('categoryForm').scrollIntoView({behavior:'smooth'});
@@ -740,6 +752,12 @@ function editCategory(id){
   document.getElementById('editCategoryId').value=id;
   document.getElementById('cName').value=c.name||'';
   document.getElementById('cGroup').value=c.group_name||'';
+  document.getElementById('cIcon').value=c.icon||'📚';
+  document.getElementById('cDesc').value=c.description||'';
+  document.getElementById('cColor').value=c.color||'#E8F4FD';
+  document.getElementById('cAccent').value=c.accent_color||'#4A9EE0';
+  document.getElementById('cTextColor').value=c.text_color||'#085041';
+  document.getElementById('cRecommend').value=c.recommend||'';
   document.getElementById('cOrder').value=c.display_order||0;
   document.getElementById('categoryForm').style.display='block';
   document.getElementById('categoryForm').scrollIntoView({behavior:'smooth'});
@@ -750,6 +768,12 @@ async function saveCategory(){
   const data={
     name:document.getElementById('cName').value.trim(),
     group_name:document.getElementById('cGroup').value.trim(),
+    icon:document.getElementById('cIcon').value.trim()||'📚',
+    description:document.getElementById('cDesc').value.trim(),
+    color:document.getElementById('cColor').value,
+    accent_color:document.getElementById('cAccent').value,
+    text_color:document.getElementById('cTextColor').value,
+    recommend:document.getElementById('cRecommend').value.trim(),
     display_order:parseInt(document.getElementById('cOrder').value)||0,
     is_active:true
   };
