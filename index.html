@@ -3,14 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="description" content="HT 團隊夥伴系統 · 課程學習 · 業績管理">
-<meta name="theme-color" content="#C9A884">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="HT 團隊">
-<link rel="manifest" href="/HT-APP/manifest-partner.json">
-<link rel="apple-touch-icon" href="/HT-APP/app1.jpg">
-<link rel="icon" type="image/jpeg" href="/HT-APP/app1.jpg">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HT團隊">
+<link rel="apple-touch-icon" href="app2.jpg">
 <title>HT 團隊系統</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -48,8 +44,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .metric-value{font-size:17px;font-weight:500;color:#333;}
 .field{margin-bottom:10px;}
 .field label{font-size:12px;color:#888;display:block;margin-bottom:4px;}
-.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;color:#333;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:#A4E5E0;background:white;}
+.field input,.field select{width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;color:#333;}
+.field input:focus,.field select:focus{border-color:#A4E5E0;background:white;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .btn{padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-top:4px;}
 .btn-primary{background:#A4E5E0;color:#085041;}
@@ -84,68 +80,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fans-total-box{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 14px;background:#f0faf9;border-radius:10px;}
 .fans-total-label{font-size:13px;color:#888;}
 .fans-total-num{font-size:20px;font-weight:500;color:#1D9E75;}
-
-/* ===== QUEST / COURSE STYLES ===== */
-.quest-header{padding:0 0 1.25rem;}
-.quest-header h2{font-size:18px;font-weight:600;color:#222;margin-bottom:3px;}
-.quest-header p{font-size:13px;color:#999;}
-.quest-section-label{font-size:11px;font-weight:700;color:#aaa;letter-spacing:2px;text-transform:uppercase;margin:1.25rem 0 0.75rem;padding:0 2px;}
-
-/* Quest card — gamified */
-.quest-card{background:white;border-radius:16px;padding:1.1rem 1.2rem;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.07);cursor:pointer;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;border:1.5px solid transparent;transition:box-shadow 0.2s;}
-.quest-card:active{transform:scale(0.985);}
-.quest-card.locked{opacity:0.45;cursor:not-allowed;}
-.quest-card.completed{border-color:#A4E5E0;}
-.quest-icon-wrap{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;position:relative;}
-.quest-lock-overlay{position:absolute;inset:0;border-radius:14px;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;font-size:16px;}
-.quest-info{flex:1;min-width:0;}
-.quest-name{font-size:15px;font-weight:600;color:#222;margin-bottom:2px;}
-.quest-desc{font-size:12px;color:#999;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.quest-meta{display:flex;align-items:center;gap:8px;}
-.quest-tag{font-size:10px;padding:2px 8px;border-radius:10px;background:#f2f2f2;color:#999;}
-.quest-progress-bar{height:5px;background:#f0f0f0;border-radius:6px;margin-top:6px;overflow:hidden;}
-.quest-progress-fill{height:100%;border-radius:6px;transition:width 0.4s ease;}
-.quest-progress-text{font-size:11px;color:#bbb;margin-top:3px;}
-.quest-arrow{font-size:18px;color:#ddd;flex-shrink:0;}
-.quest-badge-complete{position:absolute;top:10px;right:12px;background:linear-gradient(135deg,#A4E5E0,#5BBDB7);color:#085041;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:0.5px;}
-
-/* Retail 4-cycle cards */
-.retail-card{background:white;border-radius:16px;padding:1rem 1.2rem;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.06);cursor:pointer;display:flex;align-items:center;gap:14px;border-left:4px solid transparent;}
-.retail-card:active{transform:scale(0.985);}
-
-/* Certificate modal */
-#certModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;padding:1.5rem;}
-#certModal.show{display:flex;}
-#certCanvas{border-radius:16px;max-width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.4);}
-.cert-btns{display:flex;gap:12px;margin-top:1.25rem;width:100%;max-width:360px;}
-.cert-btn{flex:1;padding:13px;border-radius:12px;border:none;font-size:14px;font-weight:600;cursor:pointer;}
-.cert-btn-dl{background:linear-gradient(135deg,#A4E5E0,#5BBDB7);color:#085041;}
-.cert-btn-close{background:rgba(255,255,255,0.12);color:white;}
-
-/* Meal plan generator */
-.meal-section{margin-bottom:16px;}
-.meal-section-title{font-size:12px;font-weight:700;color:#888;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;}
-.prod-select-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8f8f8;border-radius:10px;margin-bottom:6px;}
-.prod-select-row select{flex:1;border:0.5px solid #ddd;border-radius:8px;padding:7px 10px;font-size:13px;background:white;outline:none;color:#333;}
-.prod-select-row input[type=text]{flex:1;border:0.5px solid #ddd;border-radius:8px;padding:7px 10px;font-size:13px;background:white;outline:none;color:#333;}
-.meal-timing-btn{padding:5px 10px;border-radius:8px;border:0.5px solid #ddd;background:white;font-size:11px;color:#555;cursor:pointer;white-space:nowrap;}
-.meal-timing-btn.active{background:#A4E5E0;border-color:#76D5CF;color:#085041;font-weight:600;}
-.remove-prod-btn{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;padding:0 2px;}
-
-.meal-preview-card{background:linear-gradient(135deg,#f0fdfb,#e8f9f6);border-radius:14px;padding:1.1rem 1.2rem;border:1px solid #c8f0ea;}
-.meal-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.05);}
-.meal-row:last-child{border-bottom:none;}
-.meal-time-label{font-size:13px;font-weight:600;color:#555;min-width:85px;flex-shrink:0;}
-.meal-products{font-size:13px;color:#333;line-height:1.6;}
-.meal-products em{color:#bbb;font-style:normal;}
-
-.plan-name-input{width:100%;padding:11px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:15px;background:white;outline:none;color:#333;margin-bottom:10px;}
-.plan-name-input:focus{border-color:#A4E5E0;}
 </style>
 </head>
 <body>
-
-<!-- LOGIN PAGE -->
 <div id="loginPage">
   <div class="login-header">
     <h1>HT 團隊系統</h1>
@@ -180,8 +117,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- WELCOME OVERLAY -->
-<div id="welcomeOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:9999;padding:2rem;">
+<div id="welcomeOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;">
   <div style="text-align:center;color:white;max-width:400px;width:100%;">
     <div style="font-size:28px;font-weight:500;letter-spacing:2px;margin-bottom:8px;">歡迎加入 HT 團隊</div>
     <div style="font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:2rem;">請先觀看以下入門教學影片</div>
@@ -197,17 +133,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- CERTIFICATE MODAL -->
-<div id="certModal">
-  <canvas id="certCanvas" width="800" height="560"></canvas>
-  <div class="cert-btns">
-    <button class="cert-btn cert-btn-dl" id="downloadBtn" onclick="downloadCert()">⬇ 下載小卡</button>
-    <button class="cert-btn cert-btn-close" onclick="closeCert()">關閉</button>
-  </div>
-  <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin-top:10px;max-width:360px;">💛 點擊後按更多 儲存影像即可留存使用</div>
-</div>
-
-<!-- MAIN APP -->
 <div id="mainPage">
   <div class="app-header" id="appHeader">
     <div class="user-name" id="headerName"></div>
@@ -215,7 +140,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="level-tag" id="headerLevel"></div>
   </div>
 
-  <!-- PAGE: 計績 -->
   <div class="page active" id="page-profit">
     <div class="tabs">
       <button class="tab active" onclick="switchSubTab('profit','input')">新增今日</button>
@@ -280,18 +204,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="metric"><div class="metric-label">當月增粉</div><div class="metric-value" id="m3">—</div></div>
         <div class="metric"><div class="metric-label">年度增粉</div><div class="metric-value" id="m2">—</div></div>
       </div>
-      <div class="card"><div class="card-title">本月每日淨利</div><div class="chart-wrap"><canvas id="profitChartCanvas"></canvas></div></div>
-      <div class="card"><div class="card-title">年度淨利趨勢</div><div class="chart-wrap"><canvas id="yearProfitCanvas"></canvas></div></div>
+      <div class="card">
+        <div class="card-title">本月每日淨利</div>
+        <div class="chart-wrap"><canvas id="profitChartCanvas"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">年度淨利趨勢</div>
+        <div class="chart-wrap"><canvas id="yearProfitCanvas"></canvas></div>
+      </div>
       <div class="card">
         <div class="card-title">粉絲成長</div>
-        <div class="legend"><span><span class="legend-dot" style="background:#5BBDB7;"></span>總粉絲</span><span><span class="legend-dot" style="background:#D4537E;"></span>增粉</span></div>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:#5BBDB7;"></span>總粉絲</span>
+          <span><span class="legend-dot" style="background:#D4537E;"></span>增粉</span>
+        </div>
         <div id="videoTextDisplay" style="font-size:12px;color:#888;margin-bottom:6px;"></div>
         <div class="chart-wrap" style="height:240px;"><canvas id="fansChartCanvas"></canvas></div>
-        <div class="fans-total-box"><span class="fans-total-label">目前粉絲總數</span><span class="fans-total-num" id="currentFansTotal">—</span></div>
+        <div class="fans-total-box">
+          <span class="fans-total-label">目前粉絲總數</span>
+          <span class="fans-total-num" id="currentFansTotal">—</span>
+        </div>
       </div>
       <div class="card">
         <div class="card-title">客戶成長</div>
-        <div class="legend"><span><span class="legend-dot" style="background:#7F77DD;"></span>新消費者</span><span><span class="legend-dot" style="background:#5BBDB7;"></span>回購客</span></div>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:#7F77DD;"></span>新消費者</span>
+          <span><span class="legend-dot" style="background:#5BBDB7;"></span>回購客</span>
+        </div>
         <div class="chart-wrap"><canvas id="clientsChartCanvas"></canvas></div>
       </div>
       <div class="card">
@@ -302,29 +241,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- PAGE: 課程 -->
   <div class="page" id="page-course">
-    <!-- Stage overview -->
     <div id="course-stage-view">
-      <div class="quest-header">
-        <h2>🏆 高速晉升圖書館</h2>
-        <p>完成每一關，解鎖下一個版本的自己</p>
+      <div style="display:flex;gap:8px;margin-bottom:1.25rem;">
+        <button class="tab active" id="tab-courses" onclick="switchCourseMainTab('course',this)" style="flex:1;text-align:center;">🏆 學習課程</button>
+        <button class="tab" id="tab-qa" onclick="switchCourseMainTab('qa',this)" style="flex:1;text-align:center;">❓ Q&A 知識庫</button>
       </div>
-
-      <!-- 必修闖關 -->
-      <div class="quest-section-label">⚔️ 必修闖關</div>
-      <div id="stage-cards"></div>
-
-      <!-- 零售四大循環 -->
-      <div class="quest-section-label">🔄 零售四大循環</div>
-      <div id="retail-cards"></div>
-
-      <!-- 三大系列產品 -->
-      <div class="quest-section-label">💊 三大系列產品</div>
-      <div id="product-cards"></div>
+      <div id="course-main-content">
+        <div style="font-size:18px;font-weight:500;color:#333;margin-bottom:4px;padding:0 0 0.5rem;">高速晉升圖書館</div>
+        <div style="font-size:13px;color:#888;margin-bottom:1.25rem;">選擇你的學習階段</div>
+        <div id="stage-cards"></div>
+      </div>
+      <div id="qa-main-content" style="display:none;">
+        <div style="font-size:18px;font-weight:500;color:#333;margin-bottom:4px;">❓ Q&A 知識庫</div>
+        <div style="font-size:13px;color:#999;margin-bottom:1rem;">搜尋夥伴常見問題</div>
+        <div style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);">
+          <span style="font-size:16px;color:#aaa;">🔍</span>
+          <input type="text" id="partnerQaSearch" placeholder="搜尋問題關鍵字..." oninput="filterPartnerQA()" style="flex:1;border:none;outline:none;font-size:14px;color:#333;background:transparent;" />
+        </div>
+        <div id="partnerQaList"><div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">載入中...</div></div>
+      </div>
     </div>
-
-    <!-- Course list view -->
     <div id="course-list-view" style="display:none;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
         <button onclick="backToStages()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
@@ -335,8 +272,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div id="courseList"></div>
     </div>
-
-    <!-- Course detail view -->
     <div id="course-detail-view" style="display:none;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
         <button onclick="backToCourseList()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
@@ -353,53 +288,65 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button onclick="copyNote()" class="btn btn-primary">複製筆記格式</button>
       </div>
     </div>
-
-    <!-- Complete view (with certificate) -->
     <div id="course-complete-view" style="display:none;text-align:center;padding:2rem 1rem;">
-      <div style="font-size:56px;margin-bottom:0.75rem;animation:pop 0.5s ease;">🎉</div>
-      <div style="font-size:21px;font-weight:700;color:#222;margin-bottom:8px;" id="completeTitle"></div>
+      <div style="font-size:48px;margin-bottom:1rem;">🎉</div>
+      <div style="font-size:20px;font-weight:500;color:#333;margin-bottom:8px;" id="completeTitle"></div>
       <div style="font-size:14px;color:#888;line-height:1.7;margin-bottom:1.5rem;" id="completeMsg"></div>
-      <button id="certBtn" onclick="showCertificate()" style="width:100%;padding:14px;background:linear-gradient(135deg,#C9A84C,#E8D5A3,#C9A84C);color:#7a5200;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;letter-spacing:1px;">🏅 領取結訓證書</button>
       <a id="completeVideoBtn" href="#" target="_blank" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:1rem;">▶ 觀看鼓勵影片</a>
       <br>
-      <button onclick="backToStages()" class="btn btn-primary" style="margin-top:12px;">繼續下一關</button>
+      <button onclick="backToStages()" class="btn btn-primary" style="margin-top:12px;">繼續下一階段</button>
     </div>
   </div>
 
-  <!-- PAGE: 覆盤 -->
-  <div class="page" id="page-check">
-    <div class="card" style="text-align:center;padding:3rem 1rem;">
-      <div style="font-size:40px;margin-bottom:1rem;">✅</div>
-      <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">每月覆盤加速器</div>
-      <div style="font-size:13px;color:#aaa;">即將推出，敬請期待</div>
+  <div class="page" id="page-team">
+    <div id="team-main-view">
+      <div style="font-size:18px;font-weight:600;color:#222;margin-bottom:4px;">👥 我的團隊</div>
+      <div style="font-size:13px;color:#999;margin-bottom:1.25rem;">管理你的下家夥伴</div>
+      <div id="team-locked" style="display:none;">
+        <div class="card" style="text-align:center;padding:3rem 1rem;">
+          <div style="font-size:40px;margin-bottom:1rem;">🔒</div>
+          <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">晉升解鎖</div>
+          <div style="font-size:13px;color:#aaa;">達到三級輔導以上即可使用團隊功能</div>
+        </div>
+      </div>
+      <div id="team-content" style="display:none;">
+        <div class="metrics" style="grid-template-columns:repeat(2,1fr);">
+          <div class="metric"><div class="metric-label">下家人數</div><div class="metric-value" id="teamCount">—</div></div>
+          <div class="metric"><div class="metric-label">本月團隊業績</div><div class="metric-value" id="teamProfit">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">下家列表</div>
+          <div id="downlineList"></div>
+        </div>
+      </div>
+    </div>
+    <div id="team-member-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <button onclick="backToTeam()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
+        <div>
+          <div style="font-size:16px;font-weight:600;color:#333;" id="memberName"></div>
+          <div style="font-size:12px;color:#888;" id="memberLevel"></div>
+        </div>
+      </div>
+      <div class="tabs" style="margin-bottom:1rem;">
+        <button class="tab active" onclick="switchMemberTab('sales',this)">補貨記錄</button>
+        <button class="tab" onclick="switchMemberTab('course',this)">上課進度</button>
+      </div>
+      <div id="member-sales-view">
+        <div class="card">
+          <div class="card-title">本月業績</div>
+          <div id="memberSalesData"></div>
+        </div>
+      </div>
+      <div id="member-course-view" style="display:none;">
+        <div class="card">
+          <div class="card-title">課程完成進度</div>
+          <div id="memberCourseData"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- PAGE: 吃法產生器 -->
-  <div class="page" id="page-meal">
-    <div style="font-size:18px;font-weight:600;color:#222;margin-bottom:4px;">💊 吃法產生器</div>
-    <div style="font-size:13px;color:#999;margin-bottom:1.25rem;">諮詢完成後，為客人生成專屬吃法圖卡</div>
-
-    <div class="card">
-      <div class="card-title">客人姓名</div>
-      <input class="plan-name-input" id="clientName" placeholder="輸入客人的名字（會顯示在圖卡上）" />
-    </div>
-
-    <div class="card">
-      <div class="card-title">選擇產品與時段</div>
-      <div id="mealProdList"></div>
-      <button class="add-item-btn" onclick="addMealProd()" style="margin-top:6px;">＋ 新增產品</button>
-    </div>
-
-    <div class="card" id="mealPreviewCard" style="display:none;">
-      <div class="card-title">📋 吃法預覽</div>
-      <div class="meal-preview-card" id="mealPreview"></div>
-    </div>
-
-    <button class="btn btn-primary" onclick="generateMealCard()" style="margin-top:4px;">✨ 生成吃法圖卡</button>
-  </div>
-
-  <!-- PAGE: 我的 -->
   <div class="page" id="page-profile">
     <div class="card">
       <div class="card-title">帳號資訊</div>
@@ -422,13 +369,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <span class="nav-icon">💰</span><span class="nav-label">計績</span>
     </button>
     <button class="nav-item" onclick="switchPage('course',this)">
-      <span class="nav-icon">🏆</span><span class="nav-label">課程</span>
+      <span class="nav-icon">📚</span><span class="nav-label">課程</span>
     </button>
-    <button class="nav-item" onclick="switchPage('meal',this)">
-      <span class="nav-icon">💊</span><span class="nav-label">吃法</span>
-    </button>
-    <button class="nav-item" onclick="switchPage('check',this)">
-      <span class="nav-icon">✅</span><span class="nav-label">覆盤</span>
+    <button class="nav-item" onclick="switchPage('team',this)">
+      <span class="nav-icon">👥</span><span class="nav-label">團隊</span>
     </button>
     <button class="nav-item" onclick="switchPage('profile',this)">
       <span class="nav-icon">👼🏻</span><span class="nav-label">我的</span>
@@ -437,10 +381,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
+// v2.1
 const SUPABASE_URL='https://lsurinqdrybvqtvhiqim.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzdXJpbnFkcnlidnF0dmhpcWltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzU4MDUsImV4cCI6MjA5MTc1MTgwNX0.5V9wS3ZZx2xsfbwRVHtU2HSXq6X4rPEUJV6ShHNGbp8';
+const SUPABASE_KEY='sb_publishable_OVv7ly-_nLpirm93hcR0Qg_GK71hyI_';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
 const PRODUCTS=[
   {name:'纖纖飲',costs:{實習加盟:1160,三級加盟:990,三級輔導:955,二級輔導:880,一級輔導:790,皇家輔導:700}},
   {name:'纖飄錠',costs:{實習加盟:1160,三級加盟:990,三級輔導:955,二級輔導:880,一級輔導:790,皇家輔導:700}},
@@ -468,86 +412,11 @@ const PRODUCTS=[
   {name:'洗髮露試用包',costs:{實習加盟:24,三級加盟:21,三級輔導:20,二級輔導:17,一級輔導:14,皇家輔導:12}},
   {name:'法樂蓬養髮原液',costs:{實習加盟:840,三級加盟:720,三級輔導:695,二級輔導:640,一級輔導:570,皇家輔導:500}},
 ];
-
-const MEAL_PRODUCTS=[
-  '纖纖飲','纖飄錠','紫纖飲','爆纖錠','纖酵宿',
-  '肽纖飲可可/奶茶','複方金盞花葉黃素EX飲','葉黃素高鈣晶亮凍',
-  '高機能益生菌','酒國英雄極速錠','療肺草正冠茶','固樂纖',
-  '水光錠','水光繃帶面膜精裝版','雪聚露','婕肌零',
-  '玻尿酸','急救小白瓶','積雪草護手霜','法樂蓬洗髮露','法樂蓬養髮原液'
-];
-const MEAL_TIMES=['🌅 第一餐','🌞 第二餐','🌙 第三餐','⏰ 任何時刻'];
-
 const LEVEL_BG={實習加盟:'bg-intern',三級加盟:'bg-3',三級輔導:'bg-3c',二級輔導:'bg-2',一級輔導:'bg-1',皇家輔導:'bg-royal'};
 const ML=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 let currentUser=null,saleItems=[{productIdx:0,qty:1}],salesCache=[];
 let pChart,yChart,fChart,cChart;
 
-// ===== QUEST STAGES (動態載入) =====
-let STAGES=[];
-let PRODUCT_STAGES=[];
-let RETAIL_STAGES=[];
-
-// 動態載入分類
-async function loadCategories(){
-  const{data}=await sb.from('course_categories').select('*').eq('is_active',true).order('display_order');
-  if(!data)return;
-  
-  // 根據 group_name 分類
-  STAGES=data.filter(c=>c.group_name==='必修闖關').map(c=>({
-    key:c.name,
-    icon:c.icon||'📚',
-    desc:c.description||'',
-    color:c.color||'#E8F4FD',
-    textColor:c.text_color||'#085041',
-    recommend:c.recommend||'',
-    minLevel:null
-  }));
-  
-  PRODUCT_STAGES=data.filter(c=>c.group_name==='三大系列產品').map(c=>({
-    key:c.name,
-    icon:c.icon||'📚',
-    desc:c.description||'',
-    color:c.color||'#E8F4FD',
-    accent:c.accent_color||'#4A9EE0'
-  }));
-  
-  RETAIL_STAGES=data.filter(c=>c.group_name==='零售四大循環').map(c=>({
-    key:c.name,
-    icon:c.icon||'📚',
-    desc:c.description||'',
-    color:c.color||'#E8F4FD',
-    accent:c.accent_color||'#4A9EE0'
-  }));
-}
-const LEVEL_ORDER=['實習加盟','三級加盟','三級輔導','二級輔導','一級輔導','皇家輔導'];
-
-function canAccessStage(stage){
-  if(!stage.minLevel) return true;
-  const userIdx=LEVEL_ORDER.indexOf(currentUser?currentUser.level:'實習加盟');
-  const minIdx=LEVEL_ORDER.indexOf(stage.minLevel);
-  return userIdx>=minIdx;
-}
-
-const COMPLETE_MSG={
-  '新人啟航':{title:'🌱 新人啟航 — 完關！',msg:'你已掌握核心銷售基礎，是時候出發了！繼續挑戰下一關吧！'},
-  '輔導督導':{title:'🚀 輔導督導 — 完關！',msg:'你已具備帶領團隊的能力，複製你的成功吧！'},
-  '高階領導':{title:'👑 高階領導 — 完關！',msg:'真正的領袖已經覺醒，帶著你的團隊飛翔！'},
-  '纖體系列':{title:'💧 纖體系列 — 完關！',msg:'燃脂瘦身產品力滿點，客人問不倒你了！'},
-  '美肌系列':{title:'✨ 美肌系列 — 完關！',msg:'美肌保養專家就是你，水光透亮全靠你！'},
-  '大健康系列':{title:'💪 大健康系列 — 完關！',msg:'健康守護達人誕生，全方位照顧客人！'},
-  '引流':{title:'🎯 引流 — 完關！',msg:'精準引流，讓對的客人源源不絕！'},
-  '版面打造':{title:'✨ 版面打造 — 完關！',msg:'你的主頁現在就是你最強的銷售員！'},
-  '售中諮詢':{title:'💬 售中諮詢 — 完關！',msg:'成交高手就是你！話術已成你的本能！'},
-  '售後服務':{title:'🤝 售後服務 — 完關！',msg:'鐵粉文化就是你的護城河，做得太好了！'}
-};
-
-let currentStage='';
-let currentCourseId=null;
-let allCourses=[];
-let userProgress=[];
-
-// ===== BASIC UTILS =====
 function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function getMonthStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function showRegister(){document.getElementById('loginForm').style.display='none';document.getElementById('registerForm').style.display='block';document.getElementById('loginMsg').textContent='';}
@@ -580,13 +449,31 @@ async function doLogin(){
   currentUser=data;enterApp();
 }
 
-const WELCOME_VIDEO_URL='';
-function onWatchVideo(){setTimeout(()=>{document.getElementById('enterBtnWrap').style.display='block';document.getElementById('watchNote').textContent='影片已開啟！看完後點下方按鈕進入系統';},2000);}
-function enterFromWelcome(){localStorage.setItem('ht_welcomed_'+currentUser.id,'1');document.getElementById('welcomeOverlay').style.display='none';document.getElementById('mainPage').style.display='block';}
+const WELCOME_VIDEO_URL = '';
+
+function onWatchVideo(){
+  setTimeout(()=>{
+    document.getElementById('enterBtnWrap').style.display='block';
+    document.getElementById('watchNote').textContent='影片已開啟！看完後點下方按鈕進入系統';
+  }, 2000);
+}
+
+function enterFromWelcome(){
+  localStorage.setItem('ht_welcomed_'+currentUser.id, '1');
+  document.getElementById('welcomeOverlay').style.display='none';
+  document.getElementById('mainPage').style.display='block';
+}
+
 function checkWelcome(){
-  const seen=localStorage.getItem('ht_welcomed_'+currentUser.id);
-  if(!seen&&WELCOME_VIDEO_URL){document.getElementById('welcomeVideoBtn').href=WELCOME_VIDEO_URL;const ov=document.getElementById('welcomeOverlay');ov.style.display='flex';ov.style.flexDirection='column';ov.style.alignItems='center';ov.style.justifyContent='center';document.getElementById('mainPage').style.display='none';}
-  else{document.getElementById('welcomeOverlay').style.display='none';document.getElementById('mainPage').style.display='block';}
+  const seen = localStorage.getItem('ht_welcomed_'+currentUser.id);
+  if(!seen && WELCOME_VIDEO_URL){
+    document.getElementById('welcomeVideoBtn').href = WELCOME_VIDEO_URL;
+    document.getElementById('welcomeOverlay').style.display='flex';
+    document.getElementById('mainPage').style.display='none';
+  } else {
+    document.getElementById('welcomeOverlay').style.display='none';
+    document.getElementById('mainPage').style.display='block';
+  }
 }
 
 function enterApp(){
@@ -604,7 +491,6 @@ function enterApp(){
   const d=new Date();
   document.getElementById('todayDisplay').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
   renderSaleItems();loadSalesData();loadFansRecordOnInput();
-  initMealGenerator();
   checkWelcome();
 }
 
@@ -628,6 +514,7 @@ function switchPage(page,el){
   document.getElementById('page-'+page).classList.add('active');
   el.classList.add('active');
   if(page==='course') loadCourses();
+  if(page==='team') loadTeamPage();
 }
 
 function switchSubTab(section,tab){
@@ -639,14 +526,18 @@ function switchSubTab(section,tab){
   else{inputEl.style.display='none';chartEl.style.display='block';loadSalesData().then(renderCharts);}
 }
 
-// ===== SALES =====
 function renderSaleItems(){
   const level=currentUser?currentUser.level:'實習加盟';
   const container=document.getElementById('salesItems');
   container.innerHTML=saleItems.map((item,i)=>{
     const cost=PRODUCTS[item.productIdx].costs[level]||0;
     const options=PRODUCTS.map((p,pi)=>`<option value="${pi}"${pi===item.productIdx?' selected':''}>${p.name}</option>`).join('');
-    return `<div class="item-row"><select onchange="changeProd(${i},this.value)">${options}</select><input type="number" min="1" value="${item.qty}" onchange="changeQty(${i},this.value)" /><div class="item-cost">$${cost.toLocaleString()}<br>共$${(cost*item.qty).toLocaleString()}</div><button class="remove-btn" onclick="removeItem(${i})">×</button></div>`;
+    return `<div class="item-row">
+      <select onchange="changeProd(${i},this.value)">${options}</select>
+      <input type="number" min="1" value="${item.qty}" onchange="changeQty(${i},this.value)" />
+      <div class="item-cost">$${cost.toLocaleString()}<br>共$${(cost*item.qty).toLocaleString()}</div>
+      <button class="remove-btn" onclick="removeItem(${i})">×</button>
+    </div>`;
   }).join('');
 }
 function addSaleItem(){saleItems.push({productIdx:0,qty:1});renderSaleItems();}
@@ -660,11 +551,18 @@ async function saveRecord(){
   const revenue=parseInt(document.getElementById('totalRevenue').value)||0;
   if(revenue===0){alert('請輸入收款金額');return;}
   let totalCost=0;
-  const itemsSnap=saleItems.map(item=>{const cost=PRODUCTS[item.productIdx].costs[level]||0;totalCost+=cost*item.qty;return{name:PRODUCTS[item.productIdx].name,qty:item.qty,cost};});
+  const itemsSnap=saleItems.map(item=>{
+    const cost=PRODUCTS[item.productIdx].costs[level]||0;
+    totalCost+=cost*item.qty;
+    return {name:PRODUCTS[item.productIdx].name,qty:item.qty,cost};
+  });
   const profit=revenue-totalCost;
   const now=new Date();
   await sb.from('sales_data').insert({user_id:currentUser.id,date:today,year:now.getFullYear(),month:now.getMonth()+1,product_name:JSON.stringify(itemsSnap),quantity:saleItems.reduce((a,i)=>a+i.qty,0),cost:totalCost,total_revenue:revenue});
-  saleItems=[{productIdx:0,qty:1}];document.getElementById('totalRevenue').value='';renderSaleItems();await loadSalesData();
+  saleItems=[{productIdx:0,qty:1}];
+  document.getElementById('totalRevenue').value='';
+  renderSaleItems();
+  await loadSalesData();
   alert('已新增！本次淨利 NT$'+profit.toLocaleString());
 }
 
@@ -683,7 +581,8 @@ async function saveFansData(){
   const nextMonth=month===12?1:month+1;const nextYear=month===12?year+1:year;
   const {data:nextRows}=await sb.from('monthly_data').select('id,current_fans').eq('user_id',currentUser.id).eq('year',nextYear).eq('month',nextMonth).order('id',{ascending:false}).limit(1);
   if(nextRows&&nextRows.length&&nextRows[0].current_fans){await sb.from('monthly_data').update({fans_gain:nextRows[0].current_fans-currentFansVal}).eq('id',nextRows[0].id);}
-  const sign=fansGain>=0?'+':'';await loadFansRecordOnInput();
+  const sign=fansGain>=0?'+':'';
+  await loadFansRecordOnInput();
   if(document.getElementById('profit-chart').style.display!=='none')renderCharts();
   alert('粉絲數據已儲存！本月增粉 '+sign+fansGain.toLocaleString());
 }
@@ -697,7 +596,8 @@ async function saveInitFans(){
 async function loadSalesData(){
   if(!currentUser)return;
   const {data}=await sb.from('sales_data').select('*').eq('user_id',currentUser.id).order('date');
-  salesCache=data||[];updateTodaySummary();renderTodayRecords();
+  salesCache=data||[];
+  updateTodaySummary();renderTodayRecords();
   const chartVisible=document.getElementById('profit-chart').style.display!=='none';
   if(chartVisible)renderCharts();
 }
@@ -709,40 +609,44 @@ function updateTodaySummary(){
   const todayProfit=todayRecs.reduce((a,r)=>a+(r.total_revenue-r.cost),0);
   const monthProfit=monthRecs.reduce((a,r)=>a+(r.total_revenue-r.cost),0);
   const el=document.getElementById('todayProfitDisplay');
-  el.textContent='NT$'+todayProfit.toLocaleString();el.style.color=todayProfit>=0?'#1D9E75':'#E24B4A';
+  el.textContent='NT$'+todayProfit.toLocaleString();
+  el.style.color=todayProfit>=0?'#1D9E75':'#E24B4A';
   document.getElementById('monthProfitDisplay').textContent='NT$'+monthProfit.toLocaleString();
   document.getElementById('monthCountDisplay').textContent=monthRecs.length+' 筆';
 }
 
 function renderTodayRecords(){
-  const today=getTodayStr();const recs=salesCache.filter(r=>r.date===today);
-  const box=document.getElementById('todayRecordsCard');const list=document.getElementById('todayList');
+  const today=getTodayStr();
+  const recs=salesCache.filter(r=>r.date===today);
+  const box=document.getElementById('todayRecordsCard');
+  const list=document.getElementById('todayList');
   if(!recs.length){box.style.display='none';return;}
   box.style.display='block';
-  list.innerHTML=recs.map(r=>{let items=[];try{items=JSON.parse(r.product_name);}catch(e){}
+  list.innerHTML=recs.map(r=>{
+    let items=[];try{items=JSON.parse(r.product_name);}catch(e){}
     const profit=r.total_revenue-r.cost;
-    return `<div class="rec-item"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:13px;color:#333;">${items.map(it=>it.name+'×'+it.qty).join('、')}</div><div style="font-size:12px;color:#aaa;margin-top:2px;">收款 $${r.total_revenue?.toLocaleString()} ／ 成本 $${r.cost?.toLocaleString()}</div></div><div style="text-align:right;flex-shrink:0;"><div style="font-size:14px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">淨利 $${profit.toLocaleString()}</div><button onclick="deleteRecord(${r.id})" style="background:none;border:none;color:#ddd;font-size:13px;cursor:pointer;margin-top:4px;">🗑 刪除</button></div></div></div>`;
+    return `<div class="rec-item">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+        <span style="font-size:13px;color:#555;">${items.map(it=>it.name+'×'+it.qty).join('、')}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:14px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span>
+          <button onclick="deleteRecord(${r.id})" style="background:none;border:none;color:#ddd;font-size:16px;cursor:pointer;padding:0;">🗑</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#aaa;">收款 NT$${r.total_revenue.toLocaleString()} ／ 成本 NT$${r.cost.toLocaleString()}</div>
+    </div>`;
   }).join('');
 }
 
-function renderFansRecordList(mData){
-  const list=document.getElementById('fansRecordList');if(!list)return;
-  if(!mData.length){list.innerHTML='<div style="font-size:13px;color:#aaa;text-align:center;padding:1rem;">尚無記錄</div>';return;}
-  const sorted=[...mData].sort((a,b)=>b.month-a.month);
-  list.innerHTML=sorted.map(m=>`<div class="rec-item"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:14px;font-weight:500;color:#333;">${m.year}年${m.month}月</div><div style="font-size:12px;color:#aaa;margin-top:2px;">粉絲 ${(m.current_fans||0).toLocaleString()} ／ 增粉 ${m.fans_gain>=0?'+':''}${(m.fans_gain||0).toLocaleString()} ／ 影片 ${m.videos||0}部</div><div style="font-size:12px;color:#aaa;">新客 ${m.new_clients||0} ／ 回購 ${m.return_clients||0}</div></div><button onclick="deleteFansRecord(${m.id})" style="background:none;border:none;color:#ddd;font-size:18px;cursor:pointer;padding:4px;">🗑</button></div></div>`).join('');
-}
-
-async function deleteRecord(id){if(!confirm('確定刪除這筆記錄？'))return;await sb.from('sales_data').delete().eq('id',id);await loadSalesData();}
-async function deleteFansRecord(id){if(!confirm('確定刪除這筆粉絲數據？'))return;await sb.from('monthly_data').delete().eq('id',id);const{data:mData}=await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).order('month');renderFansRecordList(mData||[]);if(document.getElementById('profit-chart').style.display!=='none')renderCharts();alert('已刪除！');}
-async function updateName(){const newName=document.getElementById('newNameInput').value.trim();if(!newName){alert('請輸入姓名');return;}await sb.from('users').update({name:newName}).eq('id',currentUser.id);currentUser.name=newName;document.getElementById('profileName').textContent=newName;document.getElementById('headerName').textContent=newName;document.getElementById('newNameInput').value='';alert('姓名已更新！');}
-
-// ===== CHARTS =====
 function renderCharts(){
   const now=new Date();const year=now.getFullYear();const month=now.getMonth()+1;
   const daysInMonth=new Date(year,month,0).getDate();
   const dayLabels=Array.from({length:daysInMonth},(_,i)=>(i+1)+'');
   const dayProfits=Array(daysInMonth).fill(0);
-  salesCache.filter(r=>r.year===year&&r.month===month).forEach(r=>{const day=parseInt(r.date.split('-')[2])-1;if(day>=0&&day<daysInMonth)dayProfits[day]+=(r.total_revenue-r.cost);});
+  salesCache.filter(r=>r.year===year&&r.month===month).forEach(r=>{
+    const day=parseInt(r.date.split('-')[2])-1;
+    if(day>=0&&day<daysInMonth)dayProfits[day]+=(r.total_revenue-r.cost);
+  });
   if(pChart)pChart.destroy();
   pChart=new Chart(document.getElementById('profitChartCanvas'),{type:'bar',data:{labels:dayLabels,datasets:[{data:dayProfits,backgroundColor:dayProfits.map(v=>v>=0?'rgba(91,189,183,0.85)':'rgba(226,75,74,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}}}});
   const monthProfits=Array(12).fill(0);
@@ -753,12 +657,31 @@ function renderCharts(){
   loadFansCharts(totalYearProfit);
 }
 
+async function updateName(){
+  const newName=document.getElementById('newNameInput').value.trim();
+  if(!newName){alert('請輸入姓名');return;}
+  await sb.from('users').update({name:newName}).eq('id',currentUser.id);
+  currentUser.name=newName;
+  document.getElementById('profileName').textContent=newName;
+  document.getElementById('headerName').textContent=newName;
+  document.getElementById('newNameInput').value='';
+  alert('姓名已更新！');
+}
+
+async function deleteRecord(id){
+  if(!confirm('確定刪除這筆記錄？'))return;
+  await sb.from('sales_data').delete().eq('id',id);
+  await loadSalesData();
+}
+
 async function loadFansCharts(totalYearProfit){
   const now=new Date();const year=now.getFullYear();const nowM=now.getMonth()+1;
   const {data:mData}=await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).eq('year',year).order('month');
   const byMonth=Array(12).fill(null).map((_,i)=>(mData||[]).find(m=>m.month===i+1)||null);
   const fans=byMonth.map(m=>m?m.fans_gain:null);
-  const newC=byMonth.map(m=>m?m.new_clients:null);const retC=byMonth.map(m=>m?m.return_clients:null);
+  const videos=byMonth.map(m=>m?m.videos:null);
+  const newC=byMonth.map(m=>m?m.new_clients:null);
+  const retC=byMonth.map(m=>m?m.return_clients:null);
   const cumFans=[];let lastKnown=currentUser.init_fans||0;
   byMonth.forEach(m=>{if(m&&m.current_fans)lastKnown=m.current_fans;cumFans.push(m?(m.current_fans||lastKnown):null);});
   const latestMonth=[...(mData||[])].sort((a,b)=>b.month-a.month)[0];
@@ -767,25 +690,69 @@ async function loadFansCharts(totalYearProfit){
   const thisMonthData=(mData||[]).find(m=>m.month===nowM);
   const thisMonthFans=thisMonthData?(thisMonthData.fans_gain||0):0;
   const videoText=byMonth.map((m,i)=>m&&m.videos?(i+1)+'月：'+m.videos+'部':'').filter(Boolean).join('　');
-  const vtEl=document.getElementById('videoTextDisplay');if(vtEl)vtEl.textContent=videoText?'影片更新：'+videoText:'';
-  document.getElementById('m1').textContent='$'+(totalYearProfit/1000).toFixed(1)+'K';document.getElementById('m1').style.color=totalYearProfit>=0?'#1D9E75':'#E24B4A';
-  document.getElementById('m2').textContent=(totalFansGain>=0?'+':'')+totalFansGain.toLocaleString();document.getElementById('m2').style.color=totalFansGain>=0?'#1D9E75':'#E24B4A';
-  document.getElementById('m3').textContent=(thisMonthFans>=0?'+':'')+thisMonthFans.toLocaleString();document.getElementById('m3').style.color=thisMonthFans>=0?'#1D9E75':'#E24B4A';
-  const totalEl=document.getElementById('currentFansTotal');if(totalEl)totalEl.textContent=currentFansTotal.toLocaleString();
+  const vtEl=document.getElementById('videoTextDisplay');
+  if(vtEl)vtEl.textContent=videoText?'影片更新：'+videoText:'';
+
+  document.getElementById('m1').textContent='$'+(totalYearProfit/1000).toFixed(1)+'K';
+  document.getElementById('m1').style.color=totalYearProfit>=0?'#1D9E75':'#E24B4A';
+  document.getElementById('m2').textContent=(totalFansGain>=0?'+':'')+totalFansGain.toLocaleString();
+  document.getElementById('m2').style.color=totalFansGain>=0?'#1D9E75':'#E24B4A';
+  document.getElementById('m3').textContent=(thisMonthFans>=0?'+':'')+thisMonthFans.toLocaleString();
+  document.getElementById('m3').style.color=thisMonthFans>=0?'#1D9E75':'#E24B4A';
+  const totalEl=document.getElementById('currentFansTotal');
+  if(totalEl)totalEl.textContent=currentFansTotal.toLocaleString();
+
+  const datalabelPlugin={id:'datalabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);if(ds.type==='line')return;meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;ctx.fillStyle='#555';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText(val.toLocaleString(),bar.x,bar.y-4);});});}};
+
   const baseArr=cumFans.map((v,i)=>v!==null?(v-(fans[i]||0)):null);
   if(fChart)fChart.destroy();
-  fChart=new Chart(document.getElementById('fansChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'基礎粉絲',data:baseArr,backgroundColor:'rgba(91,189,183,0.6)',borderRadius:0,stack:'fans'},{label:'當月增粉',data:fans.map(v=>v&&v>0?v:null),backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3,stack:'fans'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[{id:'stackLabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;const totalVal=cumFans[i];if(di===1){ctx.fillStyle='#D4537E';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('+'+val.toLocaleString(),bar.x,bar.y-4);}if(di===0&&totalVal){ctx.fillStyle='#085041';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText(totalVal.toLocaleString(),bar.x,bar.y-(fans[i]&&fans[i]>0?24:8));}});});}}]});
+  fChart=new Chart(document.getElementById('fansChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'基礎粉絲',data:baseArr,backgroundColor:'rgba(91,189,183,0.6)',borderRadius:0,stack:'fans'},{label:'當月增粉',data:fans.map(v=>v&&v>0?v:null),backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3,stack:'fans'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[{id:'stackLabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;const totalVal=cumFans[i];if(di===1){ctx.fillStyle='#D4537E';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('+'+val.toLocaleString(),bar.x,bar.y-4);}if(di===0&&totalVal){ctx.fillStyle='#085041';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText(totalVal.toLocaleString(),bar.x,bar.y-(fans[i]&&fans[i]>0?24:8));const baseVal=baseArr[i];if(baseVal&&bar.height>30){ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font='10px sans-serif';ctx.fillText('原有'+baseVal.toLocaleString(),bar.x,bar.y+(bar.height/2)+4);}}});});}}]});
+
   if(cChart)cChart.destroy();
-  cChart=new Chart(document.getElementById('clientsChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'新消費者',data:newC,backgroundColor:'rgba(127,119,221,0.85)',borderRadius:3},{label:'回購客',data:retC,backgroundColor:'rgba(91,189,183,0.85)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[{id:'datalabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;ctx.fillStyle='#555';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText(val.toLocaleString(),bar.x,bar.y-4);});});}}]});
+  cChart=new Chart(document.getElementById('clientsChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'新消費者',data:newC,backgroundColor:'rgba(127,119,221,0.85)',borderRadius:3},{label:'回購客',data:retC,backgroundColor:'rgba(91,189,183,0.85)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[datalabelPlugin]});
+
   renderFansRecordList(mData||[]);
 }
 
-// ===== COURSES (QUEST STYLE) =====
+function renderFansRecordList(mData){
+  const list=document.getElementById('fansRecordList');
+  if(!list)return;
+  if(!mData.length){list.innerHTML='<div style="font-size:13px;color:#aaa;text-align:center;padding:1rem;">尚無記錄</div>';return;}
+  const sorted=[...mData].sort((a,b)=>b.month-a.month);
+  list.innerHTML=sorted.map(m=>`<div class="rec-item"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:14px;font-weight:500;color:#333;">${m.year}年${m.month}月</div><div style="font-size:12px;color:#aaa;margin-top:2px;">粉絲 ${(m.current_fans||0).toLocaleString()} ／ 增粉 ${m.fans_gain>=0?'+':''}${(m.fans_gain||0).toLocaleString()} ／ 影片 ${m.videos||0}部</div><div style="font-size:12px;color:#aaa;">新客 ${m.new_clients||0} ／ 回購 ${m.return_clients||0}</div></div><button onclick="deleteFansRecord(${m.id})" style="background:none;border:none;color:#ddd;font-size:18px;cursor:pointer;padding:4px;">🗑</button></div></div>`).join('');
+}
+
+async function deleteFansRecord(id){
+  if(!confirm('確定刪除這筆粉絲數據？'))return;
+  await sb.from('monthly_data').delete().eq('id',id);
+  const {data:mData}=await sb.from('monthly_data').select('*').eq('user_id',currentUser.id).order('month');
+  renderFansRecordList(mData||[]);
+  if(document.getElementById('profit-chart').style.display!=='none')renderCharts();
+  alert('已刪除！');
+}
+
+const STAGES=[
+  {key:'新人啟航',icon:'🌱',desc:'從零開始，掌握核心銷售力',color:'#A4E5E0',textColor:'#085041',recommend:'建議：實習加盟、三級加盟',minLevel:null},
+  {key:'輔導督導',icon:'🚀',desc:'帶人複製，打造穩定團隊',color:'#D5C6E0',textColor:'#4a2d7a',recommend:'建議：三級輔導、二級輔導',minLevel:null},
+  {key:'三大系列產品力',icon:'💊',desc:'掌握產品知識，提升成交率',color:'#F5C6CB',textColor:'#7a1a2a',recommend:'建議：全級別',minLevel:null},
+  {key:'引爆社群平台',icon:'📱',desc:'打造個人品牌，引爆流量',color:'#FAD7A0',textColor:'#7a4400',recommend:'建議：全級別',minLevel:null},
+  {key:'高階領導',icon:'👑',desc:'領袖思維，拓展事業版圖',color:'#E8D5A3',textColor:'#7a5200',recommend:'建議：二級輔導以上',minLevel:'二級輔導'}
+];
+const LEVEL_ORDER=['實習加盟','三級加盟','三級輔導','二級輔導','一級輔導','皇家輔導'];
+function canAccessStage(stage){
+  if(!stage.minLevel) return true;
+  const userIdx=LEVEL_ORDER.indexOf(currentUser?currentUser.level:'實習加盟');
+  const minIdx=LEVEL_ORDER.indexOf(stage.minLevel);
+  return userIdx>=minIdx;
+}const COMPLETE_MSG={'新人啟航':{title:'恭喜完成新人啟航！',msg:'你已掌握核心銷售基礎，繼續前進！',video:''},'輔導督導':{title:'恭喜完成輔導督導！',msg:'你已具備帶領團隊的能力，繼續前進！',video:''},'高階領導':{title:'恭喜完成高階領導！',msg:'你已蛻變為真正的領袖！',video:''}};
+
+let currentStage='';
+let currentCourseId=null;
+let allCourses=[];
+let userProgress=[];
+
 async function loadCourses(){
   if(!currentUser)return;
-  // 先載入分類
-  await loadCategories();
-  // 再載入課程
   const {data:courses}=await sb.from('courses').select('*').eq('is_active',true).order('order_num');
   allCourses=courses||[];
   const {data:progress}=await sb.from('course_progress').select('*').eq('user_id',currentUser.id);
@@ -795,81 +762,28 @@ async function loadCourses(){
 
 function renderStageCards(){
   const el=document.getElementById('stage-cards');
-  const rel=document.getElementById('retail-cards');
-  const pel=document.getElementById('product-cards');
-  if(!el||!rel||!pel)return;
-
-  // Main quest stages
-  el.innerHTML=STAGES.map((s,idx)=>{
+  if(!el)return;
+  el.innerHTML=STAGES.map(s=>{
     const canAccess=canAccessStage(s);
+    if(!canAccess) return '';
     const stageCourses=allCourses.filter(c=>c.stage===s.key);
     const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
     const total=stageCourses.length;
     const pct=total?Math.round(done/total*100):0;
-    const isComplete=total>0&&done===total;
-    const locked=!canAccess;
-
-    return `<div class="quest-card${locked?' locked':''}${isComplete?' completed':''}">
-      <div class="quest-icon-wrap" style="background:${s.color};">
-        <span style="font-size:26px;">${s.icon}</span>
-        ${locked?'<div class="quest-lock-overlay">🔒</div>':''}
-      </div>
-      <div class="quest-info" onclick="${locked?'alert(\"需要達到'+s.minLevel+'才能解鎖此關卡\")':(!isComplete?`openStage('${s.key}')`:'')}" style="${isComplete?'cursor:default;':'cursor:pointer;'}">
-        <div class="quest-name">第${['一','二','三'][idx]}關　${s.key}</div>
-        <div class="quest-desc">${s.desc}</div>
-        <div class="quest-meta"><span class="quest-tag">👥 ${s.recommend}</span></div>
-        ${total>0?`<div class="quest-progress-bar"><div class="quest-progress-fill" style="width:${pct}%;background:${s.color};filter:saturate(1.5) brightness(0.85);"></div></div><div class="quest-progress-text">${done}／${total} 堂完成 · ${pct}%</div>`:'<div class="quest-progress-text" style="color:#ccc;">課程準備中</div>'}
-        ${isComplete?`<button onclick="event.stopPropagation();certStageName='${s.key}';drawCertificate();document.getElementById('certModal').classList.add('show');const btn=document.getElementById('downloadBtn');if(btn)btn.innerHTML='⬇ 下載小卡';" style="margin-top:10px;padding:8px 16px;background:linear-gradient(135deg,#C9A84C,#E8D5A3);color:#7a5200;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🔄 重新下載證書</button>`:''}
-      </div>
-      ${isComplete?'<div class="quest-badge-complete">✓ 完關</div>':'<div class="quest-arrow">›</div>'}
-    </div>`;
-  }).join('');
-
-  // Retail 4-cycle
-  rel.innerHTML=RETAIL_STAGES.map(s=>{
-    const stageCourses=allCourses.filter(c=>c.stage===s.key);
-    const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
-    const total=stageCourses.length;
-    const pct=total?Math.round(done/total*100):0;
-    const isComplete=total>0&&done===total;
-    return `<div class="retail-card" style="border-left-color:${s.accent};">
-      <div onclick="${!isComplete?`openStage('${s.key}')`:''}" style="display:flex;gap:12px;align-items:center;flex:1;${!isComplete?'cursor:pointer;':'cursor:default;'}">
-        <div style="width:46px;height:46px;border-radius:12px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${s.icon}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
-            <div style="font-size:15px;font-weight:600;color:#222;">${s.key}</div>
-            ${isComplete?`<span style="font-size:10px;background:${s.color};color:${s.accent};padding:2px 7px;border-radius:8px;font-weight:700;">✓ 完成</span>`:''}
-          </div>
-          <div style="font-size:12px;color:#999;margin-bottom:6px;">${s.desc}</div>
-          ${total>0?`<div style="background:#f0f0f0;border-radius:4px;height:4px;overflow:hidden;"><div style="background:${s.accent};height:100%;width:${pct}%;border-radius:4px;"></div></div><div style="font-size:11px;color:#bbb;margin-top:3px;">${done}／${total} 堂 · ${pct}%</div>`:'<div style="font-size:11px;color:#ccc;">課程準備中</div>'}
-          ${isComplete?`<button onclick="event.stopPropagation();certStageName='${s.key}';drawCertificate();document.getElementById('certModal').classList.add('show');const btn=document.getElementById('downloadBtn');if(btn)btn.innerHTML='⬇ 下載小卡';" style="margin-top:8px;padding:6px 14px;background:linear-gradient(135deg,#C9A84C,#E8D5A3);color:#7a5200;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">🔄 重新下載證書</button>`:''}
+    return `<div onclick="openStage('${s.key}')" style="background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:14px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${s.icon}</div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+          <div style="font-size:15px;font-weight:500;color:#333;">${s.key}</div>
+          <div style="font-size:10px;padding:2px 8px;border-radius:10px;background:#f5f5f5;color:#888;">${s.recommend}</div>
         </div>
-      </div>
-      ${!isComplete?`<div style="font-size:18px;color:#ddd;">›</div>`:''}
-    </div>`;
-  }).join('');
-
-  // Product stages
-  pel.innerHTML=PRODUCT_STAGES.map(s=>{
-    const stageCourses=allCourses.filter(c=>c.stage===s.key);
-    const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
-    const total=stageCourses.length;
-    const pct=total?Math.round(done/total*100):0;
-    const isComplete=total>0&&done===total;
-    return `<div class="retail-card" style="border-left-color:${s.accent};">
-      <div onclick="${!isComplete?`openStage('${s.key}')`:''}" style="display:flex;gap:12px;align-items:center;flex:1;${!isComplete?'cursor:pointer;':'cursor:default;'}">
-        <div style="width:46px;height:46px;border-radius:12px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${s.icon}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
-            <div style="font-size:15px;font-weight:600;color:#222;">${s.key}</div>
-            ${isComplete?`<span style="font-size:10px;background:${s.color};color:${s.accent};padding:2px 7px;border-radius:8px;font-weight:700;">✓ 完成</span>`:''}
-          </div>
-          <div style="font-size:12px;color:#999;margin-bottom:6px;">${s.desc}</div>
-          ${total>0?`<div style="background:#f0f0f0;border-radius:4px;height:4px;overflow:hidden;"><div style="background:${s.accent};height:100%;width:${pct}%;border-radius:4px;"></div></div><div style="font-size:11px;color:#bbb;margin-top:3px;">${done}／${total} 堂 · ${pct}%</div>`:'<div style="font-size:11px;color:#ccc;">課程準備中</div>'}
-          ${isComplete?`<button onclick="event.stopPropagation();certStageName='${s.key}';drawCertificate();document.getElementById('certModal').classList.add('show');const btn=document.getElementById('downloadBtn');if(btn)btn.innerHTML='⬇ 下載小卡';" style="margin-top:8px;padding:6px 14px;background:linear-gradient(135deg,#C9A84C,#E8D5A3);color:#7a5200;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">🔄 重新下載證書</button>`:''}
+        <div style="font-size:12px;color:#888;margin-bottom:8px;">${s.desc}</div>
+        <div style="background:#f0f0f0;border-radius:6px;height:6px;overflow:hidden;">
+          <div style="background:${s.color};height:100%;width:${pct}%;border-radius:6px;transition:width 0.3s;"></div>
         </div>
+        <div style="font-size:11px;color:#aaa;margin-top:4px;">${done}／${total} 堂完成</div>
       </div>
-      ${!isComplete?`<div style="font-size:18px;color:#ddd;">›</div>`:''}
+      <div style="font-size:20px;color:#ccc;">›</div>
     </div>`;
   }).join('');
 }
@@ -889,7 +803,7 @@ function renderCourseList(){
   const el=document.getElementById('courseList');
   el.innerHTML=stageCourses.map((c,i)=>{
     const isComplete=userProgress.find(p=>p.course_id===c.id&&p.completed);
-    return `<div onclick="openCourse(${c.id})" style="background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:12px;border:1.5px solid ${isComplete?'#A4E5E0':'transparent'};">
+    return `<div onclick="openCourse(${c.id})" style="background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:12px;">
       <div style="width:32px;height:32px;border-radius:50%;background:${isComplete?'#A4E5E0':'#f0f0f0'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:${isComplete?'#085041':'#aaa'};flex-shrink:0;">${isComplete?'✓':(i+1)}</div>
       <div style="flex:1;">
         <div style="font-size:14px;font-weight:500;color:#333;">${c.title}</div>
@@ -901,21 +815,27 @@ function renderCourseList(){
 }
 
 function openCourse(id){
-  const c=allCourses.find(x=>x.id===id);if(!c)return;
+  const c=allCourses.find(x=>x.id===id);
+  if(!c)return;
   currentCourseId=id;
   document.getElementById('course-list-view').style.display='none';
   document.getElementById('course-detail-view').style.display='block';
   document.getElementById('detailTitle').textContent=c.title;
   document.getElementById('detailDesc').textContent=c.description||'';
   const ytBtn=document.getElementById('detailYoutubeBtn');
-  if(c.youtube_url){ytBtn.href=c.youtube_url;ytBtn.style.display='block';}else{ytBtn.style.display='none';}
+  if(c.youtube_url){ytBtn.href=c.youtube_url;ytBtn.style.display='block';}
+  else{ytBtn.style.display='none';}
   const isComplete=userProgress.find(p=>p.course_id===id&&p.completed);
   const btn=document.getElementById('detailCompleteBtn');
   if(isComplete){btn.textContent='✓ 已完成';btn.style.background='#ccc';btn.disabled=true;}
   else{btn.textContent='✓ 標記完成';btn.style.background='#A4E5E0';btn.disabled=false;}
   const noteCard=document.getElementById('noteCard');
-  if(c.note_template){noteCard.style.display='block';document.getElementById('noteTemplate').textContent=c.note_template;}
-  else{noteCard.style.display='none';}
+  if(c.note_template){
+    noteCard.style.display='block';
+    document.getElementById('noteTemplate').textContent=c.note_template;
+  } else {
+    noteCard.style.display='none';
+  }
 }
 
 async function markComplete(){
@@ -925,24 +845,32 @@ async function markComplete(){
     await sb.from('course_progress').insert({user_id:currentUser.id,course_id:currentCourseId,completed:true,completed_at:new Date().toISOString()});
     userProgress.push({user_id:currentUser.id,course_id:currentCourseId,completed:true});
   }
-  const btn=document.getElementById('detailCompleteBtn');btn.textContent='✓ 已完成';btn.style.background='#ccc';btn.disabled=true;
+  const btn=document.getElementById('detailCompleteBtn');
+  btn.textContent='✓ 已完成';btn.style.background='#ccc';btn.disabled=true;
   const stageCourses=allCourses.filter(c=>c.stage===currentStage);
   const doneCount=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
-  if(doneCount===stageCourses.length&&stageCourses.length>0){setTimeout(()=>showStageComplete(),500);}
-  else{alert('太棒了！已標記完成 ✓');}
+  if(doneCount===stageCourses.length&&stageCourses.length>0){
+    setTimeout(()=>showStageComplete(),500);
+  } else {
+    alert('太棒了！已標記完成 ✓');
+  }
 }
 
 function showStageComplete(){
   document.getElementById('course-detail-view').style.display='none';
   document.getElementById('course-complete-view').style.display='block';
-  const msg=COMPLETE_MSG[currentStage]||{title:'完關！🎉',msg:'恭喜你完成這個關卡！'};
+  const msg=COMPLETE_MSG[currentStage]||{title:'階段完成！🎉',msg:'恭喜你完成這個階段！',video:''};
   document.getElementById('completeTitle').textContent=msg.title;
   document.getElementById('completeMsg').textContent=msg.msg;
   const vBtn=document.getElementById('completeVideoBtn');
-  if(msg.video){vBtn.href=msg.video;vBtn.style.display='inline-block';}else{vBtn.style.display='none';}
+  if(msg.video){vBtn.href=msg.video;vBtn.style.display='inline-block';}
+  else{vBtn.style.display='none';}
 }
 
-function copyNote(){const text=document.getElementById('noteTemplate').textContent;navigator.clipboard.writeText(text).then(()=>alert('筆記格式已複製！貼到群組分享吧 😊'));}
+function copyNote(){
+  const text=document.getElementById('noteTemplate').textContent;
+  navigator.clipboard.writeText(text).then(()=>alert('筆記格式已複製！貼到群組分享吧 😊'));
+}
 
 function backToStages(){
   document.getElementById('course-stage-view').style.display='block';
@@ -951,353 +879,159 @@ function backToStages(){
   document.getElementById('course-complete-view').style.display='none';
   loadCourses();
 }
+
 function backToCourseList(){
   document.getElementById('course-detail-view').style.display='none';
   document.getElementById('course-list-view').style.display='block';
   renderCourseList();
 }
 
-// ===== CERTIFICATE =====
-let certStageName='';
-function showCertificate(){
-  certStageName=currentStage;
-  drawCertificate();
-  document.getElementById('certModal').classList.add('show');
-  
-  // Reset download button text
-  const btn=document.getElementById('downloadBtn');
-  if(btn){
-    btn.innerHTML='⬇ 下載小卡';
-  }
-}
-function closeCert(){
-  document.getElementById('certModal').classList.remove('show');
-  // Change completion page button to redownload
-  const certBtn=document.getElementById('certBtn');
-  if(certBtn){
-    certBtn.innerHTML='🔄 重新下載結訓證書';
+// ===== COURSE MAIN TAB SWITCH =====
+let partnerQaData = [];
+function switchCourseMainTab(tab, el){
+  document.querySelectorAll('#page-course .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(tab==='course'){
+    document.getElementById('course-main-content').style.display='block';
+    document.getElementById('qa-main-content').style.display='none';
+  } else {
+    document.getElementById('course-main-content').style.display='none';
+    document.getElementById('qa-main-content').style.display='block';
+    loadPartnerQA();
   }
 }
 
-function drawCertificate(){
-  const canvas=document.getElementById('certCanvas');
-  const ctx=canvas.getContext('2d');
-  const W=1000,H=700;
-  canvas.width=W;canvas.height=H;
-
-  // Soft pink gradient background
-  const bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#fde1e5');
-  bg.addColorStop(0.5,'#f5d5da');
-  bg.addColorStop(1,'#ecc9cf');
-  ctx.fillStyle=bg;
-  ctx.fillRect(0,0,W,H);
-
-  // EXTRA LARGE decorative elements (2x previous size)
-  ctx.globalAlpha=0.35;
-  
-  // Top left corner - EXTRA LARGE stars cluster
-  ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.moveTo(55,35);ctx.lineTo(90,95);ctx.lineTo(20,95);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(125,25,12,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(85,70,10,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(140,85,10,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(165,55,8,0,Math.PI*2);ctx.fill();
-  
-  // Top right - EXTRA LARGE moon, stars and orbital paths
-  ctx.strokeStyle='#b89099';ctx.lineWidth=6;
-  ctx.beginPath();ctx.arc(900,55,60,0.3,Math.PI*1.7);ctx.stroke();
-  ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.moveTo(930,35);ctx.lineTo(940,55);ctx.lineTo(920,55);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(835,105,10,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(920,85,8,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(860,140,8,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#b89099';ctx.lineWidth=3;
-  ctx.beginPath();ctx.ellipse(910,70,60,30,0.2,0,Math.PI*2);ctx.stroke();
-  
-  // Left middle - EXTRA LARGE floating leaves/petals
-  ctx.strokeStyle='#b89099';ctx.lineWidth=4;
-  ctx.beginPath();
-  ctx.moveTo(45,330);ctx.bezierCurveTo(60,315,90,330,105,350);ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(50,380);ctx.bezierCurveTo(65,365,95,380,110,400);ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(55,430);ctx.bezierCurveTo(70,415,100,430,115,450);ctx.stroke();
-  
-  // Right middle - EXTRA LARGE mystical sparkles
-  ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.moveTo(940,325);ctx.lineTo(950,350);ctx.lineTo(930,350);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(930,370);ctx.lineTo(940,395);ctx.lineTo(920,395);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(920,425,8,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(935,460,6,0,Math.PI*2);ctx.fill();
-  
-  // Bottom left - EXTRA LARGE planet with rings
-  ctx.strokeStyle='#b89099';ctx.lineWidth=5;
-  ctx.beginPath();ctx.arc(80,615,45,0,Math.PI*2);ctx.stroke();
-  ctx.lineWidth=3.5;
-  ctx.beginPath();ctx.ellipse(80,615,70,20,0.3,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.arc(40,640,8,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(140,630,6,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(160,610,5,0,Math.PI*2);ctx.fill();
-  
-  // Bottom right - EXTRA LARGE star constellation
-  ctx.fillStyle='#c89aa5';
-  ctx.beginPath();ctx.moveTo(910,585);ctx.lineTo(925,615);ctx.lineTo(895,615);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.arc(930,630,8,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(875,655,8,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(945,665,6,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#b89099';ctx.lineWidth=2.5;
-  ctx.beginPath();ctx.moveTo(910,605);ctx.lineTo(930,630);ctx.lineTo(875,655);ctx.stroke();
-  
-  // Decorative flowers near center - EXTRA LARGE
-  ctx.strokeStyle='#b89099';ctx.lineWidth=3.5;
-  ctx.beginPath();
-  ctx.moveTo(150,175);ctx.bezierCurveTo(170,160,210,175,225,195);ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(850,175);ctx.bezierCurveTo(830,160,790,175,775,195);ctx.stroke();
-  
-  ctx.globalAlpha=1;
-
-  // Border frame
-  ctx.strokeStyle='#d4a5b0';ctx.lineWidth=3;
-  ctx.strokeRect(40,40,W-80,H-80);
-  ctx.strokeStyle='#e8bac4';ctx.lineWidth=1.5;
-  ctx.strokeRect(50,50,W-100,H-100);
-
-  // Header
-  ctx.fillStyle='#a67c87';
-  ctx.font='bold 16px Georgia,serif';
-  ctx.textAlign='center';
-  ctx.fillText('JEROSSE × HT 團隊',W/2,100);
-  
-  ctx.font='14px Georgia,serif';
-  ctx.fillStyle='#c89aa5';
-  ctx.fillText('— 結訓證書 CERTIFICATE OF COMPLETION —',W/2,130);
-
-  // Stage icon
-  const stg=STAGES.find(s=>s.key===certStageName)||PRODUCT_STAGES.find(s=>s.key===certStageName)||RETAIL_STAGES.find(s=>s.key===certStageName);
-  if(stg){
-    ctx.font='60px serif';
-    ctx.fillStyle='#a67c87';
-    ctx.fillText(stg.icon,W/2,210);
-  }
-  
-  ctx.fillStyle='#5a4a54';
-  ctx.font='bold 42px "Noto Sans TC",sans-serif';
-  ctx.fillText(certStageName,W/2,280);
-
-  // Decorative line under stage name
-  ctx.strokeStyle='#d4a5b0';ctx.lineWidth=1.5;
-  ctx.beginPath();
-  ctx.moveTo(W/2-150,300);
-  ctx.lineTo(W/2-50,300);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(W/2+50,300);
-  ctx.lineTo(W/2+150,300);
-  ctx.stroke();
-
-  // Completion badge area
-  ctx.fillStyle='rgba(212,165,176,0.12)';
-  ctx.beginPath();
-  ctx.arc(W/2,410,90,0,Math.PI*2);
-  ctx.fill();
-  
-  ctx.strokeStyle='#d4a5b0';ctx.lineWidth=1.5;
-  ctx.beginPath();
-  ctx.arc(W/2,410,85,0,Math.PI*2);
-  ctx.stroke();
-
-  // Name
-  const userName=currentUser?.name||'';
-  const nameSize=userName.length>4?32:38;
-  ctx.font=`bold ${nameSize}px "Noto Sans TC",sans-serif`;
-  ctx.fillStyle='#5a4a54';
-  ctx.fillText(userName,W/2,410);
-
-  // Decorative elements under name
-  ctx.fillStyle='#d4a5b0';
-  ctx.font='20px serif';
-  ctx.fillText('✦',W/2-30,450);
-  ctx.fillText('✦',W/2+30,450);
-  ctx.font='14px serif';
-  ctx.fillText('✧',W/2-50,455);
-  ctx.fillText('✧',W/2+50,455);
-  ctx.fillText('·',W/2-65,453);
-  ctx.fillText('·',W/2+65,453);
-
-  ctx.fillStyle='#a67c87';
-  ctx.font='13px "Noto Sans TC",sans-serif';
-  ctx.fillText('結訓',W/2,475);
-
-  // Date - moved further down from circle
-  const now=new Date();
-  const y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
-  ctx.fillStyle='#b89099';
-  ctx.font='14px Georgia,serif';
-  ctx.fillText(`${y} 年 ${m} 月 ${d} 日`,W/2,515);
-
-  // Bottom message
-  ctx.fillStyle='#a67c87';
-  ctx.font='16px "Noto Sans TC",sans-serif';
-  ctx.fillText('你有權利改變人生 ✦ 繼續前進，下一個版本的你正在等你',W/2,565);
-
-  // Five stars
-  ctx.fillStyle='#d4a5b0';
-  ctx.font='20px serif';
-  for(let i=0;i<5;i++){
-    ctx.fillText('★',W/2-50+i*25,605);
-  }
-
-  // HT Team solid badge - covers border line
-  ctx.fillStyle='#a67c87';
-  ctx.beginPath();ctx.arc(W/2,665,28,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='white';
-  ctx.font='bold 12px sans-serif';
-  ctx.fillText('HT',W/2,662);
-  ctx.font='10px sans-serif';
-  ctx.fillText('TEAM',W/2,675);
+async function loadPartnerQA(){
+  if(partnerQaData.length>0){renderPartnerQA(partnerQaData);return;}
+  const {data}=await sb.from('partner_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
+  partnerQaData=data||[];
+  renderPartnerQA(partnerQaData);
 }
 
-function downloadCert(){
-  const canvas=document.getElementById('certCanvas');
-  const link=document.createElement('a');
-  link.download='HT_結訓證書_'+certStageName+'_'+(currentUser?.name||'')+'.png';
-  link.href=canvas.toDataURL('image/png');
-  link.click();
-  
-  // Change button text to "重新下載"
-  const btn=document.getElementById('downloadBtn');
-  if(btn){
-    btn.innerHTML='🔄 重新下載';
-  }
+function filterPartnerQA(){
+  const q=document.getElementById('partnerQaSearch').value.toLowerCase();
+  const filtered=q?partnerQaData.filter(x=>(x.question||'').toLowerCase().includes(q)||(x.answer||'').toLowerCase().includes(q)):partnerQaData;
+  renderPartnerQA(filtered);
 }
 
-// ===== MEAL PLAN GENERATOR =====
-let mealProds=[];
-
-function initMealGenerator(){
-  mealProds=[{product:'纖纖飲',timing:'🌅 第一餐',note:''}];
-  renderMealProds();
-}
-
-function addMealProd(){
-  mealProds.push({product:MEAL_PRODUCTS[0],timing:'🌅 第一餐',note:''});
-  renderMealProds();
-}
-
-function renderMealProds(){
-  const container=document.getElementById('mealProdList');
-  container.innerHTML=mealProds.map((p,i)=>{
-    const prodOptions=MEAL_PRODUCTS.map(n=>`<option value="${n}"${n===p.product?' selected':''}>${n}</option>`).join('');
-    const timingBtns=MEAL_TIMES.map(t=>`<button class="meal-timing-btn${p.timing===t?' active':''}" onclick="setMealTiming(${i},'${t}')">${t}</button>`).join('');
-    return `<div class="prod-select-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
-      <div style="display:flex;align-items:center;gap:8px;width:100%;">
-        <select onchange="setMealProd(${i},this.value)" style="flex:1;border:0.5px solid #ddd;border-radius:8px;padding:7px 10px;font-size:13px;background:white;outline:none;color:#333;">${prodOptions}</select>
-        <button class="remove-prod-btn" onclick="removeMealProd(${i})">×</button>
-      </div>
-      <input type="text" class="plan-name-input" style="margin:0;font-size:13px;padding:7px 12px;" placeholder="備註用量（例：3顆、1包）" value="${p.note}" oninput="setMealNote(${i},this.value)" />
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">${timingBtns}</div>
-    </div>`;
-  }).join('');
-  updateMealPreview();
-}
-
-function setMealProd(i,v){mealProds[i].product=v;renderMealProds();}
-function setMealTiming(i,t){mealProds[i].timing=t;renderMealProds();}
-function setMealNote(i,v){mealProds[i].note=v;}
-function removeMealProd(i){if(mealProds.length>1)mealProds.splice(i,1);renderMealProds();}
-
-function updateMealPreview(){
-  const grouped={};
-  MEAL_TIMES.forEach(t=>grouped[t]=[]);
-  mealProds.forEach(p=>{
-    if(grouped[p.timing]!==undefined) grouped[p.timing].push(p.note?p.product+' '+p.note:p.product);
-  });
-  const card=document.getElementById('mealPreviewCard');
-  const preview=document.getElementById('mealPreview');
-  card.style.display='block';
-  preview.innerHTML=MEAL_TIMES.map(t=>`
-    <div class="meal-row">
-      <div class="meal-time-label">${t}</div>
-      <div class="meal-products">${grouped[t].length?grouped[t].join('　'):'<em>—</em>'}</div>
+function renderPartnerQA(list){
+  const el=document.getElementById('partnerQaList');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">找不到相關問題</div>';return;}
+  el.innerHTML=list.map(q=>`
+    <div style="background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+      ${q.category?`<div style="font-size:10px;padding:2px 8px;border-radius:8px;background:#f0f0f0;color:#888;display:inline-block;margin-bottom:8px;">${q.category}</div>`:''}
+      <div style="font-size:14px;font-weight:600;color:#333;margin-bottom:6px;">Q：${q.question}</div>
+      <div style="font-size:13px;color:#666;line-height:1.7;">A：${q.answer||'—'}</div>
     </div>`).join('');
 }
 
-function generateMealCard(){
-  const clientName=document.getElementById('clientName').value.trim()||'親愛的客人';
-  // Group products by timing
-  const grouped={};
-  MEAL_TIMES.forEach(t=>grouped[t]=[]);
-  mealProds.forEach(p=>{
-    if(grouped[p.timing]!==undefined) grouped[p.timing].push(p.note?p.product+' '+p.note:p.product);
-  });
-  drawMealCard(clientName,grouped);
-  document.getElementById('certModal').classList.add('show');
+// ===== TEAM PAGE =====
+const TEAM_LEVELS=['三級輔導','二級輔導','一級輔導','皇家輔導'];
+let currentMemberId=null;
+
+async function loadTeamPage(){
+  if(!currentUser)return;
+  const hasAccess=TEAM_LEVELS.includes(currentUser.level)||currentUser.level==='一級輔導'||currentUser.level==='皇家輔導';
+  const canSeeTeam=['三級輔導','二級輔導','一級輔導','皇家輔導'].includes(currentUser.level);
   
-  // Reset download button text
-  const btn=document.getElementById('downloadBtn');
-  if(btn){
-    btn.innerHTML='⬇ 下載小卡';
+  if(!canSeeTeam){
+    document.getElementById('team-locked').style.display='block';
+    document.getElementById('team-content').style.display='none';
+    return;
   }
-}
-
-function drawMealCard(clientName,grouped){
-  const canvas=document.getElementById('certCanvas');
-  const ctx=canvas.getContext('2d');
-  const W=800,H=680;
-  canvas.width=W;canvas.height=H;
-
-  // Dark brown gradient background
-  const bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#5a4a3a');bg.addColorStop(1,'#3d2f24');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-
-  // Header bar - brown gradient
-  const hg=ctx.createLinearGradient(0,0,W,0);
-  hg.addColorStop(0,'#8B6F47');hg.addColorStop(1,'#A67C5B');
-  ctx.fillStyle=hg;ctx.fillRect(0,0,W,120);
-
-  // Brand
-  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='bold 11px -apple-system,sans-serif';
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('JEROSSE × HT 團隊', W/2, 28);
-
-  // Title with hearts and client name (no line break)
-  ctx.fillStyle='white';ctx.font='bold 24px -apple-system,sans-serif';
-  ctx.fillText('🤎 專屬吃法計劃 🤎 為 ' + clientName + ' 量身打造', W/2, 70);
-
-  // Meal rows - all brown tones
-  const mealColors=['#D2691E','#A0522D','#8B4513','#6B4423'];
-  const mealBg=['#F4E7D7','#F0DCC8','#E8D4BE','#E0CBAF'];
-  const mealIcons=['🌅','🌞','🌙','⏰'];
-  const mealLabels=['第一餐（早餐）','第二餐（午餐）','第三餐（晚餐）','任何時刻'];
-
-  MEAL_TIMES.forEach((t,idx)=>{
-    const y=140+idx*124;
-    ctx.fillStyle=mealBg[idx];ctx.beginPath();
-    ctx.roundRect(32,y,W-64,108,14);ctx.fill();
-    ctx.fillStyle=mealColors[idx];ctx.fillRect(32,y,7,108);ctx.beginPath();ctx.roundRect(32,y,7,108,3);ctx.fill();
-    ctx.fillStyle=mealColors[idx];ctx.beginPath();ctx.arc(78,y+54,24,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='white';ctx.font='20px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(mealIcons[idx],78,y+54);
-    ctx.fillStyle=mealColors[idx];ctx.font='bold 15px -apple-system,sans-serif';ctx.textAlign='left';
-    ctx.fillText(mealLabels[idx],116,y+34);
-    const items=grouped[t];
-    ctx.fillStyle='#3d2f24';ctx.font='16px -apple-system,sans-serif';
-    if(items.length){
-      ctx.fillText(items.join('　·　'),116,y+68);
-    } else {
-      ctx.fillStyle='#bbb';ctx.fillText('—',116,y+68);
-    }
+  document.getElementById('team-locked').style.display='none';
+  document.getElementById('team-content').style.display='block';
+  
+  const {data:downlines}=await sb.from('users').select('*').eq('upline',currentUser.name).eq('status','已審核');
+  const members=downlines||[];
+  document.getElementById('teamCount').textContent=members.length+' 人';
+  
+  const now=new Date();
+  const {data:sales}=await sb.from('sales_data').select('user_id,total_revenue,cost').eq('year',now.getFullYear()).eq('month',now.getMonth()+1);
+  const salesMap={};
+  (sales||[]).forEach(s=>{
+    if(!salesMap[s.user_id])salesMap[s.user_id]=0;
+    salesMap[s.user_id]+=(s.total_revenue-s.cost);
   });
-
-  // Bottom note - new warning message
-  ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='14px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('⚠️ 特殊時期吃法或有疑問請跟加盟商確認　體質因人而異　確認後最安心', W/2, H-28);
+  const memberIds=members.map(m=>m.id);
+  const teamTotal=memberIds.reduce((a,id)=>a+(salesMap[id]||0),0);
+  document.getElementById('teamProfit').textContent='$'+teamTotal.toLocaleString();
+  
+  const el=document.getElementById('downlineList');
+  if(!members.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">尚無下家夥伴</div>';return;}
+  el.innerHTML=members.map(m=>{
+    const profit=salesMap[m.id]||0;
+    return `<div onclick="openMemberDetail(${m.id},'${m.name}','${m.level}')" style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:0.5px solid #f5f5f5;cursor:pointer;">
+      <div>
+        <div style="font-size:14px;font-weight:500;color:#333;">${m.name}</div>
+        <div style="font-size:12px;color:#aaa;margin-top:2px;">${m.level}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:14px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</div>
+        <div style="font-size:11px;color:#aaa;">本月淨利</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
+async function openMemberDetail(id,name,level){
+  currentMemberId=id;
+  document.getElementById('team-main-view').style.display='none';
+  document.getElementById('team-member-view').style.display='block';
+  document.getElementById('memberName').textContent=name;
+  document.getElementById('memberLevel').textContent=level;
+  switchMemberTab('sales',document.querySelector('#page-team .tab'));
+  loadMemberSales(id);
+}
+
+function backToTeam(){
+  document.getElementById('team-main-view').style.display='block';
+  document.getElementById('team-member-view').style.display='none';
+}
+
+function switchMemberTab(tab,el){
+  document.querySelectorAll('#page-team .tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.getElementById('member-sales-view').style.display=tab==='sales'?'block':'none';
+  document.getElementById('member-course-view').style.display=tab==='course'?'block':'none';
+  if(tab==='course')loadMemberCourse(currentMemberId);
+}
+
+async function loadMemberSales(id){
+  const now=new Date();
+  const {data}=await sb.from('sales_data').select('*').eq('user_id',id).eq('year',now.getFullYear()).eq('month',now.getMonth()+1).order('date',{ascending:false});
+  const el=document.getElementById('memberSalesData');
+  if(!data||!data.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:#aaa;font-size:13px;">本月尚無記錄</div>';return;}
+  const total=data.reduce((a,r)=>a+(r.total_revenue-r.cost),0);
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid #f0f0f0;">
+    <span style="font-size:13px;color:#888;">本月淨利</span>
+    <span style="font-size:16px;font-weight:600;color:${total>=0?'#1D9E75':'#E24B4A'};">NT$${total.toLocaleString()}</span>
+  </div>`+data.map(r=>{
+    let items=[];try{items=JSON.parse(r.product_name);}catch(e){}
+    const profit=r.total_revenue-r.cost;
+    return `<div style="padding:8px 0;border-bottom:0.5px solid #f5f5f5;">
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:13px;color:#555;">${items.map(it=>it.name+'×'+it.qty).join('、')}</span>
+        <span style="font-size:13px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin-top:2px;">${r.date}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadMemberCourse(id){
+  const {data:progress}=await sb.from('course_progress').select('*,courses(title,stage)').eq('user_id',id).eq('completed',true);
+  const el=document.getElementById('memberCourseData');
+  if(!progress||!progress.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:#aaa;font-size:13px;">尚無完成課程</div>';return;}
+  el.innerHTML=progress.map(p=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #f5f5f5;">
+      <div style="width:28px;height:28px;border-radius:50%;background:#A4E5E0;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">✓</div>
+      <div>
+        <div style="font-size:13px;font-weight:500;color:#333;">${p.courses?.title||'—'}</div>
+        <div style="font-size:11px;color:#aaa;">${p.courses?.stage||''} · ${p.completed_at?new Date(p.completed_at).toLocaleDateString('zh-TW'):''}</div>
+      </div>
+    </div>`).join('');
+}
 </script>
 </body>
 </html>
