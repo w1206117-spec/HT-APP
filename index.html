@@ -283,13 +283,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div id="course-list-view" style="display:none;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
-        <button onclick="backToStages()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
+        <button id="courseListBack" onclick="backFromCourseList()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
         <div>
           <div style="font-size:16px;font-weight:500;color:#333;" id="stageTitle"></div>
           <div style="font-size:12px;color:#888;" id="stageProgress"></div>
         </div>
       </div>
       <div id="courseList"></div>
+    </div>
+    <!-- 三大系列 sub-series view -->
+    <div id="course-subseries-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <button onclick="backToStages()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
+        <div>
+          <div style="font-size:16px;font-weight:500;color:#333;">三大系列產品力</div>
+          <div style="font-size:12px;color:#888;">選擇系列深入學習</div>
+        </div>
+      </div>
+      <div id="subSeriesCards"></div>
     </div>
     <div id="course-detail-view" style="display:none;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
@@ -321,11 +332,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="eat-section-title">👤 客人姓名</div>
     <input class="eat-name-input" id="eatCustomerName" type="text" placeholder="輸入客人的名字（會顯示在圖卡上）" />
 
-    <div class="eat-section-title" style="margin-top:1.25rem;">💊 選擇產品與時段</div>
-    <div style="font-size:12px;color:#aaa;margin-bottom:10px;">為每個產品選擇服用時段，輸入數量後生成圖卡</div>
-    <div id="eatProductList"></div>
+    <div class="eat-section-title" style="margin-top:1.25rem;">💊 新增產品吃法</div>
+    <div style="font-size:12px;color:#aaa;margin-bottom:10px;">同一產品可多次加入（不同時段），數量請手動輸入</div>
 
-    <button class="eat-generate-btn" onclick="generateEatingCard()" style="margin-top:1rem;">✨ 生成吃法圖卡</button>
+    <div style="background:white;border-radius:14px;padding:1rem;margin-bottom:10px;box-shadow:0 1px 6px rgba(139,100,60,0.08);">
+      <div style="margin-bottom:10px;">
+        <select id="eatAddProduct" class="eat-meal-select" style="width:100%;font-size:14px;">
+          <option value="">選擇產品...</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <select id="eatAddMeal" class="eat-meal-select" style="flex:1;">
+          <option value="breakfast">🌅 第一餐（早餐）</option>
+          <option value="lunch">🌞 第二餐（午餐）</option>
+          <option value="dinner">🌙 第三餐（晚餐）</option>
+          <option value="anytime">⏰ 任何時刻</option>
+        </select>
+        <input type="text" id="eatAddQty" placeholder="數量（如 3顆 / 1包）" style="flex:1;padding:8px 10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:13px;outline:none;" />
+      </div>
+      <button onclick="addEatItem()" style="width:100%;padding:11px;background:linear-gradient(135deg,#A67C5B,#8B7355);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer;">➕ 加入清單</button>
+    </div>
+
+    <div id="eatItemList"><div style="text-align:center;padding:1rem;color:#ccc;font-size:13px;">尚未加入任何產品</div></div>
+
+    <button class="eat-generate-btn" onclick="generateEatingCard()" style="margin-top:0.5rem;">✨ 生成吃法圖卡</button>
 
     <div id="eatResultSection" style="display:none;margin-top:1rem;padding-bottom:1rem;">
       <div class="eat-canvas-wrap">
@@ -1022,6 +1052,7 @@ function copyNote(){
 function backToStages(){
   document.getElementById('course-stage-view').style.display='block';
   document.getElementById('course-list-view').style.display='none';
+  document.getElementById('course-subseries-view').style.display='none';
   document.getElementById('course-detail-view').style.display='none';
   document.getElementById('course-complete-view').style.display='none';
   loadCourses();
@@ -1030,7 +1061,6 @@ function backToStages(){
 function backToCourseList(){
   document.getElementById('course-detail-view').style.display='none';
   document.getElementById('course-list-view').style.display='block';
-  renderCourseList();
 }
 
 // ===== MANUAL ADD DOWNLINE =====
@@ -1409,13 +1439,57 @@ function renderStageCards(){
     </div>`;
   }).join('');
 }
+const SUB_SERIES=[
+  {key:'纖體系列',icon:'⚖️',color:'#A4E5E0',desc:'纖體塑形產品知識'},
+  {key:'美肌系列',icon:'✨',color:'#F5C6CB',desc:'美肌保養產品知識'},
+  {key:'大健康系列',icon:'💪',color:'#D5C6E0',desc:'健康保健產品知識'},
+];
+// also alias
+const SUB_SERIES_KEYS=['纖體系列','美肌系列','大健康系列','大健康'];
+let currentFromSubSeries=false;
+
 function openStage(stageKey){
   currentStage=stageKey;
   document.getElementById('course-stage-view').style.display='none';
-  document.getElementById('course-list-view').style.display='block';
-  document.getElementById('stageTitle').textContent=stageKey;
-  const altKeys=stageKey==='三大系列產品力'?[stageKey,'纖體系列','美肌系列','大健康系列','大健康']:[stageKey];
-  const stageCourses=allCourses.filter(c=>altKeys.includes(c.stage));
+  document.getElementById('course-subseries-view').style.display='none';
+  document.getElementById('course-list-view').style.display='none';
+  if(stageKey==='三大系列產品力'){
+    // Show sub-series selector
+    renderSubSeriesCards();
+    document.getElementById('course-subseries-view').style.display='block';
+  } else {
+    currentFromSubSeries=false;
+    showCourseListForStage(stageKey);
+  }
+}
+function renderSubSeriesCards(){
+  const el=document.getElementById('subSeriesCards');
+  el.innerHTML=SUB_SERIES.map(s=>{
+    const keys=s.key==='大健康系列'?['大健康系列','大健康']:[s.key];
+    const stageCourses=allCourses.filter(c=>keys.includes(c.stage));
+    const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+    const total=stageCourses.length;
+    const pct=total?Math.round(done/total*100):0;
+    return `<div onclick="openSubSeries('${s.key}')" style="background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:14px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;">${s.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:500;color:#333;margin-bottom:3px;">${s.key}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:8px;">${s.desc}</div>
+        <div style="background:#f0f0f0;border-radius:6px;height:6px;overflow:hidden;">
+          <div style="background:${s.color};height:100%;width:${pct}%;border-radius:6px;transition:width 0.3s;"></div>
+        </div>
+        <div style="font-size:11px;color:#aaa;margin-top:4px;">${done}／${total} 堂完成</div>
+      </div>
+      <div style="font-size:20px;color:#ccc;">›</div>
+    </div>`;
+  }).join('');
+}
+function openSubSeries(key){
+  currentFromSubSeries=true;
+  const keys=key==='大健康系列'?['大健康系列','大健康']:[key];
+  document.getElementById('course-subseries-view').style.display='none';
+  document.getElementById('stageTitle').textContent=key;
+  const stageCourses=allCourses.filter(c=>keys.includes(c.stage));
   const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
   document.getElementById('stageProgress').textContent=done+'／'+stageCourses.length+' 堂完成';
   const el=document.getElementById('courseList');
@@ -1426,11 +1500,38 @@ function openStage(stageKey){
       <div style="flex:1;">
         <div style="font-size:14px;font-weight:500;color:#333;">${c.title}</div>
         <div style="font-size:12px;color:#aaa;margin-top:2px;">${c.description||''}</div>
-        ${c.stage&&c.stage!==stageKey?`<div style="font-size:10px;padding:1px 6px;background:#f5f0e8;color:#A67C5B;border-radius:6px;display:inline-block;margin-top:3px;">${c.stage}</div>`:''}
+      </div>
+      <div style="font-size:20px;color:#ccc;">›</div>
+    </div>`;
+  }).join('')||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">此系列暫無課程</div>';
+  document.getElementById('course-list-view').style.display='block';
+}
+function showCourseListForStage(stageKey){
+  const stageCourses=allCourses.filter(c=>c.stage===stageKey);
+  const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+  document.getElementById('stageTitle').textContent=stageKey;
+  document.getElementById('stageProgress').textContent=done+'／'+stageCourses.length+' 堂完成';
+  const el=document.getElementById('courseList');
+  el.innerHTML=stageCourses.map((c,i)=>{
+    const isComplete=userProgress.find(p=>p.course_id===c.id&&p.completed);
+    return `<div onclick="openCourse(${c.id})" style="background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:12px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:${isComplete?'#A4E5E0':'#f0f0f0'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:${isComplete?'#085041':'#aaa'};flex-shrink:0;">${isComplete?'✓':(i+1)}</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:#333;">${c.title}</div>
+        <div style="font-size:12px;color:#aaa;margin-top:2px;">${c.description||''}</div>
       </div>
       <div style="font-size:20px;color:#ccc;">›</div>
     </div>`;
   }).join('')||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">此階段暫無課程</div>';
+  document.getElementById('course-list-view').style.display='block';
+}
+function backFromCourseList(){
+  document.getElementById('course-list-view').style.display='none';
+  if(currentFromSubSeries){
+    document.getElementById('course-subseries-view').style.display='block';
+  } else {
+    document.getElementById('course-stage-view').style.display='block';
+  }
 }
 
 // ============================================================
@@ -1460,25 +1561,51 @@ const EAT_MEALS=[
   {key:'anytime',label:'任何時刻',icon:'⏰',color:'#8B6040'},
 ];
 let eatPageInited=false;
+let eatItems=[]; // [{productName, productIcon, mealKey, qty}]
 function initEatPage(){
   if(eatPageInited)return;
   eatPageInited=true;
-  const el=document.getElementById('eatProductList');
-  el.innerHTML=EAT_PRODUCTS.map((p,i)=>`
-    <div class="eat-prod-row" id="eprow-${i}">
-      <div class="eat-prod-header">
-        <span style="font-size:18px;">${p.icon}</span>
-        <span class="eat-prod-name">${p.name}</span>
+  const sel=document.getElementById('eatAddProduct');
+  EAT_PRODUCTS.forEach(p=>{
+    const opt=document.createElement('option');
+    opt.value=p.name;
+    opt.textContent=p.icon+' '+p.name;
+    sel.appendChild(opt);
+  });
+  renderEatItems();
+}
+function addEatItem(){
+  const productName=document.getElementById('eatAddProduct').value;
+  const mealKey=document.getElementById('eatAddMeal').value;
+  const qty=document.getElementById('eatAddQty').value.trim();
+  if(!productName){alert('請選擇產品');return;}
+  if(!qty){alert('請填寫數量（例：3顆、1包、2次）');return;}
+  const prod=EAT_PRODUCTS.find(p=>p.name===productName);
+  eatItems.push({productName,productIcon:prod?.icon||'💊',mealKey,qty});
+  document.getElementById('eatAddQty').value='';
+  renderEatItems();
+}
+function removeEatItem(i){
+  eatItems.splice(i,1);
+  renderEatItems();
+}
+function renderEatItems(){
+  const el=document.getElementById('eatItemList');
+  if(!eatItems.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:#ccc;font-size:13px;">尚未加入任何產品</div>';return;}
+  const mealOrder={breakfast:0,lunch:1,dinner:2,anytime:3};
+  const sorted=[...eatItems].map((it,i)=>({...it,_i:i})).sort((a,b)=>mealOrder[a.mealKey]-mealOrder[b.mealKey]);
+  el.innerHTML=sorted.map(item=>{
+    const mealLabel=EAT_MEALS.find(m=>m.key===item.mealKey)?.label||item.mealKey;
+    const mealIcon=EAT_MEALS.find(m=>m.key===item.mealKey)?.icon||'';
+    return `<div style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:7px;box-shadow:0 1px 5px rgba(0,0,0,0.06);">
+      <span style="font-size:20px;">${item.productIcon}</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;color:#3D2714;">${item.productName}</div>
+        <div style="font-size:12px;color:#A67C5B;margin-top:1px;">${mealIcon} ${mealLabel}　·　${item.qty}</div>
       </div>
-      <div class="eat-controls">
-        <select class="eat-meal-select" id="emeal-${i}">
-          <option value="">不選</option>
-          ${EAT_MEALS.map(m=>`<option value="${m.key}">${m.icon} ${m.label}</option>`).join('')}
-        </select>
-        <input type="number" class="eat-qty" id="eqty-${i}" value="1" min="1" max="20" />
-        <span class="eat-unit">${p.unit}</span>
-      </div>
-    </div>`).join('');
+      <button onclick="removeEatItem(${item._i})" style="background:#ffeaea;border:none;border-radius:8px;padding:5px 10px;color:#E24B4A;font-size:11px;font-weight:600;cursor:pointer;">✕</button>
+    </div>`;
+  }).join('');
 }
 function eatRoundRect(ctx,x,y,w,h,r){
   if(typeof r==='number')r=[r,r,r,r];
@@ -1489,12 +1616,12 @@ function eatRoundRect(ctx,x,y,w,h,r){
   ctx.lineTo(x,y+r[0]);ctx.quadraticCurveTo(x,y,x+r[0],y);ctx.closePath();
 }
 function generateEatingCard(){
+  if(!eatItems.length){alert('請先加入至少一個產品');return;}
   const name=document.getElementById('eatCustomerName').value.trim()||'親愛的客人';
   const mealData=EAT_MEALS.map(m=>({...m,items:[]}));
-  EAT_PRODUCTS.forEach((p,i)=>{
-    const mealKey=document.getElementById('emeal-'+i).value;
-    const qty=parseInt(document.getElementById('eqty-'+i).value)||1;
-    if(mealKey){const m=mealData.find(x=>x.key===mealKey);if(m)m.items.push(`${p.name}　${qty} ${p.unit}`);}
+  eatItems.forEach(item=>{
+    const m=mealData.find(x=>x.key===item.mealKey);
+    if(m)m.items.push(`${item.productName}　${item.qty}`);
   });
   const canvas=document.getElementById('eatCanvas');
   const ctx=canvas.getContext('2d');
