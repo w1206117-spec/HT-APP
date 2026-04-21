@@ -161,6 +161,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- GOAL MODAL -->
+<div id="goalModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9998;overflow-y:auto;padding:1.5rem;">
+  <div style="background:white;border-radius:18px;padding:1.5rem;max-width:400px;margin:auto;">
+    <div style="font-size:18px;font-weight:700;color:#5a4a3a;margin-bottom:6px;">🎯 你主要購買的是？</div>
+    <div style="font-size:13px;color:#999;margin-bottom:1.5rem;">幫助我們給你最適合的記錄功能</div>
+    <div id="goalOptions">
+      <div class="goal-opt" onclick="selectGoal('slim')" id="goal-slim" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;border:2px solid #e8dcc8;margin-bottom:10px;cursor:pointer;background:white;">
+        <div style="font-size:28px;">⚖️</div>
+        <div><div style="font-size:14px;font-weight:700;color:#3d2f24;">纖體塑形系列</div><div style="font-size:12px;color:#999;margin-top:2px;">會顯示體重記錄與體重曲線</div></div>
+      </div>
+      <div class="goal-opt" onclick="selectGoal('skin')" id="goal-skin" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;border:2px solid #e8dcc8;margin-bottom:10px;cursor:pointer;background:white;">
+        <div style="font-size:28px;">✨</div>
+        <div><div style="font-size:14px;font-weight:700;color:#3d2f24;">美肌保養系列</div><div style="font-size:12px;color:#999;margin-top:2px;">專注打卡與飲食記錄</div></div>
+      </div>
+      <div class="goal-opt" onclick="selectGoal('health')" id="goal-health" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;border:2px solid #e8dcc8;margin-bottom:10px;cursor:pointer;background:white;">
+        <div style="font-size:28px;">💪</div>
+        <div><div style="font-size:14px;font-weight:700;color:#3d2f24;">健康保健系列</div><div style="font-size:12px;color:#999;margin-top:2px;">專注打卡與飲食記錄</div></div>
+      </div>
+      <div class="goal-opt" onclick="selectGoal('hair')" id="goal-hair" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:12px;border:2px solid #e8dcc8;margin-bottom:10px;cursor:pointer;background:white;">
+        <div style="font-size:28px;">💆</div>
+        <div><div style="font-size:14px;font-weight:700;color:#3d2f24;">養髮護髮系列</div><div style="font-size:12px;color:#999;margin-top:2px;">專注打卡與飲食記錄</div></div>
+      </div>
+    </div>
+    <div id="initWeightSection" style="display:none;margin-top:10px;padding-top:14px;border-top:1px solid #f5f0e8;">
+      <div style="font-size:14px;font-weight:600;color:#3d2f24;margin-bottom:8px;">📝 輸入目前體重（選填）</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input type="number" id="initWeightInput" placeholder="例：58.5" step="0.1" min="20" max="300" style="flex:1;padding:12px;border:1.5px solid #d4c4b0;border-radius:10px;font-size:16px;font-weight:600;text-align:center;outline:none;" />
+        <span style="font-size:13px;color:#999;">kg</span>
+      </div>
+      <div style="font-size:12px;color:#aaa;margin-top:6px;">這會成為你的起始體重，用來計算之後的變化</div>
+    </div>
+    <button class="btn-primary" style="margin-top:1.5rem;" onclick="saveGoal()">確認，開始記錄！</button>
+  </div>
+</div>
+
 <!-- MAIN -->
 <div id="mainPage">
   <div class="app-header">
@@ -187,15 +222,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="health-card">
       <div class="health-card-title">今日喝水量 <span style="font-size:12px;color:#aaa;" id="waterLabel">0 ml</span></div>
       <div class="water-input-row">
-        <input type="number" class="water-input" id="waterInput" placeholder="0" min="0" max="5000" step="100" />
+        <input type="number" class="water-input" id="waterInput" placeholder="0" min="0" max="5000" step="50" onchange="saveWater()" />
         <span class="water-unit">ml</span>
-        <button onclick="saveWater()" style="padding:10px 16px;background:#8B7355;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">記錄</button>
+        <button onclick="saveWater()" style="padding:10px 16px;background:#8B7355;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">儲存</button>
       </div>
       <div class="water-presets">
-        <button class="water-preset" onclick="setWaterPreset(500)">+500</button>
-        <button class="water-preset" onclick="setWaterPreset(250)">+250</button>
-        <button class="water-preset" onclick="setWaterPreset(150)">+150</button>
-        <button class="water-preset" onclick="setWaterPreset(-250)">-250</button>
+        <button class="water-preset" onclick="addWater(500)">+500ml</button>
+        <button class="water-preset" onclick="addWater(250)">+250ml</button>
+        <button class="water-preset" onclick="addWater(150)">+150ml</button>
+        <button class="water-preset" onclick="addWater(-250)">-250ml</button>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:10px;margin-bottom:4px;">
         <span>0</span><span>🎯 目標 2000ml</span><span>👑 3000ml</span>
@@ -203,6 +238,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="water-bar"><div class="water-fill" id="waterFill" style="width:0%"></div></div>
     </div>
 
+    <div id="weightSection">
     <div class="section-title">⚖️ 今日體重</div>
     <div class="health-card">
       <div class="weight-input-wrap">
@@ -211,6 +247,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button onclick="saveWeight()" style="padding:10px 16px;background:#8B7355;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">記錄</button>
       </div>
       <div id="weightNote" style="margin-top:8px;font-size:12px;color:#aaa;"></div>
+    </div>
     </div>
 
     <div class="section-title">🍽️ 今日飲食</div>
@@ -319,7 +356,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="nav-item active" onclick="switchPage('checkin',this)">
       <span class="nav-icon">📋</span><span class="nav-label">每日記錄</span>
     </button>
-    <button class="nav-item" onclick="switchPage('stats',this);loadStats()">
+    <button class="nav-item" onclick="switchPage('stats',this);if(currentUser)loadStats();">
       <span class="nav-icon">📊</span><span class="nav-label">成果記錄</span>
     </button>
     <button class="nav-item" onclick="switchPage('info',this)">
@@ -391,7 +428,14 @@ async function doLogin(){
   currentUser=data;
   try{selectedProducts=JSON.parse(currentUser.my_products||'[]');}catch(e){selectedProducts=[];}
   checkIns={};healthData={};allHealthData=[];
-  if(selectedProducts.length===0){showProductModal();}else{enterApp();}
+  if(selectedProducts.length===0){showProductModal();}
+  else if(!data.goal){
+    // Existing user without goal - show goal modal
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('goalModal').style.display='block';
+  } else {
+    enterApp();
+  }
 }
 
 async function doRegister(){
@@ -447,7 +491,13 @@ async function saveProductSelection(){
   await sb.from('customer_users').update({my_products:JSON.stringify(selectedProducts)}).eq('id',currentUser.id);
   currentUser.my_products=JSON.stringify(selectedProducts);
   document.getElementById('productModal').style.display='none';
-  enterApp();
+  // Show goal modal only for first time (no goal set)
+  if(!currentUser.goal){
+    document.getElementById('goalModal').style.display='block';
+  } else {
+    userGoal=currentUser.goal||'slim';
+    enterApp();
+  }
 }
 
 function reopenProductSelect(){
@@ -455,18 +505,52 @@ function reopenProductSelect(){
   showProductModal();
 }
 
+let userGoal='slim'; // default
+
+function selectGoal(goal){
+  userGoal=goal;
+  document.querySelectorAll('.goal-opt').forEach(el=>{
+    el.style.border='2px solid #e8dcc8';
+    el.style.background='white';
+  });
+  const sel=document.getElementById('goal-'+goal);
+  if(sel){sel.style.border='2px solid #8B7355';sel.style.background='#fef9f3';}
+  document.getElementById('initWeightSection').style.display=goal==='slim'?'block':'none';
+}
+
+async function saveGoal(){
+  if(!currentUser)return;
+  await sb.from('customer_users').update({goal:userGoal}).eq('id',currentUser.id);
+  currentUser.goal=userGoal;
+  // Save initial weight if slim and provided
+  if(userGoal==='slim'){
+    const w=parseFloat(document.getElementById('initWeightInput').value);
+    if(w&&w>20&&w<300){
+      const today=getTodayStr();
+      await sb.from('daily_health').upsert({user_id:currentUser.id,record_date:today,weight:w},{onConflict:'user_id,record_date'});
+    }
+  }
+  document.getElementById('goalModal').style.display='none';
+  enterApp();
+}
+
 function enterApp(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('productModal').style.display='none';
+  document.getElementById('goalModal').style.display='none';
   document.getElementById('mainPage').style.display='block';
   checkIns={};healthData={};allHealthData=[];
   document.getElementById('profileSeller').textContent=currentUser.seller_name;
   document.getElementById('profileAccount').textContent=currentUser.account;
   document.getElementById('profileNickname').textContent=currentUser.nickname||'—';
+  userGoal=currentUser.goal||'slim';
   const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
   document.getElementById('myProductsDisplay').textContent=myProds.map(p=>p.name).join('、')||'尚未選擇';
   const d=new Date();
   document.getElementById('todayDateDisplay').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 健康記錄';
+  // Show/hide weight section based on goal
+  const ws=document.getElementById('weightSection');
+  if(ws)ws.style.display=userGoal==='slim'?'block':'none';
   loadAll();
 }
 
@@ -509,16 +593,18 @@ async function saveHealthField(field,value){
 }
 
 // ===== WATER =====
-function setWaterPreset(delta){
-  const cur=parseInt(document.getElementById('waterInput').value)||healthData.water_ml||0;
-  document.getElementById('waterInput').value=Math.max(0,cur+delta);
+async function addWater(delta){
+  const cur=healthData.water_ml||0;
+  const newVal=Math.max(0,cur+delta);
+  document.getElementById('waterInput').value=newVal;
+  await saveHealthField('water_ml',newVal);
+  renderWater();
 }
 
 async function saveWater(){
   const val=parseInt(document.getElementById('waterInput').value)||0;
   await saveHealthField('water_ml',val);
   renderWater();
-  document.getElementById('waterInput').value='';
 }
 
 function renderWater(){
@@ -526,7 +612,8 @@ function renderWater(){
   document.getElementById('waterLabel').textContent=ml+' ml';
   const pct=Math.min(100,Math.round(ml/3000*100));
   document.getElementById('waterFill').style.width=pct+'%';
-  if(ml>0)document.getElementById('waterInput').placeholder=ml+'';
+  document.getElementById('waterInput').value=ml>0?ml:'';
+  document.getElementById('waterInput').placeholder=ml>0?ml+'':'0';
 }
 
 // ===== WEIGHT =====
