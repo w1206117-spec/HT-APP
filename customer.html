@@ -135,7 +135,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="login-tab" onclick="switchLoginTab('register',this)">註冊</button>
     </div>
     <div id="loginForm">
-      <input type="text" id="loginSeller" placeholder="賣家名字" />
       <input type="text" id="loginAccount" placeholder="帳號" />
       <input type="password" id="loginPwd" placeholder="密碼" />
       <button class="login-btn" onclick="doLogin()">登入</button>
@@ -199,7 +198,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="water-preset" onclick="setWaterPreset(-250)">-250</button>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:10px;margin-bottom:4px;">
-        <span>0</span><span>目標 2000ml</span><span>3000ml</span>
+        <span>0</span><span>🎯 目標 2000ml</span><span>👑 3000ml</span>
       </div>
       <div class="water-bar"><div class="water-fill" id="waterFill" style="width:0%"></div></div>
     </div>
@@ -250,6 +249,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- 成果記錄 -->
   <div class="page" id="page-stats">
     <div class="month-cal" id="monthCalWrap">
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px;">👆 點擊日期查看當天詳細記錄</div>
       <div class="cal-header">
         <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
         <div class="cal-month" id="calMonthLabel"></div>
@@ -262,8 +262,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="health-card" id="selectedDayCard"></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title">⚖️ 體重趨勢（近30天）</div>
+      <div class="chart-title">⚖️ 體重趨勢（全部記錄）</div>
       <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📅 每月體重變化</div>
+      <div id="weightMonthlySummary"><div style="color:#aaa;font-size:13px;text-align:center;padding:1rem;">載入中...</div></div>
     </div>
     <div class="chart-card">
       <div class="chart-title">💧 喝水量趨勢（近14天）</div>
@@ -376,17 +380,17 @@ function switchLoginTab(tab,el){
 }
 
 async function doLogin(){
-  const seller=document.getElementById('loginSeller').value.trim();
   const account=document.getElementById('loginAccount').value.trim();
   const pwd=document.getElementById('loginPwd').value.trim();
   const msg=document.getElementById('loginMsg');
-  if(!seller||!account||!pwd){msg.textContent='請填寫所有欄位';return;}
-  const {data}=await sb.from('customer_users').select('*').eq('seller_name',seller).eq('account',account).eq('password',pwd).single();
+  if(!account||!pwd){msg.textContent='請填寫所有欄位';return;}
+  msg.textContent='登入中...';
+  const {data,error}=await sb.from('customer_users').select('*').eq('account',account).eq('password',pwd).maybeSingle();
   if(!data){msg.textContent='帳號或密碼錯誤';return;}
+  msg.textContent='';
   currentUser=data;
   try{selectedProducts=JSON.parse(currentUser.my_products||'[]');}catch(e){selectedProducts=[];}
-  // Save seller for next login
-  localStorage.setItem('ht_last_seller',seller);
+  checkIns={};healthData={};allHealthData=[];
   if(selectedProducts.length===0){showProductModal();}else{enterApp();}
 }
 
@@ -409,11 +413,7 @@ async function doRegister(){
   showProductModal();
 }
 
-// Auto-fill seller on load
-window.addEventListener('load',()=>{
-  const saved=localStorage.getItem('ht_last_seller');
-  if(saved){document.getElementById('loginSeller').value=saved;}
-});
+
 
 function showProductModal(){
   document.getElementById('loginPage').style.display='none';
@@ -459,6 +459,7 @@ function enterApp(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('productModal').style.display='none';
   document.getElementById('mainPage').style.display='block';
+  checkIns={};healthData={};allHealthData=[];
   document.getElementById('profileSeller').textContent=currentUser.seller_name;
   document.getElementById('profileAccount').textContent=currentUser.account;
   document.getElementById('profileNickname').textContent=currentUser.nickname||'—';
@@ -481,7 +482,7 @@ function doLogout(){
   currentUser=null;selectedProducts=[];checkIns={};healthData={};
   document.getElementById('mainPage').style.display='none';
   document.getElementById('loginPage').style.display='flex';
-  ['loginAccount','loginPwd'].forEach(id=>document.getElementById(id).value='');
+  ['loginAccount','loginPwd'].forEach(id=>document.getElementById(id)&&(document.getElementById(id).value=''));
 }
 
 function switchPage(page,el){
@@ -706,11 +707,51 @@ function renderCharts(){
   for(let i=29;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);last30.push(d.toISOString().split('T')[0]);}
   for(let i=13;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);last14.push(d.toISOString().split('T')[0]);}
 
-  // Weight chart
-  const wLabels=last30.map(d=>parseInt(d.split('-')[2])+'');
-  const wData=last30.map(d=>{const h=allHealthData.find(x=>x.record_date===d);return h&&h.weight?h.weight:null;});
+  // Weight chart - all data
+  const weightRecords=allHealthData.filter(x=>x.weight).sort((a,b)=>a.record_date.localeCompare(b.record_date));
+  const wLabels=weightRecords.map(d=>{const p=d.record_date.split('-');return (parseInt(p[1]))+'/'+(parseInt(p[2]));});
+  const wData=weightRecords.map(d=>d.weight);
   if(wChart)wChart.destroy();
-  wChart=new Chart(document.getElementById('weightChart'),{type:'line',data:{labels:wLabels,datasets:[{data:wData,borderColor:'#8B7355',backgroundColor:'rgba(139,115,85,0.1)',pointRadius:3,pointBackgroundColor:'#8B7355',tension:0.3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},maxTicksLimit:10}},y:{ticks:{font:{size:10}}}}}});
+  wChart=new Chart(document.getElementById('weightChart'),{type:'line',data:{labels:wLabels,datasets:[{data:wData,borderColor:'#8B7355',backgroundColor:'rgba(139,115,85,0.1)',pointRadius:wData.length>30?2:4,pointBackgroundColor:'#8B7355',tension:0.3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},maxTicksLimit:12,maxRotation:0}},y:{ticks:{font:{size:10}}}}}});
+  
+  // Monthly weight summary
+  const monthMap={};
+  weightRecords.forEach(r=>{
+    const ym=r.record_date.slice(0,7);
+    if(!monthMap[ym]){monthMap[ym]=[];}
+    monthMap[ym].push(r.weight);
+  });
+  const months=Object.keys(monthMap).sort();
+  let summaryHtml='';
+  let firstWeight=weightRecords.length?weightRecords[0].weight:null;
+  let latestWeight=weightRecords.length?weightRecords[weightRecords.length-1].weight:null;
+  months.forEach((ym,i)=>{
+    const weights=monthMap[ym];
+    const firstW=weights[0],lastW=weights[weights.length-1];
+    const monthDiff=lastW-firstW;
+    const [y,m]=ym.split('-');
+    const prevYm=months[i-1];
+    let crossMonthDiff=null;
+    if(prevYm){const prevWeights=monthMap[prevYm];crossMonthDiff=lastW-prevWeights[prevWeights.length-1];}
+    const diff=crossMonthDiff!==null?crossMonthDiff:monthDiff;
+    const diffStr=diff===0?'持平':(diff>0?'+'+diff.toFixed(1):''+diff.toFixed(1))+' kg';
+    const diffColor=diff<=0?'#1D9E75':'#E24B4A';
+    summaryHtml+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid #f5f0e8;">
+      <span style="font-size:13px;color:#5a4a3a;font-weight:500;">${parseInt(m)}月</span>
+      <span style="font-size:13px;color:#999;">${lastW} kg</span>
+      <span style="font-size:13px;font-weight:600;color:${diffColor};">${diffStr}</span>
+    </div>`;
+  });
+  if(firstWeight&&latestWeight){
+    const total=latestWeight-firstWeight;
+    const totalStr=(total>0?'+':'')+total.toFixed(1)+' kg';
+    summaryHtml+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;margin-top:4px;">
+      <span style="font-size:13px;font-weight:700;color:#3d2f24;">至今總變化</span>
+      <span style="font-size:15px;font-weight:700;color:${total<=0?'#1D9E75':'#E24B4A'};">${totalStr}</span>
+    </div>`;
+  }
+  const monthSummaryEl=document.getElementById('weightMonthlySummary');
+  if(monthSummaryEl)monthSummaryEl.innerHTML=summaryHtml||'<div style="color:#aaa;font-size:13px;text-align:center;padding:1rem;">尚無體重記錄</div>';
 
   // Water chart
   const waterLabels=last14.map(d=>parseInt(d.split('-')[2])+'');
