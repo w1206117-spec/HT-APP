@@ -304,10 +304,14 @@ function renderMembers(){
   const el=document.getElementById('memberList');
   if(!list.length){el.innerHTML='<div class="empty">沒有符合的夥伴</div>';return;}
   el.innerHTML=list.map(u=>`<div class="user-row">
-    <div class="user-info"><h3>${u.name}</h3><p>${u.phone} ／ 上家：${u.upline||'—'}</p></div>
+    <div class="user-info">
+      <h3>${u.name}${u.line_name?'（'+u.line_name+'）':''}</h3>
+      <p>${u.phone} ／ 上家：${u.upline||'—'} ／ ${u.team_unlocked?'<span style="color:#0F6E56;">✅ 團隊已開通</span>':'<span style="color:#aaa;">🔒 未開通</span>'}</p>
+    </div>
     <div class="user-actions">
       <select class="level-select" id="lvl-${u.id}">${LEVELS.map(l=>`<option value="${l}"${l===u.level?' selected':''}>${l}</option>`).join('')}</select>
       <button class="btn btn-save" onclick="updateLevel(${u.id})">更新級別</button>
+      <button class="btn ${u.team_unlocked?'btn-reject':'btn-approve'}" onclick="toggleTeam(${u.id},${!!u.team_unlocked})">${u.team_unlocked?'關閉團隊':'開通團隊'}</button>
       <button class="btn btn-danger" onclick="deleteUser(${u.id},'${u.name}')">刪除</button>
     </div>
   </div>`).join('');
@@ -323,6 +327,13 @@ async function approveUser(id,level){await sb.from('users').update({status:'已�
 async function rejectUser(id){if(!confirm('確定拒絕？'))return;await sb.from('users').update({status:'已拒絕'}).eq('id',id);await loadAll();}
 async function updateLevel(id){const level=document.getElementById('lvl-'+id).value;await sb.from('users').update({level}).eq('id',id);await loadAll();alert('級別已更新！');}
 async function deleteUser(id,name){if(!confirm(`確定刪除 ${name}？`))return;await sb.from('users').delete().eq('id',id);await loadAll();}
+async function toggleTeam(id,current){
+  const msg=current?'確定關閉此夥伴的團隊功能？':'確定開通此夥伴的團隊管理功能？';
+  if(!confirm(msg))return;
+  await sb.from('users').update({team_unlocked:!current}).eq('id',id);
+  await loadAll();
+  alert(current?'已關閉團隊功能':'已開通團隊功能！');
+}
 
 // ===== STATS =====
 async function loadStats(){
