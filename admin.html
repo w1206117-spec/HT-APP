@@ -44,14 +44,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .metric-label{font-size:12px;color:#888;margin-bottom:6px;}
 .metric-value{font-size:22px;font-weight:500;color:#333;}
 .search-input{width:100%;padding:10px 14px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;margin-bottom:1rem;outline:none;background:white;}
-.search-input:focus{border-color:#A4E5E0;}
-.level-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
+.filter-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
 .filter-btn{padding:5px 12px;border-radius:16px;border:0.5px solid #ddd;background:transparent;font-size:12px;color:#888;cursor:pointer;}
 .filter-btn.active{background:#A4E5E0;border-color:#76D5CF;color:#085041;font-weight:500;}
-.prod-admin-card{background:white;border-radius:12px;padding:1rem;margin-bottom:10px;box-shadow:0 1px 8px rgba(0,0,0,0.05);}
+.prod-card{background:white;border-radius:12px;padding:1rem;margin-bottom:10px;box-shadow:0 1px 8px rgba(0,0,0,0.05);}
 .field{margin-bottom:12px;}
 .field label{font-size:12px;color:#888;display:block;margin-bottom:4px;}
-.field input,.field textarea,.field select{width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;}
+.field input,.field textarea,.field select{width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;font-family:inherit;}
 .field input:focus,.field textarea:focus{border-color:#A4E5E0;}
 </style>
 </head>
@@ -78,7 +77,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="tab" onclick="switchTab('courses')">課程管理</div>
     <div class="tab" onclick="switchTab('partnerqa')">夥伴Q&A</div>
     <div class="tab" onclick="switchTab('productinfo')">產品功效/吃法</div>
-    <div class="tab" onclick="switchTab('productqa')">客人Q&A</div>
+    <div class="tab" onclick="switchTab('customerqa')">客人Q&A</div>
   </div>
   <div class="content">
 
@@ -93,7 +92,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <!-- 全部夥伴 -->
     <div class="section" id="section-members">
       <input type="text" class="search-input" id="searchInput" placeholder="搜尋姓名或手機..." oninput="filterMembers()" />
-      <div class="level-filter">
+      <div class="filter-wrap">
         <button class="filter-btn active" onclick="setLevelFilter('all',this)">全部</button>
         <button class="filter-btn" onclick="setLevelFilter('實習加盟',this)">實習加盟</button>
         <button class="filter-btn" onclick="setLevelFilter('三級加盟',this)">三級加盟</button>
@@ -115,14 +114,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="metric-card"><div class="metric-label">待審核</div><div class="metric-value" id="statPending">—</div></div>
         <div class="metric-card"><div class="metric-label">已審核</div><div class="metric-value" id="statApproved">—</div></div>
       </div>
-      <div class="card">
-        <div class="card-title">各級別人數</div>
-        <div id="levelStats"><div class="empty">載入中...</div></div>
-      </div>
-      <div class="card">
-        <div class="card-title">本月業績排行</div>
-        <div id="profitRank"><div class="empty">載入中...</div></div>
-      </div>
+      <div class="card"><div class="card-title">各級別人數</div><div id="levelStats"></div></div>
+      <div class="card"><div class="card-title">本月業績排行</div><div id="profitRank"></div></div>
     </div>
 
     <!-- 課程管理 -->
@@ -131,20 +124,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="font-size:15px;font-weight:500;color:#333;">課程列表</div>
         <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddCourse()">＋ 新增課程</button>
       </div>
-      <div class="level-filter" id="courseFilterBtns"></div>
+      <div class="filter-wrap" id="courseFilterBtns"></div>
       <div id="courseAdminList"></div>
       <div id="courseForm" style="display:none;">
         <div class="card" style="border:2px solid #A4E5E0;">
           <div class="card-title" id="courseFormTitle">新增課程</div>
           <input type="hidden" id="editCourseId" />
-          <div class="field"><label>階段</label>
-            <select id="fStage" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;"></select>
-          </div>
+          <div class="field"><label>階段</label><select id="fStage" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;"></select></div>
           <div class="field"><label>課程名稱</label><input type="text" id="fTitle" placeholder="例：新人戰技第一堂" /></div>
           <div class="field"><label>課程簡介</label><textarea id="fDesc" rows="3" placeholder="這堂課的內容介紹..."></textarea></div>
           <div class="field"><label>YouTube 連結</label><input type="text" id="fYoutube" placeholder="https://youtu.be/..." /></div>
           <div class="field"><label>筆記格式（選填）</label><textarea id="fNote" rows="5" placeholder="📝 課程筆記格式"></textarea></div>
-          <div class="field"><label>順序（數字越小越前面）</label><input type="number" id="fOrder" value="0" /></div>
+          <div class="field"><label>順序</label><input type="number" id="fOrder" value="0" /></div>
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn btn-approve" style="flex:1;" onclick="saveCourse()">儲存</button>
             <button class="btn btn-reject" style="flex:1;" onclick="hideCourseForm()">取消</button>
@@ -157,19 +148,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="section" id="section-partnerqa">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
         <div style="font-size:15px;font-weight:500;color:#333;">❓ 夥伴Q&A 知識庫</div>
-        <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddPartnerQA()">＋ 新增</button>
+        <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddPQA()">＋ 新增</button>
       </div>
-      <div id="partnerQAAdminList"><div class="empty">載入中...</div></div>
-      <div id="partnerQAForm" style="display:none;">
+      <div class="filter-wrap" id="pqaFilterBtns">
+        <button class="filter-btn active" onclick="setPQAFilter('all',this)">全部</button>
+      </div>
+      <div id="pqaList"><div class="empty">載入中...</div></div>
+      <div id="pqaForm" style="display:none;">
         <div class="card" style="border:2px solid #A4E5E0;">
-          <div class="card-title" id="partnerQAFormTitle">新增Q&A</div>
-          <input type="hidden" id="editPartnerQAId" />
-          <div class="field"><label>分類（選填）</label><input type="text" id="pqCategory" placeholder="例：招商問題、產品問題" /></div>
-          <div class="field"><label>問題</label><input type="text" id="pqQuestion" placeholder="輸入問題..." /></div>
-          <div class="field"><label>回答</label><textarea id="pqAnswer" rows="5" placeholder="輸入詳細回答..."></textarea></div>
+          <div class="card-title" id="pqaFormTitle">新增Q&A</div>
+          <input type="hidden" id="editPQAId" />
+          <div class="field"><label>分類（輸入或選擇）</label>
+            <input type="text" id="pqaCat" placeholder="例：招商問題、產品問題、系統操作" list="pqaCatList" />
+            <datalist id="pqaCatList"></datalist>
+          </div>
+          <div class="field"><label>問題</label><input type="text" id="pqaQ" placeholder="輸入問題..." /></div>
+          <div class="field"><label>回答</label><textarea id="pqaA" rows="5" placeholder="輸入詳細回答..."></textarea></div>
           <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-approve" style="flex:1;" onclick="savePartnerQA()">儲存</button>
-            <button class="btn btn-reject" style="flex:1;" onclick="hidePartnerQAForm()">取消</button>
+            <button class="btn btn-approve" style="flex:1;" onclick="savePQA()">儲存</button>
+            <button class="btn btn-reject" style="flex:1;" onclick="hidePQAForm()">取消</button>
           </div>
         </div>
       </div>
@@ -181,17 +178,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="font-size:15px;font-weight:500;color:#333;">📖 產品功效/吃法</div>
         <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddProduct()">＋ 新增產品</button>
       </div>
-      <div class="card" style="background:#f0fdfb;border:1px solid #A4E5E0;margin-bottom:1rem;">
-        <div style="font-size:13px;color:#555;">這裡管理客人端「產品功效/吃法」頁面的內容。</div>
-      </div>
-      <div id="productInfoAdminList"><div class="empty">載入中...</div></div>
+      <div id="productList"><div class="empty">載入中...</div></div>
       <div id="productForm" style="display:none;">
         <div class="card" style="border:2px solid #5BBDB7;">
           <div class="card-title" id="productFormTitle">新增產品</div>
           <input type="hidden" id="editProductId" />
           <div class="field"><label>產品名稱</label><input type="text" id="pName" placeholder="例：纖纖飲" /></div>
           <div class="field"><label>產品分類</label>
-            <select id="pCategory" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;">
+            <select id="pCat" style="width:100%;padding:10px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;">
               <option value="纖體系列">纖體系列</option>
               <option value="美肌系列">美肌系列</option>
               <option value="保健系列">保健系列</option>
@@ -209,21 +203,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <!-- 客人Q&A -->
-    <div class="section" id="section-productqa">
+    <div class="section" id="section-customerqa">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
         <div style="font-size:15px;font-weight:500;color:#333;">❓ 客人Q&A</div>
-        <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddQA()">＋ 新增Q&A</button>
+        <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddCQA()">＋ 新增Q&A</button>
       </div>
-      <div id="qaAdminList"><div class="empty">載入中...</div></div>
-      <div id="qaForm" style="display:none;">
+      <div class="filter-wrap" id="cqaFilterBtns">
+        <button class="filter-btn active" onclick="setCQAFilter('all',this)">全部</button>
+      </div>
+      <div id="cqaList"><div class="empty">載入中...</div></div>
+      <div id="cqaForm" style="display:none;">
         <div class="card" style="border:2px solid #5BBDB7;">
-          <div class="card-title" id="qaFormTitle">新增Q&A</div>
-          <input type="hidden" id="editQAId" />
-          <div class="field"><label>問題</label><input type="text" id="qQuestion" placeholder="例：可以空腹吃嗎？" /></div>
-          <div class="field"><label>回答</label><textarea id="qAnswer" rows="4" placeholder="詳細回答..."></textarea></div>
+          <div class="card-title" id="cqaFormTitle">新增Q&A</div>
+          <input type="hidden" id="editCQAId" />
+          <div class="field"><label>分類（輸入或選擇）</label>
+            <input type="text" id="cqaCat" placeholder="例：纖體問題、美肌問題" list="cqaCatList" />
+            <datalist id="cqaCatList"></datalist>
+          </div>
+          <div class="field"><label>問題</label><input type="text" id="cqaQ" placeholder="例：可以空腹吃嗎？" /></div>
+          <div class="field"><label>回答</label><textarea id="cqaA" rows="4" placeholder="詳細回答..."></textarea></div>
           <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-approve" style="flex:1;" onclick="saveQA()">儲存</button>
-            <button class="btn btn-reject" style="flex:1;" onclick="hideQAForm()">取消</button>
+            <button class="btn btn-approve" style="flex:1;" onclick="saveCQA()">儲存</button>
+            <button class="btn btn-reject" style="flex:1;" onclick="hideCQAForm()">取消</button>
           </div>
         </div>
       </div>
@@ -238,11 +239,15 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const ADMIN_PWD='0325';
 const LEVELS=['實習加盟','三級加盟','三級輔導','二級輔導','一級輔導','皇家輔導'];
-const TAB_NAMES=['pending','members','stats','courses','partnerqa','productinfo','productqa'];
+const TABS=['pending','members','stats','courses','partnerqa','productinfo','customerqa'];
 
-let allUsers=[],currentLevelFilter='all',allCourses=[],courseFilter='all';
-let partnerQAData=[],productData=[],qaData=[];
+let allUsers=[],currentLevelFilter='all';
+let allCourses=[],courseFilter='all';
+let pqaData=[],pqaFilter='all';
+let productData=[];
+let cqaData=[],cqaFilter='all';
 
+// ===== LOGIN =====
 function adminLogin(){
   const pwd=document.getElementById('adminPwd').value;
   if(pwd===ADMIN_PWD){
@@ -253,24 +258,25 @@ function adminLogin(){
     document.getElementById('adminMsg').textContent='密碼錯誤';
   }
 }
-
 function adminLogout(){
   document.getElementById('adminPage').style.display='none';
   document.getElementById('loginPage').style.display='flex';
   document.getElementById('adminPwd').value='';
 }
 
+// ===== TABS =====
 function switchTab(tab){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',TAB_NAMES[i]===tab));
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',TABS[i]===tab));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.getElementById('section-'+tab).classList.add('active');
   if(tab==='stats') loadStats();
   if(tab==='courses') loadCourseAdmin();
-  if(tab==='partnerqa') loadPartnerQAAdmin();
-  if(tab==='productinfo') loadProductInfoAdmin();
-  if(tab==='productqa') loadQAAdmin();
+  if(tab==='partnerqa') loadPQA();
+  if(tab==='productinfo') loadProducts();
+  if(tab==='customerqa') loadCQA();
 }
 
+// ===== MEMBERS =====
 async function loadAll(){
   const {data}=await sb.from('users').select('*').order('id',{ascending:false});
   allUsers=data||[];
@@ -291,16 +297,16 @@ function renderPending(){
 }
 
 function renderMembers(){
-  const search=document.getElementById('searchInput')?.value.toLowerCase()||''
-  let filtered=allUsers.filter(u=>u.status==='已審核');
-  if(currentLevelFilter!=='all') filtered=filtered.filter(u=>u.level===currentLevelFilter);
-  if(search) filtered=filtered.filter(u=>u.name.toLowerCase().includes(search)||u.phone.includes(search));
+  const search=document.getElementById('searchInput')?.value.toLowerCase()||'';
+  let list=allUsers.filter(u=>u.status==='已審核');
+  if(currentLevelFilter!=='all') list=list.filter(u=>u.level===currentLevelFilter);
+  if(search) list=list.filter(u=>u.name.toLowerCase().includes(search)||u.phone.includes(search));
   const el=document.getElementById('memberList');
-  if(!filtered.length){el.innerHTML='<div class="empty">沒有符合的夥伴</div>';return;}
-  el.innerHTML=filtered.map(u=>`<div class="user-row">
+  if(!list.length){el.innerHTML='<div class="empty">沒有符合的夥伴</div>';return;}
+  el.innerHTML=list.map(u=>`<div class="user-row">
     <div class="user-info"><h3>${u.name}</h3><p>${u.phone} ／ 上家：${u.upline||'—'}</p></div>
     <div class="user-actions">
-      <select class="level-select" id="lvl-${u.id}">${LEVELS.map(l=>`<option value="${l}"${l===u.level?' selected':''}}>${l}</option>`).join('')}</select>
+      <select class="level-select" id="lvl-${u.id}">${LEVELS.map(l=>`<option value="${l}"${l===u.level?' selected':''}>${l}</option>`).join('')}</select>
       <button class="btn btn-save" onclick="updateLevel(${u.id})">更新級別</button>
       <button class="btn btn-danger" onclick="deleteUser(${u.id},'${u.name}')">刪除</button>
     </div>
@@ -310,34 +316,31 @@ function renderMembers(){
 function filterMembers(){renderMembers();}
 function setLevelFilter(level,el){
   currentLevelFilter=level;
-  document.querySelectorAll('.level-filter .filter-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  renderMembers();
+  document.querySelectorAll('#section-members .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderMembers();
 }
-
 async function approveUser(id,level){await sb.from('users').update({status:'已審核',level}).eq('id',id);await loadAll();alert('已審核通過！');}
-async function rejectUser(id){if(!confirm('確定拒絕這個申請？'))return;await sb.from('users').update({status:'已拒絕'}).eq('id',id);await loadAll();alert('已拒絕。');}
+async function rejectUser(id){if(!confirm('確定拒絕？'))return;await sb.from('users').update({status:'已拒絕'}).eq('id',id);await loadAll();}
 async function updateLevel(id){const level=document.getElementById('lvl-'+id).value;await sb.from('users').update({level}).eq('id',id);await loadAll();alert('級別已更新！');}
-async function deleteUser(id,name){if(!confirm(`確定刪除 ${name} 的帳號？`))return;await sb.from('users').delete().eq('id',id);await loadAll();alert('已刪除！');}
+async function deleteUser(id,name){if(!confirm(`確定刪除 ${name}？`))return;await sb.from('users').delete().eq('id',id);await loadAll();}
 
+// ===== STATS =====
 async function loadStats(){
   const approved=allUsers.filter(u=>u.status==='已審核');
-  const pending=allUsers.filter(u=>u.status==='待審核');
   document.getElementById('statTotal').textContent=allUsers.length;
-  document.getElementById('statPending').textContent=pending.length;
+  document.getElementById('statPending').textContent=allUsers.filter(u=>u.status==='待審核').length;
   document.getElementById('statApproved').textContent=approved.length;
-  const levelCount={};LEVELS.forEach(l=>levelCount[l]=0);
-  approved.forEach(u=>{if(levelCount[u.level]!==undefined)levelCount[u.level]++;});
-  document.getElementById('levelStats').innerHTML=LEVELS.map(l=>levelCount[l]>0?`<div class="user-row"><span style="font-size:14px;color:#333;">${l}</span><span style="font-size:15px;font-weight:500;color:#A67C5B;">${levelCount[l]} 人</span></div>`:'').join('')||'<div class="empty">暫無數據</div>';
+  const lc={};LEVELS.forEach(l=>lc[l]=0);
+  approved.forEach(u=>{if(lc[u.level]!==undefined)lc[u.level]++;});
+  document.getElementById('levelStats').innerHTML=LEVELS.map(l=>lc[l]>0?`<div class="user-row"><span>${l}</span><span style="font-weight:500;color:#A67C5B;">${lc[l]} 人</span></div>`:'').join('')||'<div class="empty">暫無數據</div>';
   const now=new Date();
   const {data:sales}=await sb.from('sales_data').select('user_id,total_revenue,cost').eq('year',now.getFullYear()).eq('month',now.getMonth()+1);
   if(sales&&sales.length){
-    const profitMap={};
-    sales.forEach(s=>{if(!profitMap[s.user_id])profitMap[s.user_id]=0;profitMap[s.user_id]+=(s.total_revenue-s.cost);});
-    const ranked=Object.entries(profitMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    document.getElementById('profitRank').innerHTML=ranked.map(([uid,profit],i)=>{
-      const user=allUsers.find(u=>u.id==uid);
-      return `<div class="user-row"><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:16px;font-weight:500;color:#888;min-width:24px;">${i+1}</span><div><div style="font-size:14px;font-weight:500;color:#333;">${user?user.name:'未知'}</div><div style="font-size:12px;color:#aaa;">${user?user.level:''}</div></div></div><span style="font-size:15px;font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span></div>`;
+    const pm={};
+    sales.forEach(s=>{if(!pm[s.user_id])pm[s.user_id]=0;pm[s.user_id]+=(s.total_revenue-s.cost);});
+    document.getElementById('profitRank').innerHTML=Object.entries(pm).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([uid,profit],i)=>{
+      const u=allUsers.find(x=>x.id==uid);
+      return `<div class="user-row"><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:16px;color:#888;min-width:24px;">${i+1}</span><div><div style="font-weight:500;">${u?u.name:'未知'}</div><div style="font-size:12px;color:#aaa;">${u?u.level:''}</div></div></div><span style="font-weight:500;color:${profit>=0?'#1D9E75':'#E24B4A'};">NT$${profit.toLocaleString()}</span></div>`;
     }).join('');
   } else {
     document.getElementById('profitRank').innerHTML='<div class="empty">本月尚無業績數據</div>';
@@ -346,39 +349,29 @@ async function loadStats(){
 
 // ===== COURSES =====
 async function loadCourseAdmin(){
-  const {data:categories}=await sb.from('course_categories').select('*').eq('is_active',true).order('display_order');
-  const cats=categories||[];
-  const filterBtns=document.getElementById('courseFilterBtns');
-  filterBtns.innerHTML=`<button class="filter-btn active" onclick="setCourseFilter('all',this)">全部</button>`+cats.map(c=>`<button class="filter-btn" onclick="setCourseFilter('${c.name}',this)">${c.name}</button>`).join('');
-  const stageSelect=document.getElementById('fStage');
-  stageSelect.innerHTML=cats.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  const {data:cats}=await sb.from('course_categories').select('*').eq('is_active',true).order('display_order');
+  const catList=cats||[];
+  const fb=document.getElementById('courseFilterBtns');
+  fb.innerHTML=`<button class="filter-btn active" onclick="setCourseFilter('all',this)">全部</button>`+catList.map(c=>`<button class="filter-btn" onclick="setCourseFilter('${c.name}',this)">${c.name}</button>`).join('');
+  document.getElementById('fStage').innerHTML=catList.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
   const {data}=await sb.from('courses').select('*').order('stage').order('order_num');
-  allCourses=data||[];
-  renderCourseAdmin();
+  allCourses=data||[];renderCourseAdmin();
 }
-
-function setCourseFilter(f,el){
-  courseFilter=f;
-  document.querySelectorAll('#courseFilterBtns .filter-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  renderCourseAdmin();
-}
-
+function setCourseFilter(f,el){courseFilter=f;document.querySelectorAll('#courseFilterBtns .filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCourseAdmin();}
 function renderCourseAdmin(){
-  const filtered=courseFilter==='all'?allCourses:allCourses.filter(c=>c.stage===courseFilter);
+  const list=courseFilter==='all'?allCourses:allCourses.filter(c=>c.stage===courseFilter);
   const el=document.getElementById('courseAdminList');
-  if(!filtered.length){el.innerHTML='<div class="empty">暫無課程</div>';return;}
-  el.innerHTML=filtered.map(c=>`<div class="card" style="margin-bottom:8px;opacity:${c.is_active?1:0.5};">
+  if(!list.length){el.innerHTML='<div class="empty">暫無課程</div>';return;}
+  el.innerHTML=list.map(c=>`<div class="prod-card" style="opacity:${c.is_active?1:0.5};">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div style="flex:1;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-          <span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#f0f0f0;color:#888;">${c.stage}</span>
-          <span style="font-size:11px;color:#aaa;">順序 ${c.order_num}</span>
-          ${c.is_active?'<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#e1f5ee;color:#0F6E56;">上架中</span>':'<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:#ffeaea;color:#E24B4A;">已下架</span>'}
+        <div style="display:flex;gap:6px;margin-bottom:6px;">
+          <span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f0f0f0;color:#888;">${c.stage}</span>
+          ${c.is_active?'<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#e1f5ee;color:#0F6E56;">上架</span>':'<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#ffeaea;color:#E24B4A;">下架</span>'}
         </div>
-        <div style="font-size:15px;font-weight:500;color:#333;margin-bottom:3px;">${c.title}</div>
-        <div style="font-size:12px;color:#aaa;">${c.description||'無簡介'}</div>
-        ${c.youtube_url?'<div style="font-size:12px;color:#5BBDB7;margin-top:4px;">▶ 有影片連結</div>':''} 
+        <div style="font-size:15px;font-weight:500;color:#333;">${c.title}</div>
+        <div style="font-size:12px;color:#aaa;margin-top:3px;">${c.description||''}</div>
+        ${c.youtube_url?'<div style="font-size:12px;color:#5BBDB7;margin-top:4px;">▶ 有影片</div>':''}
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-left:12px;">
         <button class="btn btn-save" onclick="editCourse(${c.id})">編輯</button>
@@ -388,7 +381,6 @@ function renderCourseAdmin(){
     </div>
   </div>`).join('');
 }
-
 function showAddCourse(){
   document.getElementById('courseFormTitle').textContent='新增課程';
   document.getElementById('editCourseId').value='';
@@ -397,7 +389,6 @@ function showAddCourse(){
   document.getElementById('courseForm').style.display='block';
   document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});
 }
-
 function editCourse(id){
   const c=allCourses.find(x=>x.id===id);if(!c)return;
   document.getElementById('courseFormTitle').textContent='編輯課程';
@@ -411,7 +402,6 @@ function editCourse(id){
   document.getElementById('courseForm').style.display='block';
   document.getElementById('courseForm').scrollIntoView({behavior:'smooth'});
 }
-
 async function saveCourse(){
   const id=document.getElementById('editCourseId').value;
   const data={stage:document.getElementById('fStage').value,title:document.getElementById('fTitle').value.trim(),description:document.getElementById('fDesc').value.trim(),youtube_url:document.getElementById('fYoutube').value.trim(),note_template:document.getElementById('fNote').value.trim(),order_num:parseInt(document.getElementById('fOrder').value)||0,is_active:true};
@@ -420,81 +410,84 @@ async function saveCourse(){
   else{await sb.from('courses').insert(data);}
   hideCourseForm();await loadCourseAdmin();alert('課程已儲存！');
 }
-
 function hideCourseForm(){document.getElementById('courseForm').style.display='none';}
 async function toggleCourse(id,isActive){await sb.from('courses').update({is_active:!isActive}).eq('id',id);await loadCourseAdmin();}
-async function deleteCourse(id){if(!confirm('確定刪除這堂課程？'))return;await sb.from('courses').delete().eq('id',id);await loadCourseAdmin();}
+async function deleteCourse(id){if(!confirm('確定刪除？'))return;await sb.from('courses').delete().eq('id',id);await loadCourseAdmin();}
 
 // ===== PARTNER QA =====
-async function loadPartnerQAAdmin(){
+async function loadPQA(){
   const {data}=await sb.from('partner_qa').select('*').order('created_at',{ascending:false});
-  partnerQAData=data||[];renderPartnerQAAdmin();
+  pqaData=data||[];
+  // Build category filter
+  const cats=[...new Set(pqaData.map(q=>q.category).filter(Boolean))];
+  const datalist=document.getElementById('pqaCatList');
+  datalist.innerHTML=cats.map(c=>`<option value="${c}">`).join('');
+  const fb=document.getElementById('pqaFilterBtns');
+  fb.innerHTML=`<button class="filter-btn active" onclick="setPQAFilter('all',this)">全部</button>`+cats.map(c=>`<button class="filter-btn" onclick="setPQAFilter('${c}',this)">${c}</button>`).join('');
+  renderPQA();
 }
-
-function renderPartnerQAAdmin(){
-  const el=document.getElementById('partnerQAAdminList');
-  if(!partnerQAData.length){el.innerHTML='<div class="empty">尚無Q&A</div>';return;}
-  el.innerHTML=partnerQAData.map(q=>`<div class="card" style="margin-bottom:8px;opacity:${q.is_active?1:0.5};">
+function setPQAFilter(f,el){pqaFilter=f;document.querySelectorAll('#pqaFilterBtns .filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderPQA();}
+function renderPQA(){
+  const list=pqaFilter==='all'?pqaData:pqaData.filter(q=>q.category===pqaFilter);
+  const el=document.getElementById('pqaList');
+  if(!list.length){el.innerHTML='<div class="empty">尚無Q&A</div>';return;}
+  el.innerHTML=list.map(q=>`<div class="prod-card" style="opacity:${q.is_active?1:0.5};">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div style="flex:1;">
-        ${q.category?`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f0f0f0;color:#888;display:inline-block;margin-bottom:6px;">${q.category}</span>`:''}
+        ${q.category?`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#e8f4fd;color:#1a6fa0;display:inline-block;margin-bottom:6px;">${q.category}</span>`:''}
         <div style="font-size:14px;font-weight:500;color:#333;margin-bottom:4px;">Q：${q.question}</div>
         <div style="font-size:13px;color:#666;line-height:1.6;">A：${q.answer||'—'}</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-left:12px;flex-shrink:0;">
-        <button class="btn btn-save" onclick="editPartnerQA(${q.id})">編輯</button>
-        <button class="btn ${q.is_active?'btn-reject':'btn-approve'}" onclick="togglePartnerQA(${q.id},${q.is_active})">${q.is_active?'下架':'上架'}</button>
-        <button class="btn btn-danger" onclick="deletePartnerQA(${q.id})">刪除</button>
+        <button class="btn btn-save" onclick="editPQA(${q.id})">編輯</button>
+        <button class="btn ${q.is_active?'btn-reject':'btn-approve'}" onclick="togglePQA(${q.id},${q.is_active})">${q.is_active?'下架':'上架'}</button>
+        <button class="btn btn-danger" onclick="deletePQA(${q.id})">刪除</button>
       </div>
     </div>
   </div>`).join('');
 }
-
-function showAddPartnerQA(){
-  document.getElementById('partnerQAFormTitle').textContent='新增Q&A';
-  document.getElementById('editPartnerQAId').value='';
-  ['pqCategory','pqQuestion','pqAnswer'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('partnerQAForm').style.display='block';
-  document.getElementById('partnerQAForm').scrollIntoView({behavior:'smooth'});
+function showAddPQA(){
+  document.getElementById('pqaFormTitle').textContent='新增Q&A';
+  document.getElementById('editPQAId').value='';
+  ['pqaCat','pqaQ','pqaA'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pqaForm').style.display='block';
+  document.getElementById('pqaForm').scrollIntoView({behavior:'smooth'});
 }
-
-function editPartnerQA(id){
-  const q=partnerQAData.find(x=>x.id===id);if(!q)return;
-  document.getElementById('partnerQAFormTitle').textContent='編輯Q&A';
-  document.getElementById('editPartnerQAId').value=id;
-  document.getElementById('pqCategory').value=q.category||'';
-  document.getElementById('pqQuestion').value=q.question||'';
-  document.getElementById('pqAnswer').value=q.answer||'';
-  document.getElementById('partnerQAForm').style.display='block';
-  document.getElementById('partnerQAForm').scrollIntoView({behavior:'smooth'});
+function editPQA(id){
+  const q=pqaData.find(x=>x.id===id);if(!q)return;
+  document.getElementById('pqaFormTitle').textContent='編輯Q&A';
+  document.getElementById('editPQAId').value=id;
+  document.getElementById('pqaCat').value=q.category||'';
+  document.getElementById('pqaQ').value=q.question||'';
+  document.getElementById('pqaA').value=q.answer||'';
+  document.getElementById('pqaForm').style.display='block';
+  document.getElementById('pqaForm').scrollIntoView({behavior:'smooth'});
 }
-
-async function savePartnerQA(){
-  const id=document.getElementById('editPartnerQAId').value;
-  const data={category:document.getElementById('pqCategory').value.trim(),question:document.getElementById('pqQuestion').value.trim(),answer:document.getElementById('pqAnswer').value.trim(),is_active:true};
+async function savePQA(){
+  const id=document.getElementById('editPQAId').value;
+  const data={category:document.getElementById('pqaCat').value.trim(),question:document.getElementById('pqaQ').value.trim(),answer:document.getElementById('pqaA').value.trim(),is_active:true};
   if(!data.question){alert('請填寫問題');return;}
   if(id){await sb.from('partner_qa').update(data).eq('id',id);}
   else{await sb.from('partner_qa').insert(data);}
-  hidePartnerQAForm();await loadPartnerQAAdmin();alert('Q&A已儲存！');
+  hidePQAForm();await loadPQA();alert('Q&A已儲存！');
 }
+function hidePQAForm(){document.getElementById('pqaForm').style.display='none';}
+async function togglePQA(id,isActive){await sb.from('partner_qa').update({is_active:!isActive}).eq('id',id);await loadPQA();}
+async function deletePQA(id){if(!confirm('確定刪除？'))return;await sb.from('partner_qa').delete().eq('id',id);await loadPQA();}
 
-function hidePartnerQAForm(){document.getElementById('partnerQAForm').style.display='none';}
-async function togglePartnerQA(id,isActive){await sb.from('partner_qa').update({is_active:!isActive}).eq('id',id);await loadPartnerQAAdmin();}
-async function deletePartnerQA(id){if(!confirm('確定刪除？'))return;await sb.from('partner_qa').delete().eq('id',id);await loadPartnerQAAdmin();}
-
-// ===== PRODUCT INFO =====
-async function loadProductInfoAdmin(){
+// ===== PRODUCTS =====
+async function loadProducts(){
   const {data}=await sb.from('customer_products').select('*').order('created_at',{ascending:false});
   productData=data||[];
-  const el=document.getElementById('productInfoAdminList');
+  const el=document.getElementById('productList');
   if(!productData.length){el.innerHTML='<div class="empty">尚無產品資料</div>';return;}
-  el.innerHTML=productData.map(p=>`<div class="prod-admin-card" style="opacity:${p.is_active?1:0.5};">
+  el.innerHTML=productData.map(p=>`<div class="prod-card" style="opacity:${p.is_active?1:0.5};">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div style="flex:1;">
         <div style="font-size:15px;font-weight:600;color:#333;margin-bottom:4px;">${p.name}</div>
         <div style="font-size:12px;color:#aaa;margin-bottom:6px;">${p.category||''}</div>
-        ${p.effect?`<div style="font-size:13px;color:#666;margin-bottom:4px;line-height:1.5;"><strong>功效：</strong>${p.effect}</div>`:''}
-        ${p.usage?`<div style="font-size:13px;color:#666;line-height:1.5;"><strong>吃法：</strong>${p.usage}</div>`:''}
+        ${p.effect?`<div style="font-size:13px;color:#666;margin-bottom:4px;"><strong>功效：</strong>${p.effect}</div>`:''}
+        ${p.usage?`<div style="font-size:13px;color:#666;"><strong>吃法：</strong>${p.usage}</div>`:''}
       </div>
       <div style="display:flex;gap:6px;margin-left:10px;">
         <button class="btn btn-save" onclick="editProduct(${p.id})">編輯</button>
@@ -503,94 +496,96 @@ async function loadProductInfoAdmin(){
     </div>
   </div>`).join('');
 }
-
 function showAddProduct(){
   document.getElementById('productFormTitle').textContent='新增產品';
   document.getElementById('editProductId').value='';
   ['pName','pEffect','pUsage'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('pCategory').value='纖體系列';
+  document.getElementById('pCat').value='纖體系列';
   document.getElementById('productForm').style.display='block';
+  document.getElementById('productForm').scrollIntoView({behavior:'smooth'});
 }
-
-async function editProduct(id){
+function editProduct(id){
   const p=productData.find(x=>x.id===id);if(!p)return;
   document.getElementById('productFormTitle').textContent='編輯產品';
   document.getElementById('editProductId').value=id;
   document.getElementById('pName').value=p.name||'';
-  document.getElementById('pCategory').value=p.category||'纖體系列';
+  document.getElementById('pCat').value=p.category||'纖體系列';
   document.getElementById('pEffect').value=p.effect||'';
   document.getElementById('pUsage').value=p.usage||'';
   document.getElementById('productForm').style.display='block';
+  document.getElementById('productForm').scrollIntoView({behavior:'smooth'});
 }
-
 async function saveProduct(){
   const id=document.getElementById('editProductId').value;
   const name=document.getElementById('pName').value.trim();
   if(!name){alert('請輸入產品名稱');return;}
-  const payload={name,category:document.getElementById('pCategory').value,effect:document.getElementById('pEffect').value.trim(),usage:document.getElementById('pUsage').value.trim(),is_active:true};
+  const payload={name,category:document.getElementById('pCat').value,effect:document.getElementById('pEffect').value.trim(),usage:document.getElementById('pUsage').value.trim(),is_active:true};
   if(id){await sb.from('customer_products').update(payload).eq('id',id);}
   else{await sb.from('customer_products').insert(payload);}
-  hideProductForm();loadProductInfoAdmin();alert('已儲存！');
+  hideProductForm();await loadProducts();alert('已儲存！');
 }
-
 function hideProductForm(){document.getElementById('productForm').style.display='none';}
-async function toggleProduct(id,isActive){await sb.from('customer_products').update({is_active:!isActive}).eq('id',id);loadProductInfoAdmin();}
+async function toggleProduct(id,isActive){await sb.from('customer_products').update({is_active:!isActive}).eq('id',id);await loadProducts();}
 
 // ===== CUSTOMER QA =====
-async function loadQAAdmin(){
+async function loadCQA(){
   const {data}=await sb.from('product_qa').select('*').order('created_at',{ascending:false});
-  qaData=data||[];renderQAAdmin();
+  cqaData=data||[];
+  const cats=[...new Set(cqaData.map(q=>q.category).filter(Boolean))];
+  const datalist=document.getElementById('cqaCatList');
+  if(datalist) datalist.innerHTML=cats.map(c=>`<option value="${c}">`).join('');
+  const fb=document.getElementById('cqaFilterBtns');
+  fb.innerHTML=`<button class="filter-btn active" onclick="setCQAFilter('all',this)">全部</button>`+cats.map(c=>`<button class="filter-btn" onclick="setCQAFilter('${c}',this)">${c}</button>`).join('');
+  renderCQA();
 }
-
-function renderQAAdmin(){
-  const el=document.getElementById('qaAdminList');
-  if(!qaData.length){el.innerHTML='<div class="empty">尚無Q&A</div>';return;}
-  el.innerHTML=qaData.map(q=>`<div class="prod-admin-card" style="opacity:${q.is_active?1:0.5};">
+function setCQAFilter(f,el){cqaFilter=f;document.querySelectorAll('#cqaFilterBtns .filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCQA();}
+function renderCQA(){
+  const list=cqaFilter==='all'?cqaData:cqaData.filter(q=>q.category===cqaFilter);
+  const el=document.getElementById('cqaList');
+  if(!list.length){el.innerHTML='<div class="empty">尚無Q&A</div>';return;}
+  el.innerHTML=list.map(q=>`<div class="prod-card" style="opacity:${q.is_active?1:0.5};">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div style="flex:1;">
-        <div style="font-size:14px;font-weight:600;color:#333;margin-bottom:4px;">Q：${q.question}</div>
+        ${q.category?`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f0fdfb;color:#085041;display:inline-block;margin-bottom:6px;">${q.category}</span>`:''}
+        <div style="font-size:14px;font-weight:500;color:#333;margin-bottom:4px;">Q：${q.question}</div>
         <div style="font-size:13px;color:#666;line-height:1.6;">A：${q.answer}</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-left:10px;">
-        <button class="btn btn-save" onclick="editQA(${q.id})">編輯</button>
-        <button class="btn ${q.is_active?'btn-reject':'btn-approve'}" onclick="toggleQA(${q.id},${q.is_active})">${q.is_active?'下架':'上架'}</button>
-        <button class="btn btn-danger" onclick="deleteQA(${q.id})">刪除</button>
+        <button class="btn btn-save" onclick="editCQA(${q.id})">編輯</button>
+        <button class="btn ${q.is_active?'btn-reject':'btn-approve'}" onclick="toggleCQA(${q.id},${q.is_active})">${q.is_active?'下架':'上架'}</button>
+        <button class="btn btn-danger" onclick="deleteCQA(${q.id})">刪除</button>
       </div>
     </div>
   </div>`).join('');
 }
-
-function showAddQA(){
-  document.getElementById('qaFormTitle').textContent='新增Q&A';
-  document.getElementById('editQAId').value='';
-  document.getElementById('qQuestion').value='';
-  document.getElementById('qAnswer').value='';
-  document.getElementById('qaForm').style.display='block';
-  document.getElementById('qaForm').scrollIntoView({behavior:'smooth'});
+function showAddCQA(){
+  document.getElementById('cqaFormTitle').textContent='新增Q&A';
+  document.getElementById('editCQAId').value='';
+  ['cqaCat','cqaQ','cqaA'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cqaForm').style.display='block';
+  document.getElementById('cqaForm').scrollIntoView({behavior:'smooth'});
 }
-
-function editQA(id){
-  const q=qaData.find(x=>x.id===id);if(!q)return;
-  document.getElementById('qaFormTitle').textContent='編輯Q&A';
-  document.getElementById('editQAId').value=id;
-  document.getElementById('qQuestion').value=q.question||'';
-  document.getElementById('qAnswer').value=q.answer||'';
-  document.getElementById('qaForm').style.display='block';
-  document.getElementById('qaForm').scrollIntoView({behavior:'smooth'});
+function editCQA(id){
+  const q=cqaData.find(x=>x.id===id);if(!q)return;
+  document.getElementById('cqaFormTitle').textContent='編輯Q&A';
+  document.getElementById('editCQAId').value=id;
+  document.getElementById('cqaCat').value=q.category||'';
+  document.getElementById('cqaQ').value=q.question||'';
+  document.getElementById('cqaA').value=q.answer||'';
+  document.getElementById('cqaForm').style.display='block';
+  document.getElementById('cqaForm').scrollIntoView({behavior:'smooth'});
 }
-
-async function saveQA(){
-  const id=document.getElementById('editQAId').value;
-  const data={question:document.getElementById('qQuestion').value.trim(),answer:document.getElementById('qAnswer').value.trim(),is_active:true};
+async function saveCQA(){
+  const id=document.getElementById('editCQAId').value;
+  const data={category:document.getElementById('cqaCat').value.trim(),question:document.getElementById('cqaQ').value.trim(),answer:document.getElementById('cqaA').value.trim(),is_active:true};
   if(!data.question||!data.answer){alert('請填寫問題和回答');return;}
   if(id){await sb.from('product_qa').update(data).eq('id',id);}
   else{await sb.from('product_qa').insert({...data,created_at:new Date().toISOString()});}
-  hideQAForm();await loadQAAdmin();alert('Q&A已儲存！');
+  hideCQAForm();await loadCQA();alert('Q&A已儲存！');
 }
-
-function hideQAForm(){document.getElementById('qaForm').style.display='none';}
-async function toggleQA(id,isActive){await sb.from('product_qa').update({is_active:!isActive}).eq('id',id);await loadQAAdmin();}
-async function deleteQA(id){if(!confirm('確定刪除？'))return;await sb.from('product_qa').delete().eq('id',id);await loadQAAdmin();}
+function hideCQAForm(){document.getElementById('cqaForm').style.display='none';}
+async function toggleCQA(id,isActive){await sb.from('product_qa').update({is_active:!isActive}).eq('id',id);await loadCQA();}
+async function deleteCQA(id){if(!confirm('確定刪除？'))return;await sb.from('product_qa').delete().eq('id',id);await loadCQA();}
 </script>
 </body>
 </html>
