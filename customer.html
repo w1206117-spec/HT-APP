@@ -429,7 +429,7 @@ async function doLogin(){
   try{selectedProducts=JSON.parse(currentUser.my_products||'[]');}catch(e){selectedProducts=[];}
   checkIns={};healthData={};allHealthData=[];
   if(selectedProducts.length===0){showProductModal();}
-  else if(!data.goal){
+  else if(!data.goal_set){
     // Existing user without goal - show goal modal
     document.getElementById('loginPage').style.display='none';
     document.getElementById('goalModal').style.display='block';
@@ -492,7 +492,7 @@ async function saveProductSelection(){
   currentUser.my_products=JSON.stringify(selectedProducts);
   document.getElementById('productModal').style.display='none';
   // Show goal modal only for first time (no goal set)
-  if(!currentUser.goal){
+  if(!currentUser.goal_set){
     document.getElementById('goalModal').style.display='block';
   } else {
     userGoal=currentUser.goal||'slim';
@@ -520,8 +520,9 @@ function selectGoal(goal){
 
 async function saveGoal(){
   if(!currentUser)return;
-  await sb.from('customer_users').update({goal:userGoal}).eq('id',currentUser.id);
+  await sb.from('customer_users').update({goal:userGoal,goal_set:true}).eq('id',currentUser.id);
   currentUser.goal=userGoal;
+  currentUser.goal_set=true;
   // Save initial weight if slim and provided
   if(userGoal==='slim'){
     const w=parseFloat(document.getElementById('initWeightInput').value);
@@ -579,17 +580,22 @@ function switchPage(page,el){
 // ===== HEALTH DATA =====
 async function loadHealthData(){
   const today=getTodayStr();
-  const {data}=await sb.from('daily_health').select('*').eq('user_id',currentUser.id).eq('record_date',today).single();
+  const {data}=await sb.from('daily_health').select('*').eq('user_id',currentUser.id).eq('record_date',today).maybeSingle();
   healthData=data||{water_ml:0,weight:null,veg_level:-1,protein_level:-1,carb_level:-1};
 }
 
 async function saveHealthField(field,value){
   const today=getTodayStr();
-  const {data:ex}=await sb.from('daily_health').select('id').eq('user_id',currentUser.id).eq('record_date',today).single();
-  if(ex){await sb.from('daily_health').update({[field]:value}).eq('id',ex.id);}
-  else{await sb.from('daily_health').insert({user_id:currentUser.id,record_date:today,[field]:value});}
-  healthData[field]=value;
-  updateScore();
+  try{
+    await sb.from('daily_health').upsert(
+      {user_id:currentUser.id,record_date:today,[field]:value},
+      {onConflict:'user_id,record_date',ignoreDuplicates:false}
+    );
+    healthData[field]=value;
+    updateScore();
+  } catch(e){
+    console.error('saveHealthField error:',e);
+  }
 }
 
 // ===== WATER =====
