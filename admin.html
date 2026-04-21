@@ -76,6 +76,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="tab" onclick="switchTab('stats')">數據總覽</div>
     <div class="tab" onclick="switchTab('courses')">課程管理</div>
     <div class="tab" onclick="switchTab('partnerqa')">夥伴Q&A</div>
+    <div class="tab" onclick="switchTab('coachingqa')">輔導Q&A</div>
     <div class="tab" onclick="switchTab('productinfo')">產品功效/吃法</div>
     <div class="tab" onclick="switchTab('customerqa')">客人Q&A</div>
   </div>
@@ -178,6 +179,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
 
+    <!-- 輔導Q&A -->
+    <div class="section" id="section-coachingqa">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div style="font-size:15px;font-weight:500;color:#333;">🤝 輔導Q&A（團隊頁顯示）</div>
+        <button class="btn btn-approve" style="width:auto;padding:8px 16px;" onclick="showAddCoachingQA()">＋ 新增</button>
+      </div>
+      <div class="filter-wrap" id="cqaCoachFilterBtns">
+        <button class="filter-btn active" onclick="setCoachingQAFilter('all',this)">全部</button>
+      </div>
+      <div id="coachingQaList"><div class="empty">載入中...</div></div>
+    </div>
+
+    <!-- 輔導Q&A Modal -->
+    <div id="coachingQaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;overflow-y:auto;padding:1rem;">
+      <div style="background:white;border-radius:16px;padding:1.5rem;max-width:520px;margin:2rem auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div style="font-size:16px;font-weight:600;color:#333;" id="coachingQaFormTitle">新增輔導Q&A</div>
+          <button onclick="hideCoachingQAForm()" style="background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;">✕</button>
+        </div>
+        <input type="hidden" id="editCoachingQAId" />
+        <div class="field"><label>分類（輸入或選擇）</label>
+          <input type="text" id="coachingQaCat" placeholder="例：輔導技巧、拒絕處理、跟進話術" list="coachingQaCatList" />
+          <datalist id="coachingQaCatList"></datalist>
+        </div>
+        <div class="field"><label>問題</label><input type="text" id="coachingQaQ" placeholder="輸入問題..." /></div>
+        <div class="field"><label>回答</label><textarea id="coachingQaA" rows="5" placeholder="輸入詳細回答..."></textarea></div>
+        <div id="coachingQaSaveMsg" style="font-size:13px;color:#E24B4A;margin-bottom:8px;min-height:18px;"></div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="btn btn-approve" style="flex:1;padding:12px;" onclick="saveCoachingQA()">✓ 儲存</button>
+          <button class="btn btn-reject" style="flex:1;padding:12px;" onclick="hideCoachingQAForm()">取消</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 產品功效/吃法 -->
     <div class="section" id="section-productinfo">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
@@ -251,7 +286,7 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const ADMIN_PWD='0325';
 const LEVELS=['實習加盟','三級加盟','三級輔導','二級輔導','一級輔導','皇家輔導'];
-const TABS=['pending','members','stats','courses','partnerqa','productinfo','customerqa'];
+const TABS=['pending','members','stats','courses','partnerqa','coachingqa','productinfo','customerqa'];
 
 let allUsers=[],currentLevelFilter='all';
 let allCourses=[],courseFilter='all';
@@ -284,6 +319,7 @@ function switchTab(tab){
   if(tab==='stats') loadStats();
   if(tab==='courses') loadCourseAdmin();
   if(tab==='partnerqa') loadPQA();
+  if(tab==='coachingqa') loadCoachingQA();
   if(tab==='productinfo') loadProducts();
   if(tab==='customerqa') loadCQA();
 }
@@ -626,6 +662,75 @@ async function saveCQA(){
 function hideCQAForm(){document.getElementById('cqaModal').style.display='none';document.body.style.overflow='';}
 async function toggleCQA(id,isActive){await sb.from('product_qa').update({is_active:!isActive}).eq('id',id);await loadCQA();}
 async function deleteCQA(id){if(!confirm('確定刪除？'))return;await sb.from('product_qa').delete().eq('id',id);await loadCQA();}
+
+// ===== COACHING QA =====
+let coachingQaData=[],coachingQaFilter='all';
+async function loadCoachingQA(){
+  const {data}=await sb.from('coaching_qa').select('*').order('created_at',{ascending:false});
+  coachingQaData=data||[];
+  const cats=[...new Set(coachingQaData.map(q=>q.category).filter(Boolean))];
+  const datalist=document.getElementById('coachingQaCatList');
+  if(datalist)datalist.innerHTML=cats.map(c=>`<option value="${c}">`).join('');
+  const fb=document.getElementById('cqaCoachFilterBtns');
+  fb.innerHTML=`<button class="filter-btn active" onclick="setCoachingQAFilter('all',this)">全部</button>`+cats.map(c=>`<button class="filter-btn" onclick="setCoachingQAFilter('${c}',this)">${c}</button>`).join('');
+  renderCoachingQA();
+}
+function setCoachingQAFilter(f,el){coachingQaFilter=f;document.querySelectorAll('#cqaCoachFilterBtns .filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCoachingQA();}
+function renderCoachingQA(){
+  const list=coachingQaFilter==='all'?coachingQaData:coachingQaData.filter(q=>q.category===coachingQaFilter);
+  const el=document.getElementById('coachingQaList');
+  if(!list.length){el.innerHTML='<div class="empty">尚無輔導Q&A</div>';return;}
+  el.innerHTML=list.map(q=>`<div class="prod-card" style="opacity:${q.is_active?1:0.5};">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div style="flex:1;">
+        ${q.category?`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#fff3e0;color:#e65100;display:inline-block;margin-bottom:6px;">${q.category}</span>`:''}
+        <div style="font-size:14px;font-weight:500;color:#333;margin-bottom:4px;">Q：${q.question}</div>
+        <div style="font-size:13px;color:#666;line-height:1.6;">A：${q.answer||'—'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-left:12px;flex-shrink:0;">
+        <button class="btn btn-save" onclick="editCoachingQA(${q.id})">編輯</button>
+        <button class="btn ${q.is_active?'btn-reject':'btn-approve'}" onclick="toggleCoachingQA(${q.id},${q.is_active})">${q.is_active?'下架':'上架'}</button>
+        <button class="btn btn-danger" onclick="deleteCoachingQA(${q.id})">刪除</button>
+      </div>
+    </div>
+  </div>`).join('');
+}
+function showAddCoachingQA(){
+  document.getElementById('coachingQaFormTitle').textContent='新增輔導Q&A';
+  document.getElementById('editCoachingQAId').value='';
+  ['coachingQaCat','coachingQaQ','coachingQaA'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('coachingQaSaveMsg').textContent='';
+  document.getElementById('coachingQaModal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+function editCoachingQA(id){
+  const q=coachingQaData.find(x=>x.id===id);if(!q)return;
+  document.getElementById('coachingQaFormTitle').textContent='編輯輔導Q&A';
+  document.getElementById('editCoachingQAId').value=id;
+  document.getElementById('coachingQaCat').value=q.category||'';
+  document.getElementById('coachingQaQ').value=q.question||'';
+  document.getElementById('coachingQaA').value=q.answer||'';
+  document.getElementById('coachingQaSaveMsg').textContent='';
+  document.getElementById('coachingQaModal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+async function saveCoachingQA(){
+  const id=document.getElementById('editCoachingQAId').value;
+  const data={category:document.getElementById('coachingQaCat').value.trim(),question:document.getElementById('coachingQaQ').value.trim(),answer:document.getElementById('coachingQaA').value.trim(),is_active:true};
+  const msgEl=document.getElementById('coachingQaSaveMsg');
+  if(!data.question||!data.answer){msgEl.textContent='請填寫問題和回答';return;}
+  msgEl.textContent='儲存中...';msgEl.style.color='#aaa';
+  try{
+    let err;
+    if(id){const r=await sb.from('coaching_qa').update(data).eq('id',id);err=r.error;}
+    else{const r=await sb.from('coaching_qa').insert({...data,created_at:new Date().toISOString()});err=r.error;}
+    if(err){msgEl.style.color='#E24B4A';msgEl.textContent='儲存失敗：'+err.message;return;}
+    hideCoachingQAForm();await loadCoachingQA();
+  }catch(e){msgEl.style.color='#E24B4A';msgEl.textContent='發生錯誤，請重試';}
+}
+function hideCoachingQAForm(){document.getElementById('coachingQaModal').style.display='none';document.body.style.overflow='';}
+async function toggleCoachingQA(id,isActive){await sb.from('coaching_qa').update({is_active:!isActive}).eq('id',id);await loadCoachingQA();}
+async function deleteCoachingQA(id){if(!confirm('確定刪除？'))return;await sb.from('coaching_qa').delete().eq('id',id);await loadCoachingQA();}
 </script>
 </body>
 </html>
