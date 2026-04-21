@@ -337,6 +337,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div id="goalProgress"></div>
         </div>
         <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div class="card-title" style="margin-bottom:0;">手動新增夥伴</div>
+          </div>
+          <div class="field"><label>夥伴姓名</label><input type="text" id="manualPartnerName" placeholder="輸入夥伴姓名" /></div>
+          <div class="field"><label>級別</label>
+            <select id="manualPartnerLevel" style="width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;">
+              <option value="實習加盟">實習加盟</option>
+              <option value="三級加盟">三級加盟</option>
+              <option value="三級輔導">三級輔導</option>
+              <option value="二級輔導">二級輔導</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addManualDownline()">新增夥伴</button>
+        </div>
+        <div class="card">
           <div class="card-title">下家列表</div>
           <div id="downlineList"></div>
         </div>
@@ -344,6 +359,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
       <!-- 輔導記錄 -->
       <div id="team-tab-coaching" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+          <span style="font-size:16px;color:#aaa;">🔍</span>
+          <input type="text" id="coachSearch" placeholder="搜尋夥伴姓名..." oninput="filterCoaching()" style="flex:1;border:none;outline:none;font-size:14px;color:#333;background:transparent;" />
+        </div>
         <div class="card">
           <div class="card-title">新增輔導記錄</div>
           <div class="field"><label style="font-size:12px;color:#888;">下家姓名</label><input type="text" id="coachName" placeholder="輸入下家姓名" /></div>
@@ -378,6 +397,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="card">
           <div class="card-title">輔導記錄列表</div>
           <div id="coachingList"></div>
+        </div>
+        <!-- Edit modal -->
+        <div id="coachEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center;padding:1rem;">
+          <div style="background:white;border-radius:16px;padding:1.5rem;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;">
+            <div style="font-size:16px;font-weight:600;color:#333;margin-bottom:1rem;">編輯輔導記錄</div>
+            <input type="hidden" id="editCoachId" />
+            <div class="field"><label>輔導內容</label><textarea id="editCoachContent" rows="5" style="width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;outline:none;resize:vertical;"></textarea></div>
+            <div style="display:flex;gap:8px;margin-top:12px;">
+              <button class="btn btn-primary" style="flex:1;" onclick="saveCoachEdit()">儲存</button>
+              <button style="flex:1;padding:12px;border-radius:10px;border:0.5px solid #ddd;background:white;color:#888;cursor:pointer;font-size:14px;" onclick="closeCoachEdit()">取消</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -959,6 +990,84 @@ function backToCourseList(){
   renderCourseList();
 }
 
+// ===== MANUAL ADD DOWNLINE =====
+async function addManualDownline(){
+  const name=document.getElementById('manualPartnerName').value.trim();
+  const level=document.getElementById('manualPartnerLevel').value;
+  if(!name){alert('請輸入夥伴姓名');return;}
+  await sb.from('users').insert({
+    name,level,
+    upline:currentUser.name,
+    status:'已審核',
+    phone:'manual_'+Date.now(),
+    password:'manual',
+    init_fans:0
+  });
+  document.getElementById('manualPartnerName').value='';
+  loadTeamOverview();
+  alert('夥伴已新增！');
+}
+
+// ===== COACHING EDIT =====
+let coachingAllData=[];
+function filterCoaching(){
+  const q=(document.getElementById('coachSearch')?.value||'').toLowerCase();
+  renderCoachingGrouped(q?coachingAllData.filter(r=>r.downline_name.toLowerCase().includes(q)):coachingAllData);
+}
+
+function renderCoachingGrouped(data){
+  const el=document.getElementById('coachingList');
+  if(!data||!data.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:#aaa;font-size:13px;">尚無輔導記錄</div>';return;}
+  const statusIcon={'green':'🟢','yellow':'🟡','red':'🔴'};
+  // Group by downline_name
+  const groups={};
+  data.forEach(r=>{
+    if(!groups[r.downline_name])groups[r.downline_name]=[];
+    groups[r.downline_name].push(r);
+  });
+  el.innerHTML=Object.entries(groups).map(([name,records])=>`
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:13px;font-weight:700;color:#A67C5B;padding:8px 0;border-bottom:2px solid #A4E5E0;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+        <span>${name} <span style="font-size:11px;color:#aaa;font-weight:400;">${records[0].downline_level||''}</span></span>
+        <span style="font-size:11px;color:#aaa;">${records.length} 筆記錄</span>
+      </div>
+      ${records.map(r=>`<div style="padding:10px 0;border-bottom:0.5px solid #f5f5f5;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span>${statusIcon[r.status]||'🟡'}</span>
+            <span style="font-size:12px;color:#888;">${r.merchant_type||''}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;color:#aaa;">${r.record_date||''}</span>
+            <button onclick="openCoachEdit(${r.id},'${(r.content||'').replace(/'/g,"\'")}')" style="font-size:11px;padding:3px 8px;border-radius:6px;border:0.5px solid #ddd;background:white;color:#888;cursor:pointer;">編輯</button>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#555;line-height:1.6;">${r.content}</div>
+      </div>`).join('')}
+    </div>`).join('');
+}
+
+function openCoachEdit(id,content){
+  document.getElementById('editCoachId').value=id;
+  document.getElementById('editCoachContent').value=content;
+  const modal=document.getElementById('coachEditModal');
+  modal.style.display='flex';
+}
+
+function closeCoachEdit(){
+  document.getElementById('coachEditModal').style.display='none';
+}
+
+async function saveCoachEdit(){
+  const id=document.getElementById('editCoachId').value;
+  const content=document.getElementById('editCoachContent').value.trim();
+  if(!content){alert('請輸入內容');return;}
+  await sb.from('coaching_records').update({content}).eq('id',id);
+  closeCoachEdit();
+  loadCoachingRecords();
+  alert('已更新！');
+}
+
 // ===== COURSE MAIN TAB SWITCH =====
 let partnerQaData = [];
 function switchCourseMainTab(tab, el){
@@ -975,7 +1084,6 @@ function switchCourseMainTab(tab, el){
 }
 
 async function loadPartnerQA(){
-  if(partnerQaData.length>0){renderPartnerQA(partnerQaData);return;}
   const {data}=await sb.from('partner_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
   partnerQaData=data||[];
   renderPartnerQA(partnerQaData);
@@ -1109,25 +1217,9 @@ async function saveCoachingRecord(){
 }
 
 async function loadCoachingRecords(){
-  const {data}=await sb.from('coaching_records').select('*').eq('user_id',currentUser.id).order('record_date',{ascending:false});
-  const el=document.getElementById('coachingList');
-  if(!data||!data.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:#aaa;font-size:13px;">尚無輔導記錄</div>';return;}
-  const statusIcon={'green':'🟢','yellow':'🟡','red':'🔴'};
-  el.innerHTML=data.map(r=>`
-    <div style="padding:12px 0;border-bottom:0.5px solid #f5f5f5;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:16px;">${statusIcon[r.status]||'🟡'}</span>
-          <div>
-            <span style="font-size:14px;font-weight:500;color:#333;">${r.downline_name}</span>
-            <span style="font-size:11px;color:#aaa;margin-left:6px;">${r.downline_level}</span>
-          </div>
-        </div>
-        <span style="font-size:11px;color:#aaa;">${r.record_date||''}</span>
-      </div>
-      <div style="font-size:12px;color:#888;margin-bottom:4px;">${r.merchant_type||''}</div>
-      <div style="font-size:13px;color:#555;line-height:1.6;">${r.content}</div>
-    </div>`).join('');
+  const {data}=await sb.from('coaching_records').select('*').eq('user_id',currentUser.id).order('downline_name').order('record_date',{ascending:false});
+  coachingAllData=data||[];
+  renderCoachingGrouped(coachingAllData);
 }
 
 async function loadTeamQA(){
