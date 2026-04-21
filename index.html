@@ -80,6 +80,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fans-total-box{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:10px 14px;background:#f0faf9;border-radius:10px;}
 .fans-total-label{font-size:13px;color:#888;}
 .fans-total-num{font-size:20px;font-weight:500;color:#1D9E75;}
+/* === EATING GUIDE === */
+.eat-section-title{font-size:12px;font-weight:600;color:#A67C5B;letter-spacing:1px;margin:1rem 0 8px;padding-left:2px;}
+.eat-name-input{width:100%;padding:12px 14px;border:1.5px solid #e8dcc8;border-radius:12px;font-size:16px;font-weight:500;color:#333;outline:none;background:#fffdf9;}
+.eat-name-input:focus{border-color:#C9884A;}
+.eat-prod-row{background:white;border-radius:12px;padding:12px;margin-bottom:8px;box-shadow:0 1px 6px rgba(139,100,60,0.08);}
+.eat-prod-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.eat-prod-name{font-size:14px;font-weight:600;color:#3D2714;}
+.eat-controls{display:flex;gap:8px;align-items:center;}
+.eat-meal-select{flex:1;padding:7px 10px;border:1.5px solid #e8dcc8;border-radius:9px;font-size:13px;color:#555;outline:none;background:white;}
+.eat-meal-select:focus{border-color:#C9884A;}
+.eat-qty{width:56px;padding:7px 6px;border:1.5px solid #e8dcc8;border-radius:9px;font-size:14px;font-weight:600;text-align:center;outline:none;color:#333;}
+.eat-unit{font-size:12px;color:#aaa;white-space:nowrap;}
+.eat-generate-btn{width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#C9884A,#A67C5B);color:white;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-top:4px;}
+.eat-generate-btn:active{opacity:0.9;}
+.eat-canvas-wrap{border-radius:14px;overflow:hidden;box-shadow:0 4px 20px rgba(100,60,20,0.15);margin-top:12px;}
+.eat-canvas-wrap canvas{width:100%;display:block;}
+.eat-dl-btn{flex:1;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#5BBDB7,#3AA8A2);color:white;font-size:14px;font-weight:600;cursor:pointer;}
+.eat-close-btn{flex:1;padding:13px;border:none;border-radius:12px;background:#f0f0f0;color:#555;font-size:14px;font-weight:600;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -299,6 +317,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
+  <div class="page" id="page-eat">
+    <div class="eat-section-title">👤 客人姓名</div>
+    <input class="eat-name-input" id="eatCustomerName" type="text" placeholder="輸入客人的名字（會顯示在圖卡上）" />
+
+    <div class="eat-section-title" style="margin-top:1.25rem;">💊 選擇產品與時段</div>
+    <div style="font-size:12px;color:#aaa;margin-bottom:10px;">為每個產品選擇服用時段，輸入數量後生成圖卡</div>
+    <div id="eatProductList"></div>
+
+    <button class="eat-generate-btn" onclick="generateEatingCard()" style="margin-top:1rem;">✨ 生成吃法圖卡</button>
+
+    <div id="eatResultSection" style="display:none;margin-top:1rem;padding-bottom:1rem;">
+      <div class="eat-canvas-wrap">
+        <canvas id="eatCanvas"></canvas>
+      </div>
+      <div style="font-size:12px;color:#aaa;text-align:center;margin-top:8px;">💡 長按圖片可以儲存到相簿</div>
+      <div style="display:flex;gap:10px;margin-top:10px;">
+        <button class="eat-dl-btn" onclick="downloadEatCard()">⬇️ 下載小卡</button>
+        <button class="eat-close-btn" onclick="document.getElementById('eatResultSection').style.display='none'">重新編輯</button>
+      </div>
+    </div>
+  </div>
+
   <div class="page" id="page-team">
     <!-- LOCKED VIEW -->
     <div id="team-locked" style="display:none;">
@@ -472,6 +512,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </button>
     <button class="nav-item" onclick="switchPage('course',this)">
       <span class="nav-icon">📚</span><span class="nav-label">課程</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('eat',this);initEatPage();">
+      <span class="nav-icon">💊</span><span class="nav-label">吃法</span>
     </button>
     <button class="nav-item" onclick="switchPage('team',this)">
       <span class="nav-icon">👥</span><span class="nav-label">團隊</span>
@@ -1311,6 +1354,238 @@ async function loadMemberCourse(id){
       </div>
     </div>`).join('');
 }
+
+// ============================================================
+// COURSE FIX: Support DB categories in stage display
+// ============================================================
+let dbCourseCategories=[];
+const _origLoadCourses=loadCourses;
+async function loadCourses(){
+  if(!currentUser)return;
+  const [{data:cats},{data:courses},{data:progress}]=await Promise.all([
+    sb.from('course_categories').select('*').eq('is_active',true).order('display_order'),
+    sb.from('courses').select('*').eq('is_active',true).order('order_num'),
+    sb.from('course_progress').select('*').eq('user_id',currentUser.id)
+  ]);
+  allCourses=courses||[];
+  userProgress=progress||[];
+  dbCourseCategories=cats||[];
+  const merged=[...STAGES];
+  const PALETTE=['#B8D4A8','#A8C4D8','#D4B8A8','#C8A8D4','#D4C8A8'];
+  dbCourseCategories.forEach((cat,i)=>{
+    if(!merged.find(s=>s.key===cat.name)){
+      merged.push({key:cat.name,icon:'📖',desc:cat.description||'',color:PALETTE[i%PALETTE.length],textColor:'#333',recommend:'全級別',minLevel:null});
+    }
+  });
+  window._mergedStages=merged;
+  renderStageCards();
+}
+function renderStageCards(){
+  const stages=window._mergedStages||STAGES;
+  const el=document.getElementById('stage-cards');
+  if(!el)return;
+  el.innerHTML=stages.map(s=>{
+    const canAccess=canAccessStage(s);
+    if(!canAccess)return '';
+    const altKeys=s.key==='三大系列產品力'?[s.key,'纖體系列','美肌系列','大健康系列','大健康']:[s.key];
+    const stageCourses=allCourses.filter(c=>altKeys.includes(c.stage));
+    const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+    const total=stageCourses.length;
+    const pct=total?Math.round(done/total*100):0;
+    return `<div onclick="openStage('${s.key}')" style="background:white;border-radius:14px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:14px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${s.icon}</div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+          <div style="font-size:15px;font-weight:500;color:#333;">${s.key}</div>
+          <div style="font-size:10px;padding:2px 8px;border-radius:10px;background:#f5f5f5;color:#888;">${s.recommend}</div>
+        </div>
+        <div style="font-size:12px;color:#888;margin-bottom:8px;">${s.desc}</div>
+        <div style="background:#f0f0f0;border-radius:6px;height:6px;overflow:hidden;">
+          <div style="background:${s.color};height:100%;width:${pct}%;border-radius:6px;transition:width 0.3s;"></div>
+        </div>
+        <div style="font-size:11px;color:#aaa;margin-top:4px;">${done}／${total} 堂完成</div>
+      </div>
+      <div style="font-size:20px;color:#ccc;">›</div>
+    </div>`;
+  }).join('');
+}
+function openStage(stageKey){
+  currentStage=stageKey;
+  document.getElementById('course-stage-view').style.display='none';
+  document.getElementById('course-list-view').style.display='block';
+  document.getElementById('stageTitle').textContent=stageKey;
+  const altKeys=stageKey==='三大系列產品力'?[stageKey,'纖體系列','美肌系列','大健康系列','大健康']:[stageKey];
+  const stageCourses=allCourses.filter(c=>altKeys.includes(c.stage));
+  const done=stageCourses.filter(c=>userProgress.find(p=>p.course_id===c.id&&p.completed)).length;
+  document.getElementById('stageProgress').textContent=done+'／'+stageCourses.length+' 堂完成';
+  const el=document.getElementById('courseList');
+  el.innerHTML=stageCourses.map((c,i)=>{
+    const isComplete=userProgress.find(p=>p.course_id===c.id&&p.completed);
+    return `<div onclick="openCourse(${c.id})" style="background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.05);cursor:pointer;display:flex;align-items:center;gap:12px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:${isComplete?'#A4E5E0':'#f0f0f0'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:${isComplete?'#085041':'#aaa'};flex-shrink:0;">${isComplete?'✓':(i+1)}</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:#333;">${c.title}</div>
+        <div style="font-size:12px;color:#aaa;margin-top:2px;">${c.description||''}</div>
+        ${c.stage&&c.stage!==stageKey?`<div style="font-size:10px;padding:1px 6px;background:#f5f0e8;color:#A67C5B;border-radius:6px;display:inline-block;margin-top:3px;">${c.stage}</div>`:''}
+      </div>
+      <div style="font-size:20px;color:#ccc;">›</div>
+    </div>`;
+  }).join('')||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">此階段暫無課程</div>';
+}
+
+// ============================================================
+// EATING GUIDE
+// ============================================================
+const EAT_PRODUCTS=[
+  {name:'纖纖飲',unit:'包',icon:'🥤'},
+  {name:'纖飄錠',unit:'顆',icon:'💊'},
+  {name:'紫纖飲',unit:'包',icon:'🫐'},
+  {name:'爆纖錠',unit:'顆',icon:'🔥'},
+  {name:'纖酵宿',unit:'顆',icon:'🌿'},
+  {name:'肽纖飲可可/奶茶',unit:'包',icon:'🍫'},
+  {name:'複方金盞花葉黃素EX飲',unit:'包',icon:'👁️'},
+  {name:'葉黃素高鈣晶亮凍',unit:'個',icon:'✨'},
+  {name:'高機能益生菌',unit:'包',icon:'🦠'},
+  {name:'酒國英雄極速錠',unit:'顆',icon:'🍺'},
+  {name:'療肺草正冠茶',unit:'包',icon:'🍵'},
+  {name:'固樂纖',unit:'顆',icon:'💪'},
+  {name:'水光錠',unit:'顆',icon:'💎'},
+  {name:'法樂蓬洗髮露',unit:'泵',icon:'💆'},
+  {name:'法樂蓬養髮原液',unit:'次',icon:'🌱'},
+];
+const EAT_MEALS=[
+  {key:'breakfast',label:'第一餐（早餐）',icon:'🌅',color:'#B8732A'},
+  {key:'lunch',label:'第二餐（午餐）',icon:'🌞',color:'#A87828'},
+  {key:'dinner',label:'第三餐（晚餐）',icon:'🌙',color:'#7B5230'},
+  {key:'anytime',label:'任何時刻',icon:'⏰',color:'#8B6040'},
+];
+let eatPageInited=false;
+function initEatPage(){
+  if(eatPageInited)return;
+  eatPageInited=true;
+  const el=document.getElementById('eatProductList');
+  el.innerHTML=EAT_PRODUCTS.map((p,i)=>`
+    <div class="eat-prod-row" id="eprow-${i}">
+      <div class="eat-prod-header">
+        <span style="font-size:18px;">${p.icon}</span>
+        <span class="eat-prod-name">${p.name}</span>
+      </div>
+      <div class="eat-controls">
+        <select class="eat-meal-select" id="emeal-${i}">
+          <option value="">不選</option>
+          ${EAT_MEALS.map(m=>`<option value="${m.key}">${m.icon} ${m.label}</option>`).join('')}
+        </select>
+        <input type="number" class="eat-qty" id="eqty-${i}" value="1" min="1" max="20" />
+        <span class="eat-unit">${p.unit}</span>
+      </div>
+    </div>`).join('');
+}
+function eatRoundRect(ctx,x,y,w,h,r){
+  if(typeof r==='number')r=[r,r,r,r];
+  ctx.beginPath();
+  ctx.moveTo(x+r[0],y);ctx.lineTo(x+w-r[1],y);ctx.quadraticCurveTo(x+w,y,x+w,y+r[1]);
+  ctx.lineTo(x+w,y+h-r[2]);ctx.quadraticCurveTo(x+w,y+h,x+w-r[2],y+h);
+  ctx.lineTo(x+r[3],y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r[3]);
+  ctx.lineTo(x,y+r[0]);ctx.quadraticCurveTo(x,y,x+r[0],y);ctx.closePath();
+}
+function generateEatingCard(){
+  const name=document.getElementById('eatCustomerName').value.trim()||'親愛的客人';
+  const mealData=EAT_MEALS.map(m=>({...m,items:[]}));
+  EAT_PRODUCTS.forEach((p,i)=>{
+    const mealKey=document.getElementById('emeal-'+i).value;
+    const qty=parseInt(document.getElementById('eqty-'+i).value)||1;
+    if(mealKey){const m=mealData.find(x=>x.key===mealKey);if(m)m.items.push(`${p.name}　${qty} ${p.unit}`);}
+  });
+  const canvas=document.getElementById('eatCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=750;
+  const headerH=190;const mPad=16;const baseH=95;const lineH=36;const footH=90;
+  const bHeights=mealData.map(m=>baseH+Math.max(0,m.items.length-1)*lineH);
+  let totalH=headerH+mPad;
+  bHeights.forEach(h=>totalH+=h+mPad);
+  totalH+=footH;
+  canvas.width=W;canvas.height=totalH;
+  // BG
+  const bg=ctx.createLinearGradient(0,0,0,totalH);
+  bg.addColorStop(0,'#FDF6EE');bg.addColorStop(1,'#EED9BE');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,totalH);
+  // Header
+  const hg=ctx.createLinearGradient(0,0,W,headerH);
+  hg.addColorStop(0,'#5E3318');hg.addColorStop(1,'#8B5A2E');
+  ctx.fillStyle=hg;eatRoundRect(ctx,0,0,W,headerH,[26,26,0,0]);ctx.fill();
+  // Subtle texture
+  ctx.fillStyle='rgba(255,200,100,0.06)';
+  for(let xi=0;xi<W;xi+=36)for(let yi=0;yi<headerH;yi+=36){ctx.beginPath();ctx.arc(xi,yi,2,0,Math.PI*2);ctx.fill();}
+  // Brand separator
+  ctx.strokeStyle='rgba(220,170,90,0.4)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(55,58);ctx.lineTo(W-55,58);ctx.stroke();
+  // Brand
+  ctx.fillStyle='rgba(245,215,160,0.7)';ctx.font='500 21px -apple-system,"PingFang TC",sans-serif';
+  ctx.textAlign='center';ctx.fillText('JEROSSE × HT 團隊',W/2,44);
+  // Title
+  ctx.fillStyle='#FFFFFF';ctx.font='bold 34px -apple-system,"PingFang TC",sans-serif';
+  ctx.fillText('💗 專屬吃法計劃 💗',W/2,105);
+  // Subtitle
+  ctx.fillStyle='rgba(255,230,190,0.92)';ctx.font='25px -apple-system,"PingFang TC",sans-serif';
+  ctx.fillText('為 '+name+' 量身打造',W/2,148);
+  // Bottom line header
+  ctx.strokeStyle='rgba(220,170,90,0.3)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(28,headerH-6);ctx.lineTo(W-28,headerH-6);ctx.stroke();
+  // Meal blocks
+  let y=headerH+mPad;
+  mealData.forEach((meal,i)=>{
+    const bH=bHeights[i];const cx=28,cw=W-56;
+    // Shadow
+    ctx.fillStyle='rgba(100,60,20,0.06)';eatRoundRect(ctx,cx+2,y+3,cw,bH,16);ctx.fill();
+    // Card
+    ctx.fillStyle='#FFFDF8';eatRoundRect(ctx,cx,y,cw,bH,16);ctx.fill();
+    // Left bar
+    const ab=ctx.createLinearGradient(cx,y,cx,y+bH);
+    ab.addColorStop(0,meal.color);ab.addColorStop(1,'#D4A87A');
+    ctx.fillStyle=ab;eatRoundRect(ctx,cx,y,6,bH,[16,0,0,16]);ctx.fill();
+    // Gold circle
+    const ccx=cx+55,ccy=y+bH/2;
+    const cg=ctx.createRadialGradient(ccx-5,ccy-5,2,ccx,ccy,30);
+    cg.addColorStop(0,'#DFA855');cg.addColorStop(1,meal.color);
+    ctx.fillStyle=cg;ctx.beginPath();ctx.arc(ccx,ccy,30,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(ccx,ccy,30,0,Math.PI*2);ctx.stroke();
+    // Icon
+    ctx.font='25px -apple-system,"Apple Color Emoji",sans-serif';
+    ctx.textAlign='center';ctx.fillStyle='white';ctx.fillText(meal.icon,ccx,ccy+9);
+    // Label
+    const tx=cx+98;ctx.textAlign='left';
+    ctx.fillStyle=meal.color;ctx.font='500 20px -apple-system,"PingFang TC",sans-serif';
+    ctx.fillText(meal.label,tx,y+33);
+    // Divider
+    ctx.strokeStyle='rgba(200,150,80,0.18)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(tx,y+41);ctx.lineTo(cx+cw-18,y+41);ctx.stroke();
+    // Items
+    if(meal.items.length>0){
+      ctx.fillStyle='#3D2714';ctx.font='600 26px -apple-system,"PingFang TC",sans-serif';
+      meal.items.forEach((item,j)=>{ctx.fillText(item,tx,y+41+(j+1)*lineH);});
+    } else {
+      ctx.fillStyle='#C5B5A5';ctx.font='24px -apple-system,"PingFang TC",sans-serif';
+      ctx.fillText('——',tx,y+41+lineH);
+    }
+    y+=bH+mPad;
+  });
+  // Footer
+  ctx.textAlign='center';
+  ctx.fillStyle='#B07840';ctx.font='500 18px -apple-system,"PingFang TC",sans-serif';
+  ctx.fillText('⚠ 特殊時期吃法或有疑問請跟加盟商確認',W/2,y+26);
+  ctx.fillStyle='#A08060';ctx.font='17px -apple-system,"PingFang TC",sans-serif';
+  ctx.fillText('體質因人而異　確認後最安心',W/2,y+50);
+  document.getElementById('eatResultSection').style.display='block';
+  setTimeout(()=>document.getElementById('eatResultSection').scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+function downloadEatCard(){
+  const canvas=document.getElementById('eatCanvas');
+  const name=document.getElementById('eatCustomerName').value.trim()||'客人';
+  const a=document.createElement('a');
+  a.download=name+'_吃法計劃.png';a.href=canvas.toDataURL('image/png');a.click();
+}
+
 </script>
 </body>
 </html>
