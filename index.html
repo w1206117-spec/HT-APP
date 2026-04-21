@@ -466,24 +466,10 @@ function enterFromWelcome(){
 
 function checkWelcome(){
   const ov=document.getElementById('welcomeOverlay');
-  if(!WELCOME_VIDEO_URL){
-    ov.style.display='none';
-    document.getElementById('mainPage').style.display='block';
-    return;
-  }
+  if(!WELCOME_VIDEO_URL){ov.style.display='none';document.getElementById('mainPage').style.display='block';return;}
   const seen=localStorage.getItem('ht_welcomed_'+currentUser.id);
-  if(!seen){
-    document.getElementById('welcomeVideoBtn').href=WELCOME_VIDEO_URL;
-    ov.style.display='block';
-    document.getElementById('mainPage').style.display='none';
-  } else {
-    ov.style.display='none';
-    document.getElementById('mainPage').style.display='block';
-  }
-} else {
-    ov.style.display='none';
-    document.getElementById('mainPage').style.display='block';
-  }
+  if(!seen){document.getElementById('welcomeVideoBtn').href=WELCOME_VIDEO_URL;ov.style.display='block';document.getElementById('mainPage').style.display='none';}
+  else{ov.style.display='none';document.getElementById('mainPage').style.display='block';}
 }
 
 function enterApp(){
