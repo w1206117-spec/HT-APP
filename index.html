@@ -274,9 +274,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="qa-main-content" style="display:none;">
         <div style="font-size:18px;font-weight:500;color:#333;margin-bottom:4px;">❓ Q&A 知識庫</div>
         <div style="font-size:13px;color:#999;margin-bottom:1rem;">搜尋夥伴常見問題</div>
-        <div style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:1rem;box-shadow:0 1px 8px rgba(0,0,0,0.05);">
+        <div style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 1px 8px rgba(0,0,0,0.05);">
           <span style="font-size:16px;color:#aaa;">🔍</span>
           <input type="text" id="partnerQaSearch" placeholder="搜尋問題關鍵字..." oninput="filterPartnerQA()" style="flex:1;border:none;outline:none;font-size:14px;color:#333;background:transparent;" />
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;" id="partnerQaCatBtns">
+          <button class="tab active" onclick="setPartnerQACat('all',this)" style="border-radius:16px;padding:6px 14px;">全部</button>
         </div>
         <div id="partnerQaList"><div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">載入中...</div></div>
       </div>
@@ -1143,6 +1146,7 @@ async function saveCoachEdit(){
 
 // ===== COURSE MAIN TAB SWITCH =====
 let partnerQaData = [];
+let partnerQaCat = 'all';
 function switchCourseMainTab(tab, el){
   document.querySelectorAll('#page-course .tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
@@ -1159,16 +1163,27 @@ function switchCourseMainTab(tab, el){
 async function loadPartnerQA(){
   const {data}=await sb.from('partner_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
   partnerQaData=data||[];
-  renderPartnerQA(partnerQaData);
+  const cats=[...new Set(partnerQaData.map(q=>q.category).filter(Boolean))];
+  const fb=document.getElementById('partnerQaCatBtns');
+  fb.innerHTML=`<button class="tab active" onclick="setPartnerQACat('all',this)" style="border-radius:16px;padding:6px 14px;">全部</button>`+
+    cats.map(c=>`<button class="tab" onclick="setPartnerQACat('${c}',this)" style="border-radius:16px;padding:6px 14px;">${c}</button>`).join('');
+  partnerQaCat='all';
+  renderPartnerQA();
 }
 
-function filterPartnerQA(){
+function setPartnerQACat(cat,el){
+  partnerQaCat=cat;
+  document.querySelectorAll('#partnerQaCatBtns .tab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderPartnerQA();
+}
+
+function filterPartnerQA(){renderPartnerQA();}
+
+function renderPartnerQA(){
   const q=document.getElementById('partnerQaSearch').value.toLowerCase();
-  const filtered=q?partnerQaData.filter(x=>(x.question||'').toLowerCase().includes(q)||(x.answer||'').toLowerCase().includes(q)):partnerQaData;
-  renderPartnerQA(filtered);
-}
-
-function renderPartnerQA(list){
+  let list=partnerQaCat==='all'?partnerQaData:partnerQaData.filter(x=>x.category===partnerQaCat);
+  if(q)list=list.filter(x=>(x.question||'').toLowerCase().includes(q)||(x.answer||'').toLowerCase().includes(q));
   const el=document.getElementById('partnerQaList');
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">找不到相關問題</div>';return;}
   el.innerHTML=list.map(q=>`
@@ -1296,7 +1311,7 @@ async function loadCoachingRecords(){
 }
 
 async function loadTeamQA(){
-  const {data}=await sb.from('partner_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
+  const {data}=await sb.from('coaching_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
   teamQaData=data||[];
   const cats=[...new Set(teamQaData.map(q=>q.category).filter(Boolean))];
   const fb=document.getElementById('teamQaCatBtns');
