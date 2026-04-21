@@ -108,6 +108,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <option value="皇家輔導">皇家輔導</option>
       </select>
       <input type="text" id="regName" placeholder="姓名" />
+      <input type="text" id="regLineName" placeholder="LINE 名字" />
       <input type="text" id="regPhone" placeholder="手機號碼" maxlength="10" />
       <input type="password" id="regPwd" placeholder="設定密碼" />
       <button class="login-btn" onclick="doRegister()">送出申請</button>
@@ -299,27 +300,101 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 
   <div class="page" id="page-team">
-    <div id="team-main-view">
-      <div style="font-size:18px;font-weight:600;color:#222;margin-bottom:4px;">👥 我的團隊</div>
-      <div style="font-size:13px;color:#999;margin-bottom:1.25rem;">管理你的下家夥伴</div>
-      <div id="team-locked" style="display:none;">
-        <div class="card" style="text-align:center;padding:3rem 1rem;">
-          <div style="font-size:40px;margin-bottom:1rem;">🔒</div>
-          <div style="font-size:16px;font-weight:500;color:#333;margin-bottom:8px;">晉升解鎖</div>
-          <div style="font-size:13px;color:#aaa;">達到三級輔導以上即可使用團隊功能</div>
+    <!-- LOCKED VIEW -->
+    <div id="team-locked" style="display:none;">
+      <div class="card" style="text-align:center;padding:2.5rem 1rem;">
+        <div style="font-size:48px;margin-bottom:1rem;">🔒</div>
+        <div style="font-size:17px;font-weight:600;color:#333;margin-bottom:10px;">團隊管理功能</div>
+        <div style="font-size:14px;color:#888;line-height:1.8;margin-bottom:1rem;">
+          完成以下培訓即可解鎖：<br>
+          ✅ 輔導督導訓練<br>
+          ✅ 三點筆技法
         </div>
+        <div style="font-size:13px;color:#A4E5E0;font-weight:500;">聯繫你的上家申請開通 💪</div>
       </div>
-      <div id="team-content" style="display:none;">
+    </div>
+
+    <!-- MAIN TEAM VIEW -->
+    <div id="team-main-view" style="display:none;">
+      <div class="tabs" style="margin-bottom:1rem;">
+        <button class="tab active" onclick="switchTeamTab('overview',this)">總覽</button>
+        <button class="tab" onclick="switchTeamTab('coaching',this)">輔導記錄</button>
+        <button class="tab" onclick="switchTeamTab('teamqa',this)">Q&A</button>
+      </div>
+
+      <!-- 總覽 -->
+      <div id="team-tab-overview">
         <div class="metrics" style="grid-template-columns:repeat(2,1fr);">
           <div class="metric"><div class="metric-label">下家人數</div><div class="metric-value" id="teamCount">—</div></div>
           <div class="metric"><div class="metric-label">本月團隊業績</div><div class="metric-value" id="teamProfit">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">本月招商目標</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <input type="number" id="goalInput" placeholder="設定目標人數" style="flex:1;padding:8px 12px;border:0.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;" />
+            <button onclick="saveGoalTarget()" style="padding:8px 14px;background:#A4E5E0;color:#085041;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;">設定</button>
+          </div>
+          <div id="goalProgress"></div>
         </div>
         <div class="card">
           <div class="card-title">下家列表</div>
           <div id="downlineList"></div>
         </div>
       </div>
+
+      <!-- 輔導記錄 -->
+      <div id="team-tab-coaching" style="display:none;">
+        <div class="card">
+          <div class="card-title">新增輔導記錄</div>
+          <div class="field"><label style="font-size:12px;color:#888;">下家姓名</label><input type="text" id="coachName" placeholder="輸入下家姓名" /></div>
+          <div class="field"><label style="font-size:12px;color:#888;">下家級別</label>
+            <select id="coachLevel" style="width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;">
+              <option value="實習加盟">實習加盟</option>
+              <option value="三級加盟">三級加盟</option>
+              <option value="三級輔導">三級輔導</option>
+              <option value="二級輔導">二級輔導</option>
+              <option value="一級輔導">一級輔導</option>
+              <option value="皇家輔導">皇家輔導</option>
+            </select>
+          </div>
+          <div class="field"><label style="font-size:12px;color:#888;">加盟商類型</label>
+            <select id="coachMerchant" style="width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;">
+              <option value="加盟商A">加盟商 A（積極主動）</option>
+              <option value="加盟商B">加盟商 B（需要推動）</option>
+              <option value="加盟商C">加盟商 C（較為被動）</option>
+            </select>
+          </div>
+          <div class="field"><label style="font-size:12px;color:#888;">經營狀態</label>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <div id="status-green" onclick="setCoachStatus('green')" style="flex:1;padding:8px;border-radius:8px;border:2px solid #ddd;text-align:center;cursor:pointer;font-size:13px;">🟢 積極</div>
+              <div id="status-yellow" onclick="setCoachStatus('yellow')" style="flex:1;padding:8px;border-radius:8px;border:2px solid #ddd;text-align:center;cursor:pointer;font-size:13px;">🟡 一般</div>
+              <div id="status-red" onclick="setCoachStatus('red')" style="flex:1;padding:8px;border-radius:8px;border:2px solid #ddd;text-align:center;cursor:pointer;font-size:13px;">🔴 需關注</div>
+            </div>
+          </div>
+          <div class="field"><label style="font-size:12px;color:#888;">輔導日期</label><input type="date" id="coachDate" /></div>
+          <div class="field"><label style="font-size:12px;color:#888;">輔導內容</label><textarea id="coachContent" rows="4" placeholder="記錄這次輔導的重點..." style="width:100%;padding:10px 12px;border:0.5px solid #ddd;border-radius:10px;font-size:14px;background:#fafafa;outline:none;resize:vertical;"></textarea></div>
+          <button class="btn btn-primary" onclick="saveCoachingRecord()">新增記錄</button>
+        </div>
+        <div class="card">
+          <div class="card-title">輔導記錄列表</div>
+          <div id="coachingList"></div>
+        </div>
+      </div>
+
+      <!-- Q&A -->
+      <div id="team-tab-teamqa" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+          <span style="font-size:16px;color:#aaa;">🔍</span>
+          <input type="text" id="teamQaSearch" placeholder="搜尋問題..." oninput="filterTeamQA()" style="flex:1;border:none;outline:none;font-size:14px;color:#333;background:transparent;" />
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;" id="teamQaCatBtns">
+          <button class="tab active" onclick="setTeamQACat('all',this)" style="border-radius:16px;">全部</button>
+        </div>
+        <div id="teamQaList"></div>
+      </div>
     </div>
+
+    <!-- MEMBER DETAIL VIEW -->
     <div id="team-member-view" style="display:none;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
         <button onclick="backToTeam()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">←</button>
@@ -333,16 +408,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="tab" onclick="switchMemberTab('course',this)">上課進度</button>
       </div>
       <div id="member-sales-view">
-        <div class="card">
-          <div class="card-title">本月業績</div>
-          <div id="memberSalesData"></div>
-        </div>
+        <div class="card"><div class="card-title">本月業績</div><div id="memberSalesData"></div></div>
       </div>
       <div id="member-course-view" style="display:none;">
-        <div class="card">
-          <div class="card-title">課程完成進度</div>
-          <div id="memberCourseData"></div>
-        </div>
+        <div class="card"><div class="card-title">課程完成進度</div><div id="memberCourseData"></div></div>
       </div>
     </div>
   </div>
@@ -351,15 +420,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="card">
       <div class="card-title">帳號資訊</div>
       <div class="result-row"><span class="result-label">姓名</span><span class="result-value" id="profileName"></span></div>
+      <div class="result-row"><span class="result-label">LINE 名字</span><span class="result-value" id="profileLineName"></span></div>
       <div class="result-row"><span class="result-label">手機</span><span class="result-value" id="profilePhone"></span></div>
       <div class="result-row"><span class="result-label">上家</span><span class="result-value" id="profileUpline"></span></div>
       <div class="result-row"><span class="result-label">級別</span><span class="result-value" id="profileLevel"></span></div>
       <div class="result-row"><span class="result-label">狀態</span><span class="result-value" id="profileStatus"></span></div>
     </div>
     <div class="card">
-      <div class="card-title">修改姓名</div>
-      <div class="field"><input type="text" id="newNameInput" placeholder="輸入新姓名" /></div>
-      <button class="btn btn-primary" onclick="updateName()">儲存姓名</button>
+      <div class="card-title">修改資料</div>
+      <div class="field"><label style="font-size:12px;color:#888;">姓名</label><input type="text" id="newNameInput" placeholder="輸入新姓名" /></div>
+      <div class="field"><label style="font-size:12px;color:#888;">LINE 名字</label><input type="text" id="newLineNameInput" placeholder="輸入新LINE名字" /></div>
+      <button class="btn btn-primary" onclick="updateProfile()">儲存</button>
     </div>
     <div class="logout-btn" onclick="doLogout()">登出</div>
   </div>
@@ -426,13 +497,14 @@ async function doRegister(){
   const upline=document.getElementById('regUpline').value.trim();
   const level=document.getElementById('regLevel').value;
   const name=document.getElementById('regName').value.trim();
+  const lineName=document.getElementById('regLineName').value.trim();
   const phone=document.getElementById('regPhone').value.trim();
   const pwd=document.getElementById('regPwd').value.trim();
   const msg=document.getElementById('loginMsg');
   if(!upline||!level||!name||!phone||!pwd){msg.textContent='請填寫所有欄位';return;}
   const existing=await sb.from('users').select('id').eq('phone',phone).single();
   if(existing.data){msg.textContent='此手機號碼已申請過';return;}
-  const {error}=await sb.from('users').insert({name,phone,password:pwd,upline,level,status:'待審核',init_fans:0});
+  const {error}=await sb.from('users').insert({name,line_name:lineName,phone,password:pwd,upline,level,status:'待審核',init_fans:0});
   if(error){msg.textContent='申請失敗，請再試一次';return;}
   msg.style.color='#1D9E75';msg.textContent='申請成功！請等待管理員審核後登入';
   setTimeout(showLogin,2000);
@@ -479,6 +551,7 @@ function enterApp(){
   document.getElementById('headerName').textContent=currentUser.name;
   document.getElementById('headerLevel').textContent=currentUser.level;
   document.getElementById('profileName').textContent=currentUser.name;
+  document.getElementById('profileLineName').textContent=currentUser.line_name||'—';
   document.getElementById('profilePhone').textContent=currentUser.phone;
   document.getElementById('profileUpline').textContent=currentUser.upline||'—';
   document.getElementById('profileLevel').textContent=currentUser.level;
@@ -653,15 +726,19 @@ function renderCharts(){
   loadFansCharts(totalYearProfit);
 }
 
-async function updateName(){
+async function updateProfile(){
   const newName=document.getElementById('newNameInput').value.trim();
-  if(!newName){alert('請輸入姓名');return;}
-  await sb.from('users').update({name:newName}).eq('id',currentUser.id);
-  currentUser.name=newName;
-  document.getElementById('profileName').textContent=newName;
-  document.getElementById('headerName').textContent=newName;
+  const newLine=document.getElementById('newLineNameInput').value.trim();
+  if(!newName&&!newLine){alert('請輸入要修改的資料');return;}
+  const updates={};
+  if(newName)updates.name=newName;
+  if(newLine)updates.line_name=newLine;
+  await sb.from('users').update(updates).eq('id',currentUser.id);
+  if(newName){currentUser.name=newName;document.getElementById('profileName').textContent=newName;document.getElementById('headerName').textContent=newName;}
+  if(newLine){currentUser.line_name=newLine;document.getElementById('profileLineName').textContent=newLine;}
   document.getElementById('newNameInput').value='';
-  alert('姓名已更新！');
+  document.getElementById('newLineNameInput').value='';
+  alert('資料已更新！');
 }
 
 async function deleteRecord(id){
@@ -922,44 +999,58 @@ function renderPartnerQA(list){
 }
 
 // ===== TEAM PAGE =====
-const TEAM_LEVELS=['三級輔導','二級輔導','一級輔導','皇家輔導'];
 let currentMemberId=null;
+let coachStatus='green';
+let teamQaData=[],teamQaCat='all';
 
 async function loadTeamPage(){
   if(!currentUser)return;
-  const hasAccess=TEAM_LEVELS.includes(currentUser.level)||currentUser.level==='一級輔導'||currentUser.level==='皇家輔導';
-  const canSeeTeam=['三級輔導','二級輔導','一級輔導','皇家輔導'].includes(currentUser.level);
-  
-  if(!canSeeTeam){
+  // Check team_unlocked flag
+  if(!currentUser.team_unlocked){
     document.getElementById('team-locked').style.display='block';
-    document.getElementById('team-content').style.display='none';
+    document.getElementById('team-main-view').style.display='none';
     return;
   }
   document.getElementById('team-locked').style.display='none';
-  document.getElementById('team-content').style.display='block';
-  
+  document.getElementById('team-main-view').style.display='block';
+  // Set today's date for coaching
+  document.getElementById('coachDate').value=new Date().toISOString().split('T')[0];
+  loadTeamOverview();
+  loadCoachingRecords();
+  loadTeamQA();
+}
+
+async function loadTeamOverview(){
   const {data:downlines}=await sb.from('users').select('*').eq('upline',currentUser.name).eq('status','已審核');
   const members=downlines||[];
   document.getElementById('teamCount').textContent=members.length+' 人';
-  
   const now=new Date();
   const {data:sales}=await sb.from('sales_data').select('user_id,total_revenue,cost').eq('year',now.getFullYear()).eq('month',now.getMonth()+1);
   const salesMap={};
-  (sales||[]).forEach(s=>{
-    if(!salesMap[s.user_id])salesMap[s.user_id]=0;
-    salesMap[s.user_id]+=(s.total_revenue-s.cost);
-  });
-  const memberIds=members.map(m=>m.id);
-  const teamTotal=memberIds.reduce((a,id)=>a+(salesMap[id]||0),0);
+  (sales||[]).forEach(s=>{if(!salesMap[s.user_id])salesMap[s.user_id]=0;salesMap[s.user_id]+=(s.total_revenue-s.cost);});
+  const teamTotal=members.reduce((a,m)=>a+(salesMap[m.id]||0),0);
   document.getElementById('teamProfit').textContent='$'+teamTotal.toLocaleString();
-  
+  // Load goal
+  const {data:goal}=await sb.from('monthly_goals').select('*').eq('user_id',currentUser.id).eq('year',now.getFullYear()).eq('month',now.getMonth()+1).maybeSingle();
+  if(goal){
+    document.getElementById('goalInput').value=goal.target||'';
+    const pct=goal.target?Math.min(100,Math.round(members.length/goal.target*100)):0;
+    document.getElementById('goalProgress').innerHTML=`
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#888;margin-bottom:6px;">
+        <span>目前 ${members.length} 人</span><span>目標 ${goal.target} 人</span>
+      </div>
+      <div style="background:#f0f0f0;border-radius:6px;height:8px;overflow:hidden;">
+        <div style="background:#A4E5E0;height:100%;width:${pct}%;border-radius:6px;transition:width 0.3s;"></div>
+      </div>
+      <div style="font-size:12px;color:#aaa;margin-top:4px;">${pct}% 完成</div>`;
+  }
   const el=document.getElementById('downlineList');
   if(!members.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">尚無下家夥伴</div>';return;}
   el.innerHTML=members.map(m=>{
     const profit=salesMap[m.id]||0;
     return `<div onclick="openMemberDetail(${m.id},'${m.name}','${m.level}')" style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:0.5px solid #f5f5f5;cursor:pointer;">
       <div>
-        <div style="font-size:14px;font-weight:500;color:#333;">${m.name}</div>
+        <div style="font-size:14px;font-weight:500;color:#333;">${m.name}${m.line_name?'（'+m.line_name+'）':''}</div>
         <div style="font-size:12px;color:#aaa;margin-top:2px;">${m.level}</div>
       </div>
       <div style="text-align:right;">
@@ -970,13 +1061,113 @@ async function loadTeamPage(){
   }).join('');
 }
 
+async function saveGoalTarget(){
+  const target=parseInt(document.getElementById('goalInput').value)||0;
+  if(!target){alert('請輸入目標人數');return;}
+  const now=new Date();
+  const y=now.getFullYear(),m=now.getMonth()+1;
+  const {data:ex}=await sb.from('monthly_goals').select('id').eq('user_id',currentUser.id).eq('year',y).eq('month',m).maybeSingle();
+  if(ex){await sb.from('monthly_goals').update({target}).eq('id',ex.id);}
+  else{await sb.from('monthly_goals').insert({user_id:currentUser.id,year:y,month:m,target});}
+  loadTeamOverview();
+  alert('目標已設定！');
+}
+
+function switchTeamTab(tab,el){
+  document.querySelectorAll('#team-main-view .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('team-tab-overview').style.display=tab==='overview'?'block':'none';
+  document.getElementById('team-tab-coaching').style.display=tab==='coaching'?'block':'none';
+  document.getElementById('team-tab-teamqa').style.display=tab==='teamqa'?'block':'none';
+}
+
+function setCoachStatus(s){
+  coachStatus=s;
+  ['green','yellow','red'].forEach(c=>{
+    const el=document.getElementById('status-'+c);
+    if(el)el.style.border=c===s?'2px solid #A4E5E0':'2px solid #ddd';
+  });
+}
+
+async function saveCoachingRecord(){
+  const name=document.getElementById('coachName').value.trim();
+  const content=document.getElementById('coachContent').value.trim();
+  if(!name||!content){alert('請填寫下家姓名和輔導內容');return;}
+  await sb.from('coaching_records').insert({
+    user_id:currentUser.id,
+    downline_name:name,
+    downline_level:document.getElementById('coachLevel').value,
+    merchant_type:document.getElementById('coachMerchant').value,
+    status:coachStatus,
+    record_date:document.getElementById('coachDate').value,
+    content
+  });
+  document.getElementById('coachName').value='';
+  document.getElementById('coachContent').value='';
+  loadCoachingRecords();
+  alert('輔導記錄已新增！');
+}
+
+async function loadCoachingRecords(){
+  const {data}=await sb.from('coaching_records').select('*').eq('user_id',currentUser.id).order('record_date',{ascending:false});
+  const el=document.getElementById('coachingList');
+  if(!data||!data.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:#aaa;font-size:13px;">尚無輔導記錄</div>';return;}
+  const statusIcon={'green':'🟢','yellow':'🟡','red':'🔴'};
+  el.innerHTML=data.map(r=>`
+    <div style="padding:12px 0;border-bottom:0.5px solid #f5f5f5;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">${statusIcon[r.status]||'🟡'}</span>
+          <div>
+            <span style="font-size:14px;font-weight:500;color:#333;">${r.downline_name}</span>
+            <span style="font-size:11px;color:#aaa;margin-left:6px;">${r.downline_level}</span>
+          </div>
+        </div>
+        <span style="font-size:11px;color:#aaa;">${r.record_date||''}</span>
+      </div>
+      <div style="font-size:12px;color:#888;margin-bottom:4px;">${r.merchant_type||''}</div>
+      <div style="font-size:13px;color:#555;line-height:1.6;">${r.content}</div>
+    </div>`).join('');
+}
+
+async function loadTeamQA(){
+  const {data}=await sb.from('partner_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
+  teamQaData=data||[];
+  const cats=[...new Set(teamQaData.map(q=>q.category).filter(Boolean))];
+  const fb=document.getElementById('teamQaCatBtns');
+  fb.innerHTML=`<button class="tab active" onclick="setTeamQACat('all',this)" style="border-radius:16px;padding:6px 14px;">全部</button>`+
+    cats.map(c=>`<button class="tab" onclick="setTeamQACat('${c}',this)" style="border-radius:16px;padding:6px 14px;">${c}</button>`).join('');
+  renderTeamQA();
+}
+
+function setTeamQACat(cat,el){
+  teamQaCat=cat;
+  document.querySelectorAll('#teamQaCatBtns .tab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderTeamQA();
+}
+
+function filterTeamQA(){renderTeamQA();}
+
+function renderTeamQA(){
+  const q=(document.getElementById('teamQaSearch')?.value||'').toLowerCase();
+  let list=teamQaCat==='all'?teamQaData:teamQaData.filter(x=>x.category===teamQaCat);
+  if(q)list=list.filter(x=>(x.question||'').toLowerCase().includes(q)||(x.answer||'').toLowerCase().includes(q));
+  const el=document.getElementById('teamQaList');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;">找不到相關問題</div>';return;}
+  el.innerHTML=list.map(q=>`
+    <div style="background:white;border-radius:12px;padding:1rem 1.25rem;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+      ${q.category?`<span style="font-size:10px;padding:2px 8px;border-radius:8px;background:#f0f0f0;color:#888;display:inline-block;margin-bottom:6px;">${q.category}</span>`:''}
+      <div style="font-size:14px;font-weight:500;color:#333;margin-bottom:6px;">Q：${q.question}</div>
+      <div style="font-size:13px;color:#666;line-height:1.7;">A：${q.answer||'—'}</div>
+    </div>`).join('');
+}
+
 async function openMemberDetail(id,name,level){
   currentMemberId=id;
   document.getElementById('team-main-view').style.display='none';
   document.getElementById('team-member-view').style.display='block';
   document.getElementById('memberName').textContent=name;
   document.getElementById('memberLevel').textContent=level;
-  switchMemberTab('sales',document.querySelector('#page-team .tab'));
   loadMemberSales(id);
 }
 
@@ -986,7 +1177,7 @@ function backToTeam(){
 }
 
 function switchMemberTab(tab,el){
-  document.querySelectorAll('#page-team .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#team-member-view .tabs .tab').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
   document.getElementById('member-sales-view').style.display=tab==='sales'?'block':'none';
   document.getElementById('member-course-view').style.display=tab==='course'?'block':'none';
