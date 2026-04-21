@@ -8,52 +8,41 @@
 <link rel="apple-touch-icon" href="app3.jpg">
 <title>HT 客人小錦囊</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f0e8;min-height:100vh;}
-
-/* LOGIN */
 #loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:url('HT2.jpg') center/cover no-repeat;}
 .login-brand{text-align:center;margin-bottom:1.5rem;}
 .login-brand h1{font-size:22px;font-weight:600;color:white;letter-spacing:2px;margin-bottom:4px;}
 .login-brand h2{font-size:16px;color:rgba(255,255,255,0.85);}
 .login-tagline{font-size:13px;color:rgba(255,255,255,0.7);text-align:center;margin-bottom:2rem;letter-spacing:2px;}
 .login-card{background:rgba(255,255,255,0.95);border-radius:18px;padding:2rem;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
-.login-tabs{display:flex;gap:0;margin-bottom:1.5rem;background:#f5f0e8;border-radius:10px;padding:3px;}
+.login-tabs{display:flex;margin-bottom:1.5rem;background:#f5f0e8;border-radius:10px;padding:3px;}
 .login-tab{flex:1;padding:8px;text-align:center;font-size:13px;color:#888;cursor:pointer;border-radius:8px;border:none;background:transparent;}
 .login-tab.active{background:white;color:#8B7355;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.1);}
 .login-card input{width:100%;padding:12px 14px;border:1px solid #d4c4b0;border-radius:10px;font-size:14px;margin-bottom:10px;outline:none;background:white;}
 .login-card input:focus{border-color:#A67C5B;}
 .login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;font-size:15px;font-weight:600;cursor:pointer;}
 .login-msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:10px;min-height:20px;}
-
-/* MAIN */
 #mainPage{display:none;padding-bottom:80px;}
 .app-header{background:linear-gradient(135deg,#8B7355,#A67C5B);padding:1.25rem;color:white;}
 .header-brand{font-size:11px;opacity:0.7;letter-spacing:2px;margin-bottom:2px;}
 .header-title{font-size:22px;font-weight:700;}
 .header-sub{font-size:12px;opacity:0.7;margin-top:2px;}
-
-/* NAV */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e8dcc8;display:flex;z-index:100;}
 .nav-item{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;}
 .nav-icon{font-size:19px;display:block;margin-bottom:2px;}
 .nav-label{font-size:10px;color:#aaa;}
 .nav-item.active .nav-label{color:#8B7355;font-weight:600;}
-
-/* PAGES */
 .page{display:none;padding:1rem;}
 .page.active{display:block;}
-
-/* SEARCH + FILTER */
 .search-box{display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
 .search-box input{flex:1;border:none;outline:none;font-size:14px;color:#333;background:transparent;}
 .cat-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:1rem;scrollbar-width:none;}
 .cat-scroll::-webkit-scrollbar{display:none;}
 .cat-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #d4c4b0;background:white;font-size:12px;color:#8B7355;cursor:pointer;white-space:nowrap;flex-shrink:0;font-weight:500;}
 .cat-btn.active{background:#8B7355;border-color:#8B7355;color:white;}
-
-/* CARDS */
 .info-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:12px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
 .info-title{font-size:15px;font-weight:700;color:#3d2f24;margin-bottom:6px;}
 .cat-tag{font-size:11px;padding:3px 10px;border-radius:8px;background:#e8dcc8;color:#5a4a3a;font-weight:600;display:inline-block;margin-bottom:10px;}
@@ -62,42 +51,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qa-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:10px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
 .qa-q{font-size:14px;font-weight:700;color:#3d2f24;margin-bottom:6px;}
 .qa-a{font-size:13px;color:#5a4a3a;line-height:1.7;}
-
-/* CHECKIN PAGE */
 .health-summary{background:linear-gradient(135deg,#fef9f3,#f5f0e8);border-radius:16px;padding:1.25rem;margin-bottom:1rem;border:1.5px solid #e8dcc8;}
 .health-date{font-size:12px;color:#999;margin-bottom:8px;}
-.health-score{display:flex;align-items:baseline;gap:6px;margin-bottom:4px;}
-.health-score-num{font-size:42px;font-weight:700;color:#8B7355;}
-.health-score-unit{font-size:14px;color:#999;}
-.health-msg{font-size:14px;color:#5a4a3a;font-weight:500;}
-.progress-bar{background:#e8dcc8;border-radius:8px;height:8px;margin-top:10px;overflow:hidden;}
+.health-score-wrap{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.health-score-num{font-size:42px;font-weight:700;color:#8B7355;line-height:1;}
+.health-msg{font-size:13px;color:#5a4a3a;}
+.progress-bar{background:#e8dcc8;border-radius:8px;height:8px;margin-top:8px;overflow:hidden;}
 .progress-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#8B7355,#A67C5B);transition:width 0.5s ease;}
-
-.section-title{font-size:13px;font-weight:700;color:#8B7355;letter-spacing:1px;margin:1rem 0 8px;padding-left:2px;}
-
-/* HEALTH CARDS */
+.section-title{font-size:12px;font-weight:700;color:#8B7355;letter-spacing:1px;margin:1rem 0 8px;padding-left:2px;text-transform:uppercase;}
 .health-card{background:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:10px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
-.health-card-title{font-size:14px;font-weight:600;color:#3d2f24;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.health-card-title{font-size:14px;font-weight:600;color:#3d2f24;margin-bottom:10px;}
+/* WATER */
+.water-input-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.water-input{width:100px;padding:10px;border:1.5px solid #d4c4b0;border-radius:10px;font-size:16px;font-weight:600;color:#3d2f24;text-align:center;outline:none;}
+.water-input:focus{border-color:#A67C5B;}
+.water-unit{font-size:13px;color:#999;}
+.water-presets{display:flex;gap:6px;flex-wrap:wrap;}
+.water-preset{padding:6px 12px;border-radius:16px;border:1.5px solid #d4c4b0;background:white;font-size:12px;color:#8B7355;cursor:pointer;font-weight:500;}
+.water-preset.active{background:#8B7355;border-color:#8B7355;color:white;}
+.water-bar{background:#e8f5ff;border-radius:8px;height:12px;margin-top:10px;overflow:hidden;}
+.water-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#76D5CF,#A4E5E0);transition:width 0.4s ease;}
+/* WEIGHT */
 .weight-input-wrap{display:flex;align-items:center;gap:10px;}
-.weight-input{width:120px;padding:10px 14px;border:1.5px solid #d4c4b0;border-radius:10px;font-size:18px;font-weight:600;color:#3d2f24;text-align:center;outline:none;}
+.weight-input{width:120px;padding:10px;border:1.5px solid #d4c4b0;border-radius:10px;font-size:18px;font-weight:600;color:#3d2f24;text-align:center;outline:none;}
 .weight-input:focus{border-color:#A67C5B;}
-.weight-unit{font-size:14px;color:#999;}
-.water-grid{display:flex;flex-wrap:wrap;gap:8px;}
-.water-cup{width:36px;height:36px;border-radius:8px;border:2px solid #d4c4b0;background:white;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all 0.2s;}
-.water-cup.filled{background:#A4E5E0;border-color:#5BBDB7;}
-.diet-grid{display:flex;gap:10px;}
-.diet-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;border:2px solid #d4c4b0;cursor:pointer;transition:all 0.2s;}
-.diet-item.done{border-color:#8B7355;background:#fef9f3;}
-.diet-icon{font-size:24px;}
-.diet-label{font-size:11px;color:#888;font-weight:500;text-align:center;}
-.diet-ratio{font-size:10px;color:#aaa;}
-.diet-check{width:22px;height:22px;border-radius:50%;border:2px solid #d4c4b0;display:flex;align-items:center;justify-content:center;font-size:12px;}
-.diet-item.done .diet-check{background:#8B7355;border-color:#8B7355;color:white;}
-
+/* DIET */
+.diet-option-group{margin-bottom:14px;}
+.diet-option-label{font-size:13px;font-weight:600;color:#3d2f24;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.diet-options{display:flex;gap:8px;}
+.diet-opt{flex:1;padding:8px 4px;border-radius:10px;border:1.5px solid #d4c4b0;background:white;font-size:12px;color:#888;cursor:pointer;text-align:center;font-weight:500;}
+.diet-opt.selected{border-color:#8B7355;background:#fef9f3;color:#8B7355;}
 /* PRODUCT CHECKIN */
 .prod-card{background:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:10px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
 .prod-row{display:flex;align-items:center;gap:12px;}
-.prod-icon{width:44px;height:44px;border-radius:12px;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.prod-icon-wrap{width:44px;height:44px;border-radius:12px;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 .prod-info{flex:1;}
 .prod-name{font-size:14px;font-weight:700;color:#3d2f24;}
 .prod-rate{font-size:12px;color:#999;margin-top:2px;}
@@ -106,15 +93,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cal-mini{display:flex;gap:3px;margin-top:8px;flex-wrap:wrap;}
 .cal-dot{width:20px;height:20px;border-radius:5px;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aaa;}
 .cal-dot.done{background:#8B7355;color:white;}
-.cal-dot.today{outline:2px solid #A67C5B;}
-
+.cal-dot.today{outline:2px solid #A67C5B;outline-offset:1px;}
+/* CALENDAR */
+.month-cal{background:white;border-radius:14px;padding:1rem;margin-bottom:1rem;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.cal-nav{background:none;border:none;font-size:18px;cursor:pointer;color:#8B7355;padding:4px 8px;}
+.cal-month{font-size:15px;font-weight:600;color:#3d2f24;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-weekday{text-align:center;font-size:11px;color:#aaa;padding-bottom:4px;}
+.cal-day-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:12px;cursor:pointer;position:relative;}
+.cal-day-cell.empty{cursor:default;}
+.cal-day-cell.today{font-weight:700;color:#8B7355;}
+.cal-day-cell.has-data{background:#fef9f3;}
+.cal-day-cell .score-dot{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;}
+/* CHARTS */
+.chart-card{background:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:12px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
+.chart-title{font-size:14px;font-weight:600;color:#3d2f24;margin-bottom:12px;}
+.chart-wrap{position:relative;height:160px;}
 /* PROFILE */
 .profile-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
 .profile-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f0e8;}
 .profile-row:last-child{border-bottom:none;}
 .profile-label{font-size:13px;color:#999;}
 .profile-value{font-size:14px;font-weight:600;color:#3d2f24;}
-.btn-primary{background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;width:100%;}
+.btn-primary{background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:8px;}
 .btn-secondary{background:#f5f0e8;color:#5a4a3a;border:none;border-radius:10px;padding:12px;font-size:14px;cursor:pointer;width:100%;margin-top:8px;}
 </style>
 </head>
@@ -142,7 +144,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <input type="text" id="regSeller" placeholder="你的賣家名字" />
       <input type="text" id="regAccount" placeholder="設定帳號" />
       <input type="text" id="regNickname" placeholder="你的暱稱" />
-      <input type="password" id="regPwd" placeholder="設定密碼" />
+      <input type="password" id="regPwd" placeholder="設定密碼（至少4位）" />
       <input type="password" id="regPwd2" placeholder="確認密碼" />
       <button class="login-btn" onclick="doRegister()">立即註冊</button>
     </div>
@@ -150,17 +152,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- PRODUCT SELECT MODAL -->
+<!-- PRODUCT MODAL -->
 <div id="productModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:1.5rem;">
   <div style="background:white;border-radius:18px;padding:1.5rem;max-width:500px;margin:auto;">
-    <div style="font-size:18px;font-weight:700;color:#5a4a3a;margin-bottom:8px;">🎯 選擇你購買的產品</div>
+    <div style="font-size:18px;font-weight:700;color:#5a4a3a;margin-bottom:6px;">🎯 選擇你購買的產品</div>
     <div style="font-size:13px;color:#999;margin-bottom:1.5rem;">可以隨時在個人頁面更改</div>
     <div id="productSelectList"></div>
-    <button class="btn-primary" style="margin-top:1rem;" onclick="saveProductSelection()">確認選擇</button>
+    <button class="btn-primary" onclick="saveProductSelection()">確認選擇</button>
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- MAIN -->
 <div id="mainPage">
   <div class="app-header">
     <div class="header-brand">HT 團隊</div>
@@ -172,57 +174,105 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="page active" id="page-checkin">
     <div class="health-summary">
       <div class="health-date" id="todayDateDisplay"></div>
-      <div class="health-score">
-        <span class="health-score-num" id="todayScore">0</span>
-        <span class="health-score-unit">%</span>
+      <div class="health-score-wrap">
+        <div class="health-score-num" id="todayScore">0</div>
+        <div>
+          <div style="font-size:14px;color:#999;">% 完成率</div>
+          <div class="health-msg" id="todayMsg">開始今天的健康記錄！</div>
+        </div>
       </div>
-      <div class="health-msg" id="todayMsg">開始今天的健康記錄！</div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     </div>
 
     <div class="section-title">💧 今日喝水</div>
     <div class="health-card">
-      <div class="health-card-title">喝水打卡 <span style="font-size:12px;color:#aaa;" id="waterCount">0 / 8 杯</span></div>
-      <div class="water-grid" id="waterGrid"></div>
+      <div class="health-card-title">今日喝水量 <span style="font-size:12px;color:#aaa;" id="waterLabel">0 ml</span></div>
+      <div class="water-input-row">
+        <input type="number" class="water-input" id="waterInput" placeholder="0" min="0" max="5000" step="100" />
+        <span class="water-unit">ml</span>
+        <button onclick="saveWater()" style="padding:10px 16px;background:#8B7355;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">記錄</button>
+      </div>
+      <div class="water-presets">
+        <button class="water-preset" onclick="setWaterPreset(500)">+500</button>
+        <button class="water-preset" onclick="setWaterPreset(250)">+250</button>
+        <button class="water-preset" onclick="setWaterPreset(150)">+150</button>
+        <button class="water-preset" onclick="setWaterPreset(-250)">-250</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:10px;margin-bottom:4px;">
+        <span>0</span><span>目標 2000ml</span><span>3000ml</span>
+      </div>
+      <div class="water-bar"><div class="water-fill" id="waterFill" style="width:0%"></div></div>
     </div>
 
     <div class="section-title">⚖️ 今日體重</div>
     <div class="health-card">
       <div class="weight-input-wrap">
-        <input type="number" class="weight-input" id="weightInput" placeholder="--.-" step="0.1" />
-        <span class="weight-unit">kg</span>
-        <button onclick="saveWeight()" style="padding:10px 18px;background:#8B7355;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">記錄</button>
+        <input type="number" class="weight-input" id="weightInput" placeholder="--.-" step="0.1" min="20" max="300" />
+        <span class="water-unit">kg</span>
+        <button onclick="saveWeight()" style="padding:10px 16px;background:#8B7355;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">記錄</button>
       </div>
-      <div id="weightHistory" style="margin-top:10px;font-size:12px;color:#aaa;"></div>
+      <div id="weightNote" style="margin-top:8px;font-size:12px;color:#aaa;"></div>
     </div>
 
-    <div class="section-title">🍽️ 今日飲食比例</div>
+    <div class="section-title">🍽️ 今日飲食</div>
     <div class="health-card">
-      <div style="font-size:12px;color:#999;margin-bottom:10px;">目標：菜3：肉2：飯1</div>
-      <div class="diet-grid" id="dietGrid">
-        <div class="diet-item" id="diet-veg" onclick="toggleDiet('veg')">
-          <div class="diet-icon">🥦</div>
-          <div class="diet-label">蔬菜</div>
-          <div class="diet-ratio">佔 3 份</div>
-          <div class="diet-check" id="check-veg"></div>
+      <div style="font-size:12px;color:#999;margin-bottom:14px;">目標比例：蔬菜 3：蛋白質 2：澱粉 1<br>不管吃幾餐，評估今天整體飲食狀況</div>
+      <div class="diet-option-group">
+        <div class="diet-option-label">🥦 蔬菜攝取</div>
+        <div class="diet-options">
+          <div class="diet-opt" id="veg-0" onclick="setDiet('veg',0)">不足</div>
+          <div class="diet-opt" id="veg-1" onclick="setDiet('veg',1)">普通</div>
+          <div class="diet-opt" id="veg-2" onclick="setDiet('veg',2)">足夠</div>
         </div>
-        <div class="diet-item" id="diet-meat" onclick="toggleDiet('meat')">
-          <div class="diet-icon">🍗</div>
-          <div class="diet-label">蛋白質</div>
-          <div class="diet-ratio">佔 2 份</div>
-          <div class="diet-check" id="check-meat"></div>
+      </div>
+      <div class="diet-option-group">
+        <div class="diet-option-label">🍗 蛋白質攝取</div>
+        <div class="diet-options">
+          <div class="diet-opt" id="protein-0" onclick="setDiet('protein',0)">不足</div>
+          <div class="diet-opt" id="protein-1" onclick="setDiet('protein',1)">普通</div>
+          <div class="diet-opt" id="protein-2" onclick="setDiet('protein',2)">足夠</div>
         </div>
-        <div class="diet-item" id="diet-rice" onclick="toggleDiet('rice')">
-          <div class="diet-icon">🍚</div>
-          <div class="diet-label">澱粉</div>
-          <div class="diet-ratio">佔 1 份</div>
-          <div class="diet-check" id="check-rice"></div>
+      </div>
+      <div class="diet-option-group" style="margin-bottom:0;">
+        <div class="diet-option-label">🍚 澱粉控制</div>
+        <div class="diet-options">
+          <div class="diet-opt" id="carb-0" onclick="setDiet('carb',0)">過多</div>
+          <div class="diet-opt" id="carb-1" onclick="setDiet('carb',1)">普通</div>
+          <div class="diet-opt" id="carb-2" onclick="setDiet('carb',2)">控制好</div>
         </div>
       </div>
     </div>
 
     <div class="section-title">💊 今日產品打卡</div>
     <div id="prodCheckinList"></div>
+  </div>
+
+  <!-- 成果記錄 -->
+  <div class="page" id="page-stats">
+    <div class="month-cal" id="monthCalWrap">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+        <div class="cal-month" id="calMonthLabel"></div>
+        <button class="cal-nav" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="cal-grid" id="calWeekdays"></div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+    <div id="selectedDayDetail" style="display:none;">
+      <div class="health-card" id="selectedDayCard"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">⚖️ 體重趨勢（近30天）</div>
+      <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">💧 喝水量趨勢（近14天）</div>
+      <div class="chart-wrap"><canvas id="waterChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">✅ 打卡完成率（近14天）</div>
+      <div class="chart-wrap"><canvas id="checkinChart"></canvas></div>
+    </div>
   </div>
 
   <!-- 產品功效 -->
@@ -258,12 +308,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="myProductsDisplay" style="font-size:13px;color:#666;line-height:1.8;"></div>
       <button class="btn-secondary" onclick="reopenProductSelect()">重新選擇產品</button>
     </div>
-    <button class="btn-primary" style="margin-top:8px;" onclick="doLogout()">登出</button>
+    <button class="btn-primary" onclick="doLogout()">登出</button>
   </div>
 
   <div class="bottom-nav">
     <button class="nav-item active" onclick="switchPage('checkin',this)">
       <span class="nav-icon">📋</span><span class="nav-label">每日記錄</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('stats',this);loadStats()">
+      <span class="nav-icon">📊</span><span class="nav-label">成果記錄</span>
     </button>
     <button class="nav-item" onclick="switchPage('info',this)">
       <span class="nav-icon">📖</span><span class="nav-label">產品功效</span>
@@ -306,14 +359,12 @@ const ALL_PRODUCTS=[
   {id:21,cat:'養髮系列',name:'法樂蓬養髮原液',icon:'🌱'},
 ];
 
-let currentUser=null;
-let selectedProducts=[];
-let checkIns={};
-let healthData={};
-let infoData=[];
-let qaData=[];
-let infoCatFilter='all';
-let qaCatFilter='all';
+let currentUser=null,selectedProducts=[],checkIns={},healthData={};
+let infoData=[],qaData=[],infoCatFilter='all',qaCatFilter='all';
+let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+let allHealthData=[],wChart=null,waterCh=null,checkinCh=null;
+
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 // ===== LOGIN =====
 function switchLoginTab(tab,el){
@@ -334,8 +385,9 @@ async function doLogin(){
   if(!data){msg.textContent='帳號或密碼錯誤';return;}
   currentUser=data;
   try{selectedProducts=JSON.parse(currentUser.my_products||'[]');}catch(e){selectedProducts=[];}
-  if(selectedProducts.length===0){showProductModal();}
-  else{enterApp();}
+  // Save seller for next login
+  localStorage.setItem('ht_last_seller',seller);
+  if(selectedProducts.length===0){showProductModal();}else{enterApp();}
 }
 
 async function doRegister(){
@@ -348,13 +400,20 @@ async function doRegister(){
   if(!seller||!account||!nickname||!pwd){msg.textContent='請填寫所有欄位';return;}
   if(pwd!==pwd2){msg.textContent='兩次密碼不一致';return;}
   if(pwd.length<4){msg.textContent='密碼至少4個字元';return;}
-  const {data:existing}=await sb.from('customer_users').select('id').eq('seller_name',seller).eq('account',account).single();
-  if(existing){msg.textContent='此帳號已被使用';return;}
+  const {data:ex}=await sb.from('customer_users').select('id').eq('seller_name',seller).eq('account',account).single();
+  if(ex){msg.textContent='此帳號已被使用';return;}
   const {data:newUser}=await sb.from('customer_users').insert({seller_name:seller,account,nickname,password:pwd,my_products:'[]',created_at:new Date().toISOString()}).select().single();
   if(!newUser){msg.textContent='註冊失敗，請再試一次';return;}
   currentUser=newUser;selectedProducts=[];
+  localStorage.setItem('ht_last_seller',seller);
   showProductModal();
 }
+
+// Auto-fill seller on load
+window.addEventListener('load',()=>{
+  const saved=localStorage.getItem('ht_last_seller');
+  if(saved){document.getElementById('loginSeller').value=saved;}
+});
 
 function showProductModal(){
   document.getElementById('loginPage').style.display='none';
@@ -373,14 +432,14 @@ function showProductModal(){
 function toggleProd(id){
   if(selectedProducts.includes(id)){selectedProducts=selectedProducts.filter(x=>x!==id);}
   else{selectedProducts.push(id);}
-  const el=document.getElementById('psel-'+id);
-  const check=document.getElementById('pcheck-'+id);
   const sel=selectedProducts.includes(id);
+  const el=document.getElementById('psel-'+id);
+  const ch=document.getElementById('pcheck-'+id);
   el.style.border=`2px solid ${sel?'#8B7355':'#e8dcc8'}`;
   el.style.background=sel?'#fef9f3':'white';
-  check.style.background=sel?'#8B7355':'white';
-  check.style.border=`2px solid ${sel?'#8B7355':'#d4c4b0'}`;
-  check.textContent=sel?'✓':'';
+  ch.style.background=sel?'#8B7355':'white';
+  ch.style.border=`2px solid ${sel?'#8B7355':'#d4c4b0'}`;
+  ch.textContent=sel?'✓':'';
 }
 
 async function saveProductSelection(){
@@ -405,13 +464,12 @@ function enterApp(){
   document.getElementById('profileNickname').textContent=currentUser.nickname||'—';
   const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
   document.getElementById('myProductsDisplay').textContent=myProds.map(p=>p.name).join('、')||'尚未選擇';
+  const d=new Date();
+  document.getElementById('todayDateDisplay').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 健康記錄';
   loadAll();
 }
 
 async function loadAll(){
-  const today=getTodayStr();
-  const d=new Date();
-  document.getElementById('todayDateDisplay').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 健康記錄';
   await loadCheckIns();
   await loadHealthData();
   await loadInfo();
@@ -423,10 +481,8 @@ function doLogout(){
   currentUser=null;selectedProducts=[];checkIns={};healthData={};
   document.getElementById('mainPage').style.display='none';
   document.getElementById('loginPage').style.display='flex';
-  ['loginSeller','loginAccount','loginPwd'].forEach(id=>document.getElementById(id).value='');
+  ['loginAccount','loginPwd'].forEach(id=>document.getElementById(id).value='');
 }
-
-function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 function switchPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -439,63 +495,63 @@ function switchPage(page,el){
 async function loadHealthData(){
   const today=getTodayStr();
   const {data}=await sb.from('daily_health').select('*').eq('user_id',currentUser.id).eq('record_date',today).single();
-  healthData=data||{water_cups:0,weight:null,veg_done:false,meat_done:false,rice_done:false};
+  healthData=data||{water_ml:0,weight:null,veg_level:-1,protein_level:-1,carb_level:-1};
 }
 
 async function saveHealthField(field,value){
   const today=getTodayStr();
-  const existing=await sb.from('daily_health').select('id').eq('user_id',currentUser.id).eq('record_date',today).single();
-  if(existing.data){
-    await sb.from('daily_health').update({[field]:value}).eq('id',existing.data.id);
-  } else {
-    await sb.from('daily_health').insert({user_id:currentUser.id,record_date:today,[field]:value});
-  }
+  const {data:ex}=await sb.from('daily_health').select('id').eq('user_id',currentUser.id).eq('record_date',today).single();
+  if(ex){await sb.from('daily_health').update({[field]:value}).eq('id',ex.id);}
+  else{await sb.from('daily_health').insert({user_id:currentUser.id,record_date:today,[field]:value});}
   healthData[field]=value;
   updateScore();
 }
 
 // ===== WATER =====
-function renderWaterGrid(){
-  const cups=healthData.water_cups||0;
-  document.getElementById('waterCount').textContent=cups+' / 8 杯';
-  let html='';
-  for(let i=0;i<8;i++){
-    html+=`<div class="water-cup${i<cups?' filled':''}" onclick="toggleWater(${i+1})">💧</div>`;
-  }
-  document.getElementById('waterGrid').innerHTML=html;
+function setWaterPreset(delta){
+  const cur=parseInt(document.getElementById('waterInput').value)||healthData.water_ml||0;
+  document.getElementById('waterInput').value=Math.max(0,cur+delta);
 }
 
-async function toggleWater(cup){
-  const current=healthData.water_cups||0;
-  const newVal=cup===current?cup-1:cup;
-  await saveHealthField('water_cups',Math.max(0,newVal));
-  renderWaterGrid();
+async function saveWater(){
+  const val=parseInt(document.getElementById('waterInput').value)||0;
+  await saveHealthField('water_ml',val);
+  renderWater();
+  document.getElementById('waterInput').value='';
+}
+
+function renderWater(){
+  const ml=healthData.water_ml||0;
+  document.getElementById('waterLabel').textContent=ml+' ml';
+  const pct=Math.min(100,Math.round(ml/3000*100));
+  document.getElementById('waterFill').style.width=pct+'%';
+  if(ml>0)document.getElementById('waterInput').placeholder=ml+'';
 }
 
 // ===== WEIGHT =====
 async function saveWeight(){
   const val=parseFloat(document.getElementById('weightInput').value);
-  if(!val||val<20||val>300){alert('請輸入正確的體重（20-300kg）');return;}
+  if(!val||val<20||val>300){alert('請輸入正確體重');return;}
   await saveHealthField('weight',val);
-  document.getElementById('weightHistory').textContent='✓ 今日體重已記錄：'+val+' kg';
+  document.getElementById('weightNote').textContent='✓ 今日體重：'+val+' kg';
   document.getElementById('weightInput').value='';
 }
 
 // ===== DIET =====
-function renderDietGrid(){
-  ['veg','meat','rice'].forEach(type=>{
-    const done=healthData[type+'_done'];
-    const el=document.getElementById('diet-'+type);
-    const check=document.getElementById('check-'+type);
-    if(done){el.classList.add('done');check.textContent='✓';}
-    else{el.classList.remove('done');check.textContent='';}
-  });
+function setDiet(type,level){
+  healthData[type+'_level']=level;
+  renderDiet();
+  saveHealthField(type+'_level',level);
 }
 
-async function toggleDiet(type){
-  const newVal=!healthData[type+'_done'];
-  await saveHealthField(type+'_done',newVal);
-  renderDietGrid();
+function renderDiet(){
+  ['veg','protein','carb'].forEach(type=>{
+    const level=healthData[type+'_level'];
+    [0,1,2].forEach(i=>{
+      const el=document.getElementById(type+'-'+i);
+      if(el){if(level===i)el.classList.add('selected');else el.classList.remove('selected');}
+    });
+  });
 }
 
 // ===== PRODUCT CHECKIN =====
@@ -523,82 +579,167 @@ async function toggleProdCheck(prodId){
 }
 
 function renderCheckinPage(){
+  renderWater();
+  renderDiet();
+  if(healthData.weight)document.getElementById('weightNote').textContent='✓ 今日體重：'+healthData.weight+' kg';
   const today=getTodayStr();
-  renderWaterGrid();
-  renderDietGrid();
-  if(healthData.weight){document.getElementById('weightHistory').textContent='✓ 今日體重已記錄：'+healthData.weight+' kg';}
-  if(healthData.water_cups){document.getElementById('weightInput').value='';}
-
   const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
   const last14=[];
   for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);last14.push(d.toISOString().split('T')[0]);}
-
   document.getElementById('prodCheckinList').innerHTML=myProds.map(p=>{
     const isChecked=checkIns[p.id]&&checkIns[p.id].includes(today);
     const last7=last14.slice(-7);
-    const doneCount=last7.filter(d=>checkIns[p.id]&&checkIns[p.id].includes(d)).length;
-    const pct=Math.round(doneCount/7*100);
-    const dots=last14.map((d,i)=>{
+    const pct=Math.round(last7.filter(d=>checkIns[p.id]&&checkIns[p.id].includes(d)).length/7*100);
+    const dots=last14.map(d=>{
       const done=checkIns[p.id]&&checkIns[p.id].includes(d);
-      const isToday=d===today;
-      return `<div class="cal-dot${done?' done':''}${isToday?' today':''}">${new Date(d).getDate()}</div>`;
+      return `<div class="cal-dot${done?' done':''}${d===today?' today':''}">${new Date(d+'T00:00:00').getDate()}</div>`;
     }).join('');
     return `<div class="prod-card">
       <div class="prod-row">
-        <div class="prod-icon">${p.icon}</div>
-        <div class="prod-info">
-          <div class="prod-name">${p.name}</div>
-          <div class="prod-rate">近7天完成率 ${pct}%</div>
-        </div>
+        <div class="prod-icon-wrap">${p.icon}</div>
+        <div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-rate">近7天 ${pct}%</div></div>
         <div class="prod-check-btn${isChecked?' checked':''}" onclick="toggleProdCheck(${p.id})">${isChecked?'✓':''}</div>
       </div>
       <div class="cal-mini">${dots}</div>
     </div>`;
-  }).join('')||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">請先選擇你的產品</div>';
-
+  }).join('')||'<div style="text-align:center;padding:2rem;color:#aaa;">請先選擇你的產品</div>';
   updateScore();
 }
 
 function updateScore(){
-  const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
   const today=getTodayStr();
+  const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
   let total=0,done=0;
-  // Water (1 item)
-  total++;if((healthData.water_cups||0)>=6)done++;
-  // Weight (1 item)
+  total++;if((healthData.water_ml||0)>=1500)done++;
   total++;if(healthData.weight)done++;
-  // Diet (3 items)
   total+=3;
-  if(healthData.veg_done)done++;
-  if(healthData.meat_done)done++;
-  if(healthData.rice_done)done++;
-  // Products
+  if((healthData.veg_level||0)>=1)done++;
+  if((healthData.protein_level||0)>=1)done++;
+  if((healthData.carb_level||0)>=1)done++;
   myProds.forEach(p=>{total++;if(checkIns[p.id]&&checkIns[p.id].includes(today))done++;});
   const pct=total?Math.round(done/total*100):0;
   document.getElementById('todayScore').textContent=pct;
   document.getElementById('progressFill').style.width=pct+'%';
-  const msgs=['今天從這裡開始！加油！','很好的開始，繼續！','做得不錯，再加把勁！','超棒！繼續保持！','太優秀了！完美的一天！'];
-  document.getElementById('todayMsg').textContent=msgs[Math.floor(pct/25)]||msgs[4];
+  const msgs=['今天從這裡開始！','很好的開始，繼續！','做得不錯！再加把勁！','超棒！繼續保持！','太優秀了！完美的一天！'];
+  document.getElementById('todayMsg').textContent=msgs[Math.min(4,Math.floor(pct/25))];
 }
 
-// ===== PRODUCT INFO =====
+// ===== STATS / CHARTS =====
+async function loadStats(){
+  const {data:health}=await sb.from('daily_health').select('*').eq('user_id',currentUser.id).order('record_date');
+  allHealthData=health||[];
+  renderCalendar();
+  renderCharts();
+}
+
+function changeMonth(delta){
+  calMonth+=delta;
+  if(calMonth<0){calMonth=11;calYear--;}
+  if(calMonth>11){calMonth=0;calYear++;}
+  renderCalendar();
+}
+
+function renderCalendar(){
+  document.getElementById('calMonthLabel').textContent=calYear+'年'+(calMonth+1)+'月';
+  const weekdays=['日','一','二','三','四','五','六'];
+  document.getElementById('calWeekdays').innerHTML=weekdays.map(w=>`<div class="cal-weekday">${w}</div>`).join('');
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const today=getTodayStr();
+  let html='';
+  for(let i=0;i<firstDay;i++)html+='<div class="cal-day-cell empty"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const hd=allHealthData.find(x=>x.record_date===dateStr);
+    const isToday=dateStr===today;
+    const hasData=!!hd;
+    let dotColor='transparent';
+    if(hasData){
+      const score=calcDayScore(hd,dateStr);
+      if(score>=80)dotColor='#8B7355';
+      else if(score>=50)dotColor='#d4b896';
+      else dotColor='#e8dcc8';
+    }
+    html+=`<div class="cal-day-cell${isToday?' today':''}${hasData?' has-data':''}" onclick="showDayDetail('${dateStr}')">
+      ${d}
+      <div class="score-dot" style="background:${dotColor};"></div>
+    </div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
+
+function calcDayScore(hd,dateStr){
+  const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
+  let total=5+myProds.length,done=0;
+  if((hd.water_ml||0)>=1500)done++;
+  if(hd.weight)done++;
+  if((hd.veg_level||0)>=1)done++;
+  if((hd.protein_level||0)>=1)done++;
+  if((hd.carb_level||0)>=1)done++;
+  myProds.forEach(p=>{if(checkIns[p.id]&&checkIns[p.id].includes(dateStr))done++;});
+  return total?Math.round(done/total*100):0;
+}
+
+function showDayDetail(dateStr){
+  const hd=allHealthData.find(x=>x.record_date===dateStr);
+  const card=document.getElementById('selectedDayCard');
+  const wrap=document.getElementById('selectedDayDetail');
+  if(!hd){wrap.style.display='none';return;}
+  const score=calcDayScore(hd,dateStr);
+  const [y,m,d]=dateStr.split('-');
+  const vegLabels=['不足','普通','足夠'];
+  card.innerHTML=`<div style="font-size:13px;font-weight:600;color:#8B7355;margin-bottom:10px;">${y}年${parseInt(m)}月${parseInt(d)}日　完成率 ${score}%</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#555;">
+      <div>💧 喝水：${hd.water_ml||0} ml</div>
+      <div>⚖️ 體重：${hd.weight?hd.weight+' kg':'未記錄'}</div>
+      <div>🥦 蔬菜：${vegLabels[hd.veg_level]||'未填'}</div>
+      <div>🍗 蛋白：${vegLabels[hd.protein_level]||'未填'}</div>
+      <div>🍚 澱粉：${vegLabels[hd.carb_level]||'未填'}</div>
+    </div>`;
+  wrap.style.display='block';
+  wrap.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderCharts(){
+  const now=new Date();
+  const last30=[],last14=[];
+  for(let i=29;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);last30.push(d.toISOString().split('T')[0]);}
+  for(let i=13;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);last14.push(d.toISOString().split('T')[0]);}
+
+  // Weight chart
+  const wLabels=last30.map(d=>parseInt(d.split('-')[2])+'');
+  const wData=last30.map(d=>{const h=allHealthData.find(x=>x.record_date===d);return h&&h.weight?h.weight:null;});
+  if(wChart)wChart.destroy();
+  wChart=new Chart(document.getElementById('weightChart'),{type:'line',data:{labels:wLabels,datasets:[{data:wData,borderColor:'#8B7355',backgroundColor:'rgba(139,115,85,0.1)',pointRadius:3,pointBackgroundColor:'#8B7355',tension:0.3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},maxTicksLimit:10}},y:{ticks:{font:{size:10}}}}}});
+
+  // Water chart
+  const waterLabels=last14.map(d=>parseInt(d.split('-')[2])+'');
+  const waterData=last14.map(d=>{const h=allHealthData.find(x=>x.record_date===d);return h?h.water_ml||0:0;});
+  if(waterCh)waterCh.destroy();
+  waterCh=new Chart(document.getElementById('waterChart'),{type:'bar',data:{labels:waterLabels,datasets:[{data:waterData,backgroundColor:waterData.map(v=>v>=2000?'rgba(91,189,183,0.85)':'rgba(164,229,224,0.6)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10}},suggestedMax:3000}}}});
+
+  // Checkin chart
+  const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
+  const checkinLabels=last14.map(d=>parseInt(d.split('-')[2])+'');
+  const checkinData=last14.map(d=>{
+    if(!myProds.length)return 0;
+    const done=myProds.filter(p=>checkIns[p.id]&&checkIns[p.id].includes(d)).length;
+    return Math.round(done/myProds.length*100);
+  });
+  if(checkinCh)checkinCh.destroy();
+  checkinCh=new Chart(document.getElementById('checkinChart'),{type:'bar',data:{labels:checkinLabels,datasets:[{data:checkinData,backgroundColor:'rgba(139,115,85,0.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>v+'%'},max:100}}}});
+}
+
+// ===== INFO =====
 async function loadInfo(){
   const {data}=await sb.from('customer_products').select('*').eq('is_active',true);
   infoData=data||[];
   const cats=[...new Set(infoData.map(p=>p.category).filter(Boolean))];
-  const btnEl=document.getElementById('infoCatBtns');
-  btnEl.innerHTML=`<button class="cat-btn active" onclick="setInfoCat('all',this)">全部</button>`+cats.map(c=>`<button class="cat-btn" onclick="setInfoCat('${c}',this)">${c}</button>`).join('');
+  document.getElementById('infoCatBtns').innerHTML=`<button class="cat-btn active" onclick="setInfoCat('all',this)">全部</button>`+cats.map(c=>`<button class="cat-btn" onclick="setInfoCat('${c}',this)">${c}</button>`).join('');
   renderInfo();
 }
-
-function setInfoCat(cat,el){
-  infoCatFilter=cat;
-  document.querySelectorAll('#infoCatBtns .cat-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');renderInfo();
-}
-
+function setInfoCat(cat,el){infoCatFilter=cat;document.querySelectorAll('#infoCatBtns .cat-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderInfo();}
 function filterInfo(){renderInfo();}
-
 function renderInfo(){
   const q=document.getElementById('infoSearch').value.toLowerCase();
   let list=infoData;
@@ -619,19 +760,11 @@ async function loadQA(){
   const {data}=await sb.from('product_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
   qaData=data||[];
   const cats=[...new Set(qaData.map(q=>q.category).filter(Boolean))];
-  const btnEl=document.getElementById('qaCatBtns');
-  btnEl.innerHTML=`<button class="cat-btn active" onclick="setQACat('all',this)">全部</button>`+cats.map(c=>`<button class="cat-btn" onclick="setQACat('${c}',this)">${c}</button>`).join('');
+  document.getElementById('qaCatBtns').innerHTML=`<button class="cat-btn active" onclick="setQACat('all',this)">全部</button>`+cats.map(c=>`<button class="cat-btn" onclick="setQACat('${c}',this)">${c}</button>`).join('');
   renderQA();
 }
-
-function setQACat(cat,el){
-  qaCatFilter=cat;
-  document.querySelectorAll('#qaCatBtns .cat-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');renderQA();
-}
-
+function setQACat(cat,el){qaCatFilter=cat;document.querySelectorAll('#qaCatBtns .cat-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderQA();}
 function filterQA(){renderQA();}
-
 function renderQA(){
   const q=document.getElementById('qaSearch').value.toLowerCase();
   let list=qaData;
