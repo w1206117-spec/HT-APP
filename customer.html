@@ -118,6 +118,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .profile-value{font-size:14px;font-weight:600;color:#3d2f24;}
 .btn-primary{background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:8px;}
 .btn-secondary{background:#f5f0e8;color:#5a4a3a;border:none;border-radius:10px;padding:12px;font-size:14px;cursor:pointer;width:100%;margin-top:8px;}
+/* SLEEP */
+.sleep-hours-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.sleep-btn{padding:8px 13px;border-radius:20px;border:1.5px solid #d4c4b0;background:white;font-size:12px;color:#8B7355;cursor:pointer;font-weight:500;flex-shrink:0;transition:all 0.15s;}
+.sleep-btn.selected{background:#6B5B8A;border-color:#6B5B8A;color:white;}
+.sleep-quality{font-size:12px;margin-top:10px;padding:8px 12px;border-radius:10px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -279,6 +284,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
 
+    <div class="section-title">🌙 今晚睡眠</div>
+    <div class="health-card">
+      <div class="health-card-title">睡眠時間 <span style="font-size:12px;color:#aaa;" id="sleepLabel">尚未記錄</span></div>
+      <div class="sleep-hours-row" id="sleepBtns">
+        <button class="sleep-btn" onclick="setSleep(4)">4小時</button>
+        <button class="sleep-btn" onclick="setSleep(5)">5小時</button>
+        <button class="sleep-btn" onclick="setSleep(6)">6小時</button>
+        <button class="sleep-btn" onclick="setSleep(7)">7小時</button>
+        <button class="sleep-btn" onclick="setSleep(8)">8小時</button>
+        <button class="sleep-btn" onclick="setSleep(9)">9小時</button>
+        <button class="sleep-btn" onclick="setSleep(10)">10小時+</button>
+      </div>
+      <div id="sleepQuality" class="sleep-quality" style="display:none;"></div>
+    </div>
+
     <div class="section-title">💊 今日產品打卡</div>
     <div id="prodCheckinList"></div>
   </div>
@@ -313,6 +333,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="chart-card">
       <div class="chart-title">✅ 打卡完成率（近14天）</div>
       <div class="chart-wrap"><canvas id="checkinChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🌙 睡眠時間（近14天）</div>
+      <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
     </div>
   </div>
 
@@ -403,7 +427,7 @@ const ALL_PRODUCTS=[
 let currentUser=null,selectedProducts=[],checkIns={},healthData={};
 let infoData=[],qaData=[],infoCatFilter='all',qaCatFilter='all';
 let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
-let allHealthData=[],wChart=null,waterCh=null,checkinCh=null;
+let allHealthData=[],wChart=null,waterCh=null,checkinCh=null,sleepCh=null;
 
 function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
@@ -581,20 +605,35 @@ function switchPage(page,el){
 async function loadHealthData(){
   const today=getTodayStr();
   const {data}=await sb.from('daily_health').select('*').eq('user_id',currentUser.id).eq('record_date',today).maybeSingle();
-  healthData=data||{water_ml:0,weight:null,veg_level:-1,protein_level:-1,carb_level:-1};
+  healthData=data||{water_ml:0,weight:null,veg_level:-1,protein_level:-1,carb_level:-1,sleep_hours:null};
 }
 
 async function saveHealthField(field,value){
   const today=getTodayStr();
   try{
-    await sb.from('daily_health').upsert(
-      {user_id:currentUser.id,record_date:today,[field]:value},
-      {onConflict:'user_id,record_date',ignoreDuplicates:false}
-    );
+    // Try to find existing record
+    const {data:existing}=await sb.from('daily_health').select('id').eq('user_id',currentUser.id).eq('record_date',today).maybeSingle();
+    if(existing&&existing.id){
+      await sb.from('daily_health').update({[field]:value}).eq('id',existing.id);
+    } else {
+      // Build full record with current healthData
+      const record={user_id:currentUser.id,record_date:today};
+      // Include all current health fields
+      if(healthData.water_ml!==undefined)record.water_ml=healthData.water_ml||0;
+      if(healthData.weight!==undefined&&healthData.weight)record.weight=healthData.weight;
+      if(healthData.veg_level!==undefined&&healthData.veg_level>=0)record.veg_level=healthData.veg_level;
+      if(healthData.protein_level!==undefined&&healthData.protein_level>=0)record.protein_level=healthData.protein_level;
+      if(healthData.carb_level!==undefined&&healthData.carb_level>=0)record.carb_level=healthData.carb_level;
+      // Override with new field
+      record[field]=value;
+      await sb.from('daily_health').insert(record);
+    }
     healthData[field]=value;
     updateScore();
+    console.log('Saved:',field,'=',value);
   } catch(e){
     console.error('saveHealthField error:',e);
+    alert('儲存失敗，請再試一次');
   }
 }
 
@@ -603,14 +642,20 @@ async function addWater(delta){
   const cur=healthData.water_ml||0;
   const newVal=Math.max(0,cur+delta);
   document.getElementById('waterInput').value=newVal;
-  await saveHealthField('water_ml',newVal);
+  healthData.water_ml=newVal;
   renderWater();
+  await saveHealthField('water_ml',newVal);
 }
 
 async function saveWater(){
   const val=parseInt(document.getElementById('waterInput').value)||0;
+  if(val<0||val>10000){return;}
+  const btn=document.querySelector('[onclick="saveWater()"]');
+  if(btn){btn.textContent='儲存中...';btn.disabled=true;}
   await saveHealthField('water_ml',val);
+  healthData.water_ml=val;
   renderWater();
+  if(btn){btn.textContent='儲存';btn.disabled=false;}
 }
 
 function renderWater(){
@@ -625,10 +670,13 @@ function renderWater(){
 // ===== WEIGHT =====
 async function saveWeight(){
   const val=parseFloat(document.getElementById('weightInput').value);
-  if(!val||val<20||val>300){alert('請輸入正確體重');return;}
+  if(!val||val<20||val>300){alert('請輸入正確體重（20-300kg）');return;}
+  const btn=document.querySelector('[onclick="saveWeight()"]');
+  if(btn){btn.textContent='儲存中...';btn.disabled=true;}
   await saveHealthField('weight',val);
-  document.getElementById('weightNote').textContent='✓ 今日體重：'+val+' kg';
+  document.getElementById('weightNote').textContent='✓ 今日體重已儲存：'+val+' kg';
   document.getElementById('weightInput').value='';
+  if(btn){btn.textContent='記錄';btn.disabled=false;}
 }
 
 // ===== DIET =====
@@ -646,6 +694,37 @@ function renderDiet(){
       if(el){if(level===i)el.classList.add('selected');else el.classList.remove('selected');}
     });
   });
+}
+
+// ===== SLEEP =====
+const SLEEP_HOURS=[4,5,6,7,8,9,10];
+async function setSleep(hours){
+  await saveHealthField('sleep_hours',hours);
+  renderSleep();
+}
+function renderSleep(){
+  const h=healthData.sleep_hours;
+  const btns=document.querySelectorAll('.sleep-btn');
+  btns.forEach((btn,i)=>btn.classList.toggle('selected',h===SLEEP_HOURS[i]));
+  const label=document.getElementById('sleepLabel');
+  const quality=document.getElementById('sleepQuality');
+  if(h){
+    label.textContent=h>=10?'10小時以上':h+' 小時';
+    quality.style.display='block';
+    if(h<6){
+      quality.textContent='😴 睡眠稍嫌不足，建議今晚早點休息';
+      quality.style.cssText='display:block;background:#fff3f0;color:#c0392b;font-size:12px;margin-top:10px;padding:8px 12px;border-radius:10px;line-height:1.5;';
+    } else if(h<8){
+      quality.textContent='🌙 睡眠時間不錯，保持規律作息更好！';
+      quality.style.cssText='display:block;background:#fef9f3;color:#8B7355;font-size:12px;margin-top:10px;padding:8px 12px;border-radius:10px;line-height:1.5;';
+    } else {
+      quality.textContent='✨ 充足睡眠是最棒的恢復！繼續保持！';
+      quality.style.cssText='display:block;background:#f0faf5;color:#1D9E75;font-size:12px;margin-top:10px;padding:8px 12px;border-radius:10px;line-height:1.5;';
+    }
+  } else {
+    label.textContent='尚未記錄';
+    quality.style.display='none';
+  }
 }
 
 // ===== PRODUCT CHECKIN =====
@@ -675,6 +754,7 @@ async function toggleProdCheck(prodId){
 function renderCheckinPage(){
   renderWater();
   renderDiet();
+  renderSleep();
   if(healthData.weight)document.getElementById('weightNote').textContent='✓ 今日體重：'+healthData.weight+' kg';
   const today=getTodayStr();
   const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
@@ -710,6 +790,7 @@ function updateScore(){
   if((healthData.veg_level||0)>=1)done++;
   if((healthData.protein_level||0)>=1)done++;
   if((healthData.carb_level||0)>=1)done++;
+  total++;if(healthData.sleep_hours&&healthData.sleep_hours>=6)done++;
   myProds.forEach(p=>{total++;if(checkIns[p.id]&&checkIns[p.id].includes(today))done++;});
   const pct=total?Math.round(done/total*100):0;
   document.getElementById('todayScore').textContent=pct;
@@ -764,12 +845,13 @@ function renderCalendar(){
 
 function calcDayScore(hd,dateStr){
   const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
-  let total=5+myProds.length,done=0;
+  let total=6+myProds.length,done=0;
   if((hd.water_ml||0)>=1500)done++;
   if(hd.weight)done++;
   if((hd.veg_level||0)>=1)done++;
   if((hd.protein_level||0)>=1)done++;
   if((hd.carb_level||0)>=1)done++;
+  if(hd.sleep_hours&&hd.sleep_hours>=6)done++;
   myProds.forEach(p=>{if(checkIns[p.id]&&checkIns[p.id].includes(dateStr))done++;});
   return total?Math.round(done/total*100):0;
 }
@@ -789,12 +871,14 @@ function showDayDetail(dateStr){
       <div>🥦 蔬菜：${vegLabels[hd.veg_level]||'未填'}</div>
       <div>🍗 蛋白：${vegLabels[hd.protein_level]||'未填'}</div>
       <div>🍚 澱粉：${vegLabels[hd.carb_level]||'未填'}</div>
+      <div>🌙 睡眠：${hd.sleep_hours?hd.sleep_hours+(hd.sleep_hours>=10?'小時以上':' 小時'):'未記錄'}</div>
     </div>`;
   wrap.style.display='block';
   wrap.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function renderCharts(){
+  if(!allHealthData){allHealthData=[];}
   const now=new Date();
   const last30=[],last14=[];
   for(let i=29;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);last30.push(d.toISOString().split('T')[0]);}
@@ -862,6 +946,12 @@ function renderCharts(){
   });
   if(checkinCh)checkinCh.destroy();
   checkinCh=new Chart(document.getElementById('checkinChart'),{type:'bar',data:{labels:checkinLabels,datasets:[{data:checkinData,backgroundColor:'rgba(139,115,85,0.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>v+'%'},max:100}}}});
+
+  // Sleep chart
+  const sleepLabels=last14.map(d=>parseInt(d.split('-')[2])+'');
+  const sleepData=last14.map(d=>{const h=allHealthData.find(x=>x.record_date===d);return h&&h.sleep_hours?h.sleep_hours:null;});
+  if(sleepCh)sleepCh.destroy();
+  sleepCh=new Chart(document.getElementById('sleepChart'),{type:'bar',data:{labels:sleepLabels,datasets:[{data:sleepData,backgroundColor:sleepData.map(v=>v===null?'rgba(200,190,210,0.3)':v>=8?'rgba(107,91,138,0.85)':v>=6?'rgba(155,135,185,0.75)':'rgba(220,160,140,0.7)'),borderRadius:5,spanGaps:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.raw===null?'未記錄':v.raw+'小時'}}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>v+'h'},min:0,max:12,grid:{color:'rgba(0,0,0,0.05)'}},},}});
 }
 
 // ===== INFO =====
