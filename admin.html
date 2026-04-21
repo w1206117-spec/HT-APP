@@ -154,20 +154,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="filter-btn active" onclick="setPQAFilter('all',this)">全部</button>
       </div>
       <div id="pqaList"><div class="empty">載入中...</div></div>
-      <div id="pqaForm" style="display:none;">
-        <div class="card" style="border:2px solid #A4E5E0;">
-          <div class="card-title" id="pqaFormTitle">新增Q&A</div>
-          <input type="hidden" id="editPQAId" />
-          <div class="field"><label>分類（輸入或選擇）</label>
-            <input type="text" id="pqaCat" placeholder="例：招商問題、產品問題、系統操作" list="pqaCatList" />
-            <datalist id="pqaCatList"></datalist>
-          </div>
-          <div class="field"><label>問題</label><input type="text" id="pqaQ" placeholder="輸入問題..." /></div>
-          <div class="field"><label>回答</label><textarea id="pqaA" rows="5" placeholder="輸入詳細回答..."></textarea></div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-approve" style="flex:1;" onclick="savePQA()">儲存</button>
-            <button class="btn btn-reject" style="flex:1;" onclick="hidePQAForm()">取消</button>
-          </div>
+    </div>
+
+    <!-- 夥伴Q&A Modal (outside section, always reachable) -->
+    <div id="pqaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;overflow-y:auto;padding:1rem;">
+      <div style="background:white;border-radius:16px;padding:1.5rem;max-width:520px;margin:2rem auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div style="font-size:16px;font-weight:600;color:#333;" id="pqaFormTitle">新增Q&A</div>
+          <button onclick="hidePQAForm()" style="background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;">✕</button>
+        </div>
+        <input type="hidden" id="editPQAId" />
+        <div class="field"><label>分類（輸入或選擇）</label>
+          <input type="text" id="pqaCat" placeholder="例：招商問題、產品問題、系統操作" list="pqaCatList" />
+          <datalist id="pqaCatList"></datalist>
+        </div>
+        <div class="field"><label>問題</label><input type="text" id="pqaQ" placeholder="輸入問題..." /></div>
+        <div class="field"><label>回答</label><textarea id="pqaA" rows="5" placeholder="輸入詳細回答..."></textarea></div>
+        <div id="pqaSaveMsg" style="font-size:13px;color:#E24B4A;margin-bottom:8px;min-height:18px;"></div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="btn btn-approve" style="flex:1;padding:12px;" onclick="savePQA()">✓ 儲存</button>
+          <button class="btn btn-reject" style="flex:1;padding:12px;" onclick="hidePQAForm()">取消</button>
         </div>
       </div>
     </div>
@@ -212,20 +218,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="filter-btn active" onclick="setCQAFilter('all',this)">全部</button>
       </div>
       <div id="cqaList"><div class="empty">載入中...</div></div>
-      <div id="cqaForm" style="display:none;">
-        <div class="card" style="border:2px solid #5BBDB7;">
-          <div class="card-title" id="cqaFormTitle">新增Q&A</div>
-          <input type="hidden" id="editCQAId" />
-          <div class="field"><label>分類（輸入或選擇）</label>
-            <input type="text" id="cqaCat" placeholder="例：纖體問題、美肌問題" list="cqaCatList" />
-            <datalist id="cqaCatList"></datalist>
-          </div>
-          <div class="field"><label>問題</label><input type="text" id="cqaQ" placeholder="例：可以空腹吃嗎？" /></div>
-          <div class="field"><label>回答</label><textarea id="cqaA" rows="4" placeholder="詳細回答..."></textarea></div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-approve" style="flex:1;" onclick="saveCQA()">儲存</button>
-            <button class="btn btn-reject" style="flex:1;" onclick="hideCQAForm()">取消</button>
-          </div>
+    </div>
+
+    <!-- 客人Q&A Modal -->
+    <div id="cqaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;overflow-y:auto;padding:1rem;">
+      <div style="background:white;border-radius:16px;padding:1.5rem;max-width:520px;margin:2rem auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div style="font-size:16px;font-weight:600;color:#333;" id="cqaFormTitle">新增Q&A</div>
+          <button onclick="hideCQAForm()" style="background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;">✕</button>
+        </div>
+        <input type="hidden" id="editCQAId" />
+        <div class="field"><label>分類（輸入或選擇）</label>
+          <input type="text" id="cqaCat" placeholder="例：纖體問題、美肌問題" list="cqaCatList" />
+          <datalist id="cqaCatList"></datalist>
+        </div>
+        <div class="field"><label>問題</label><input type="text" id="cqaQ" placeholder="例：可以空腹吃嗎？" /></div>
+        <div class="field"><label>回答</label><textarea id="cqaA" rows="4" placeholder="詳細回答..."></textarea></div>
+        <div id="cqaSaveMsg" style="font-size:13px;color:#E24B4A;margin-bottom:8px;min-height:18px;"></div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="btn btn-approve" style="flex:1;padding:12px;" onclick="saveCQA()">✓ 儲存</button>
+          <button class="btn btn-reject" style="flex:1;padding:12px;" onclick="hideCQAForm()">取消</button>
         </div>
       </div>
     </div>
@@ -461,8 +473,9 @@ function showAddPQA(){
   document.getElementById('pqaFormTitle').textContent='新增Q&A';
   document.getElementById('editPQAId').value='';
   ['pqaCat','pqaQ','pqaA'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('pqaForm').style.display='block';
-  document.getElementById('pqaForm').scrollIntoView({behavior:'smooth'});
+  document.getElementById('pqaSaveMsg').textContent='';
+  document.getElementById('pqaModal').style.display='block';
+  document.body.style.overflow='hidden';
 }
 function editPQA(id){
   const q=pqaData.find(x=>x.id===id);if(!q)return;
@@ -471,18 +484,26 @@ function editPQA(id){
   document.getElementById('pqaCat').value=q.category||'';
   document.getElementById('pqaQ').value=q.question||'';
   document.getElementById('pqaA').value=q.answer||'';
-  document.getElementById('pqaForm').style.display='block';
-  document.getElementById('pqaForm').scrollIntoView({behavior:'smooth'});
+  document.getElementById('pqaSaveMsg').textContent='';
+  document.getElementById('pqaModal').style.display='block';
+  document.body.style.overflow='hidden';
 }
 async function savePQA(){
   const id=document.getElementById('editPQAId').value;
   const data={category:document.getElementById('pqaCat').value.trim(),question:document.getElementById('pqaQ').value.trim(),answer:document.getElementById('pqaA').value.trim(),is_active:true};
-  if(!data.question){alert('請填寫問題');return;}
-  if(id){await sb.from('partner_qa').update(data).eq('id',id);}
-  else{await sb.from('partner_qa').insert(data);}
-  hidePQAForm();await loadPQA();alert('Q&A已儲存！');
+  const msgEl=document.getElementById('pqaSaveMsg');
+  if(!data.question){msgEl.textContent='請填寫問題';return;}
+  if(!data.answer){msgEl.textContent='請填寫回答';return;}
+  msgEl.textContent='儲存中...';msgEl.style.color='#aaa';
+  try{
+    let err;
+    if(id){const r=await sb.from('partner_qa').update(data).eq('id',id);err=r.error;}
+    else{const r=await sb.from('partner_qa').insert(data);err=r.error;}
+    if(err){msgEl.style.color='#E24B4A';msgEl.textContent='儲存失敗：'+err.message;return;}
+    hidePQAForm();await loadPQA();
+  }catch(e){msgEl.style.color='#E24B4A';msgEl.textContent='發生錯誤，請重試';}
 }
-function hidePQAForm(){document.getElementById('pqaForm').style.display='none';}
+function hidePQAForm(){document.getElementById('pqaModal').style.display='none';document.body.style.overflow='';}
 async function togglePQA(id,isActive){await sb.from('partner_qa').update({is_active:!isActive}).eq('id',id);await loadPQA();}
 async function deletePQA(id){if(!confirm('確定刪除？'))return;await sb.from('partner_qa').delete().eq('id',id);await loadPQA();}
 
@@ -573,8 +594,9 @@ function showAddCQA(){
   document.getElementById('cqaFormTitle').textContent='新增Q&A';
   document.getElementById('editCQAId').value='';
   ['cqaCat','cqaQ','cqaA'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('cqaForm').style.display='block';
-  document.getElementById('cqaForm').scrollIntoView({behavior:'smooth'});
+  document.getElementById('cqaSaveMsg').textContent='';
+  document.getElementById('cqaModal').style.display='block';
+  document.body.style.overflow='hidden';
 }
 function editCQA(id){
   const q=cqaData.find(x=>x.id===id);if(!q)return;
@@ -583,18 +605,25 @@ function editCQA(id){
   document.getElementById('cqaCat').value=q.category||'';
   document.getElementById('cqaQ').value=q.question||'';
   document.getElementById('cqaA').value=q.answer||'';
-  document.getElementById('cqaForm').style.display='block';
-  document.getElementById('cqaForm').scrollIntoView({behavior:'smooth'});
+  document.getElementById('cqaSaveMsg').textContent='';
+  document.getElementById('cqaModal').style.display='block';
+  document.body.style.overflow='hidden';
 }
 async function saveCQA(){
   const id=document.getElementById('editCQAId').value;
   const data={category:document.getElementById('cqaCat').value.trim(),question:document.getElementById('cqaQ').value.trim(),answer:document.getElementById('cqaA').value.trim(),is_active:true};
-  if(!data.question||!data.answer){alert('請填寫問題和回答');return;}
-  if(id){await sb.from('product_qa').update(data).eq('id',id);}
-  else{await sb.from('product_qa').insert({...data,created_at:new Date().toISOString()});}
-  hideCQAForm();await loadCQA();alert('Q&A已儲存！');
+  const msgEl=document.getElementById('cqaSaveMsg');
+  if(!data.question||!data.answer){msgEl.textContent='請填寫問題和回答';return;}
+  msgEl.textContent='儲存中...';msgEl.style.color='#aaa';
+  try{
+    let err;
+    if(id){const r=await sb.from('product_qa').update(data).eq('id',id);err=r.error;}
+    else{const r=await sb.from('product_qa').insert({...data,created_at:new Date().toISOString()});err=r.error;}
+    if(err){msgEl.style.color='#E24B4A';msgEl.textContent='儲存失敗：'+err.message;return;}
+    hideCQAForm();await loadCQA();
+  }catch(e){msgEl.style.color='#E24B4A';msgEl.textContent='發生錯誤，請重試';}
 }
-function hideCQAForm(){document.getElementById('cqaForm').style.display='none';}
+function hideCQAForm(){document.getElementById('cqaModal').style.display='none';document.body.style.overflow='';}
 async function toggleCQA(id,isActive){await sb.from('product_qa').update({is_active:!isActive}).eq('id',id);await loadCQA();}
 async function deleteCQA(id){if(!confirm('確定刪除？'))return;await sb.from('product_qa').delete().eq('id',id);await loadCQA();}
 </script>
