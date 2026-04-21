@@ -3,127 +3,124 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="description" content="婕樂纖系列完整指南 · 科學體控 · 卓越品質">
-<meta name="theme-color" content="#C9A884">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="HT 小錦囊">
-<link rel="manifest" href="/HT-APP/manifest-customer.json">
-<link rel="apple-touch-icon" href="/HT-APP/app3.jpg">
-<link rel="icon" type="image/jpeg" href="/HT-APP/app3.jpg">
+<link rel="apple-touch-icon" href="app3.jpg">
 <title>HT 客人小錦囊</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Sans TC',-apple-system,sans-serif;background:#f5f0e8;min-height:100vh;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f0e8;min-height:100vh;}
 
-/* LOGIN PAGE */
+/* LOGIN */
 #loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:url('HT2.jpg') center/cover no-repeat;}
 .login-brand{text-align:center;margin-bottom:1.5rem;}
 .login-brand h1{font-size:22px;font-weight:600;color:white;letter-spacing:2px;margin-bottom:4px;}
-.login-brand h2{font-size:18px;font-weight:500;color:rgba(255,255,255,0.9);letter-spacing:1px;}
-.login-tagline{font-size:14px;color:rgba(255,255,255,0.7);text-align:center;margin-bottom:2rem;letter-spacing:2px;}
-.login-card{background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-radius:18px;padding:2rem;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
-.login-card input{width:100%;padding:13px 16px;border:1px solid #d4c4b0;border-radius:12px;font-size:15px;margin-bottom:14px;outline:none;background:white;color:#3d2f24;font-family:inherit;}
+.login-brand h2{font-size:16px;color:rgba(255,255,255,0.85);}
+.login-tagline{font-size:13px;color:rgba(255,255,255,0.7);text-align:center;margin-bottom:2rem;letter-spacing:2px;}
+.login-card{background:rgba(255,255,255,0.95);border-radius:18px;padding:2rem;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.login-tabs{display:flex;gap:0;margin-bottom:1.5rem;background:#f5f0e8;border-radius:10px;padding:3px;}
+.login-tab{flex:1;padding:8px;text-align:center;font-size:13px;color:#888;cursor:pointer;border-radius:8px;border:none;background:transparent;}
+.login-tab.active{background:white;color:#8B7355;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+.login-card input{width:100%;padding:12px 14px;border:1px solid #d4c4b0;border-radius:10px;font-size:14px;margin-bottom:10px;outline:none;background:white;}
 .login-card input:focus{border-color:#A67C5B;}
-.login-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;font-size:16px;font-weight:600;cursor:pointer;letter-spacing:1px;}
-.login-msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:10px;}
+.login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;font-size:15px;font-weight:600;cursor:pointer;}
+.login-msg{font-size:13px;color:#E24B4A;text-align:center;margin-top:10px;min-height:20px;}
 
-/* PRODUCT SELECTION */
-#productSelectModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;}
-#productSelectModal.show{display:flex;}
-.select-box{background:white;border-radius:18px;padding:1.5rem;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;}
-.select-title{font-size:18px;font-weight:700;color:#5a4a3a;margin-bottom:8px;}
-.select-desc{font-size:13px;color:#999;margin-bottom:1.5rem;line-height:1.6;}
-.prod-select-item{display:flex;align-items:center;gap:12px;padding:12px;background:#fef9f3;border-radius:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;}
-.prod-select-item.selected{border-color:#8B7355;background:#f5f0e8;}
-.prod-select-icon{width:40px;height:40px;border-radius:10px;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.prod-select-info{flex:1;}
-.prod-select-name{font-size:14px;font-weight:600;color:#3d2f24;}
-.prod-select-cat{font-size:11px;color:#999;}
-.prod-select-check{width:24px;height:24px;border-radius:50%;border:2px solid #d4c4b0;background:white;display:flex;align-items:center;justify-content:center;font-size:14px;}
-.prod-select-check.checked{background:#8B7355;border-color:#8B7355;color:white;}
-
-/* WELCOME MODAL */
-#welcomeModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;padding:1.5rem;}
-#welcomeModal.show{display:flex;}
-.welcome-box{background:white;border-radius:18px;padding:1.5rem 1.8rem;max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.3);position:relative;}
-.welcome-close{position:absolute;top:12px;right:12px;background:none;border:none;font-size:24px;color:#ccc;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
-.welcome-title{font-size:18px;font-weight:700;color:#5a4a3a;margin-bottom:12px;text-align:center;line-height:1.5;}
-.welcome-announce{background:#fef9f3;border-left:4px solid #A67C5B;padding:12px 14px;border-radius:8px;font-size:14px;color:#5a4a3a;line-height:1.7;margin-top:10px;}
-
-/* MAIN APP */
+/* MAIN */
 #mainPage{display:none;padding-bottom:80px;}
-.app-header{background:linear-gradient(135deg,#8B7355,#A67C5B);padding:1.5rem 1.25rem 1.25rem;color:white;}
-.header-brand{font-size:11px;font-weight:600;letter-spacing:2px;opacity:0.8;margin-bottom:3px;}
-.header-title{font-size:24px;font-weight:700;letter-spacing:1px;margin-bottom:3px;}
-.header-sub{font-size:12px;opacity:0.75;line-height:1.6;}
+.app-header{background:linear-gradient(135deg,#8B7355,#A67C5B);padding:1.25rem;color:white;}
+.header-brand{font-size:11px;opacity:0.7;letter-spacing:2px;margin-bottom:2px;}
+.header-title{font-size:22px;font-weight:700;}
+.header-sub{font-size:12px;opacity:0.7;margin-top:2px;}
 
-/* TABS */
-.tabs-wrap{background:white;border-bottom:1px solid #e8dcc8;padding:0 0.5rem;overflow-x:auto;white-space:nowrap;}
-.tabs{display:inline-flex;gap:2px;}
-.tab{padding:12px 14px;font-size:12px;color:#999;cursor:pointer;border-bottom:2px solid transparent;display:inline-block;white-space:nowrap;}
-.tab.active{color:#8B7355;border-bottom-color:#A67C5B;font-weight:600;}
+/* NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e8dcc8;display:flex;z-index:100;}
+.nav-item{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;}
+.nav-icon{font-size:19px;display:block;margin-bottom:2px;}
+.nav-label{font-size:10px;color:#aaa;}
+.nav-item.active .nav-label{color:#8B7355;font-weight:600;}
 
 /* PAGES */
 .page{display:none;padding:1rem;}
 .page.active{display:block;}
 
-/* CHECKIN PAGE */
-.checkin-hero{background:linear-gradient(135deg,#fef9f3,#f5f0e8);border-radius:16px;padding:1.5rem;margin-bottom:1rem;border:1.5px solid #e8dcc8;text-align:center;}
-.checkin-percent{font-size:48px;font-weight:700;color:#8B7355;margin-bottom:8px;}
-.checkin-msg{font-size:15px;font-weight:600;color:#5a4a3a;line-height:1.6;}
-.my-prod-card{background:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:10px;box-shadow:0 2px 10px rgba(139,115,85,0.08);display:flex;align-items:center;gap:12px;border:1.5px solid transparent;}
-.my-prod-card.checked-today{border-color:#8B7355;background:#fef9f3;}
-.my-prod-icon{width:44px;height:44px;border-radius:12px;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.my-prod-info{flex:1;min-width:0;}
-.my-prod-name{font-size:14px;font-weight:700;color:#3d2f24;margin-bottom:2px;}
-.my-prod-rate{font-size:12px;color:#999;}
-.my-prod-check{width:32px;height:32px;border-radius:50%;border:2px solid #d4c4b0;background:white;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;}
-.my-prod-check.checked{background:#8B7355;border-color:#8B7355;color:white;}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px;}
-.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:11px;color:#999;background:#fafafa;}
-.cal-day.checked{background:#8B7355;color:white;font-weight:600;}
-.cal-day.today{border:2px solid #A67C5B;}
-
-/* PRODUCT INFO PAGE */
-.search-box{display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+/* SEARCH + FILTER */
+.search-box{display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
 .search-box input{flex:1;border:none;outline:none;font-size:14px;color:#333;background:transparent;}
-.search-icon{font-size:16px;color:#aaa;}
-.info-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:12px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
-.info-title{font-size:15px;font-weight:700;color:#3d2f24;margin-bottom:8px;}
-.info-cat{font-size:11px;padding:3px 10px;border-radius:8px;background:#e8dcc8;color:#5a4a3a;font-weight:600;display:inline-block;margin-bottom:10px;}
-.info-section{margin-bottom:12px;}
-.info-label{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
-.info-content{font-size:13px;color:#5a4a3a;line-height:1.7;}
+.cat-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:1rem;scrollbar-width:none;}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #d4c4b0;background:white;font-size:12px;color:#8B7355;cursor:pointer;white-space:nowrap;flex-shrink:0;font-weight:500;}
+.cat-btn.active{background:#8B7355;border-color:#8B7355;color:white;}
 
-/* QA PAGE */
+/* CARDS */
+.info-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:12px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
+.info-title{font-size:15px;font-weight:700;color:#3d2f24;margin-bottom:6px;}
+.cat-tag{font-size:11px;padding:3px 10px;border-radius:8px;background:#e8dcc8;color:#5a4a3a;font-weight:600;display:inline-block;margin-bottom:10px;}
+.info-label{font-size:11px;font-weight:700;color:#999;letter-spacing:1px;margin-bottom:4px;}
+.info-content{font-size:13px;color:#5a4a3a;line-height:1.7;}
 .qa-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:10px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
 .qa-q{font-size:14px;font-weight:700;color:#3d2f24;margin-bottom:6px;}
 .qa-a{font-size:13px;color:#5a4a3a;line-height:1.7;}
 
-/* PROFILE PAGE */
+/* CHECKIN PAGE */
+.health-summary{background:linear-gradient(135deg,#fef9f3,#f5f0e8);border-radius:16px;padding:1.25rem;margin-bottom:1rem;border:1.5px solid #e8dcc8;}
+.health-date{font-size:12px;color:#999;margin-bottom:8px;}
+.health-score{display:flex;align-items:baseline;gap:6px;margin-bottom:4px;}
+.health-score-num{font-size:42px;font-weight:700;color:#8B7355;}
+.health-score-unit{font-size:14px;color:#999;}
+.health-msg{font-size:14px;color:#5a4a3a;font-weight:500;}
+.progress-bar{background:#e8dcc8;border-radius:8px;height:8px;margin-top:10px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#8B7355,#A67C5B);transition:width 0.5s ease;}
+
+.section-title{font-size:13px;font-weight:700;color:#8B7355;letter-spacing:1px;margin:1rem 0 8px;padding-left:2px;}
+
+/* HEALTH CARDS */
+.health-card{background:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:10px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
+.health-card-title{font-size:14px;font-weight:600;color:#3d2f24;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.weight-input-wrap{display:flex;align-items:center;gap:10px;}
+.weight-input{width:120px;padding:10px 14px;border:1.5px solid #d4c4b0;border-radius:10px;font-size:18px;font-weight:600;color:#3d2f24;text-align:center;outline:none;}
+.weight-input:focus{border-color:#A67C5B;}
+.weight-unit{font-size:14px;color:#999;}
+.water-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.water-cup{width:36px;height:36px;border-radius:8px;border:2px solid #d4c4b0;background:white;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all 0.2s;}
+.water-cup.filled{background:#A4E5E0;border-color:#5BBDB7;}
+.diet-grid{display:flex;gap:10px;}
+.diet-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;border:2px solid #d4c4b0;cursor:pointer;transition:all 0.2s;}
+.diet-item.done{border-color:#8B7355;background:#fef9f3;}
+.diet-icon{font-size:24px;}
+.diet-label{font-size:11px;color:#888;font-weight:500;text-align:center;}
+.diet-ratio{font-size:10px;color:#aaa;}
+.diet-check{width:22px;height:22px;border-radius:50%;border:2px solid #d4c4b0;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.diet-item.done .diet-check{background:#8B7355;border-color:#8B7355;color:white;}
+
+/* PRODUCT CHECKIN */
+.prod-card{background:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:10px;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
+.prod-row{display:flex;align-items:center;gap:12px;}
+.prod-icon{width:44px;height:44px;border-radius:12px;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.prod-info{flex:1;}
+.prod-name{font-size:14px;font-weight:700;color:#3d2f24;}
+.prod-rate{font-size:12px;color:#999;margin-top:2px;}
+.prod-check-btn{width:36px;height:36px;border-radius:50%;border:2px solid #d4c4b0;background:white;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;}
+.prod-check-btn.checked{background:#8B7355;border-color:#8B7355;color:white;}
+.cal-mini{display:flex;gap:3px;margin-top:8px;flex-wrap:wrap;}
+.cal-dot{width:20px;height:20px;border-radius:5px;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aaa;}
+.cal-dot.done{background:#8B7355;color:white;}
+.cal-dot.today{outline:2px solid #A67C5B;}
+
+/* PROFILE */
 .profile-card{background:white;border-radius:14px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 2px 10px rgba(139,115,85,0.08);}
 .profile-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f0e8;}
 .profile-row:last-child{border-bottom:none;}
 .profile-label{font-size:13px;color:#999;}
 .profile-value{font-size:14px;font-weight:600;color:#3d2f24;}
-.btn{padding:12px 18px;border-radius:12px;border:none;font-size:14px;font-weight:600;cursor:pointer;}
-.btn-primary{background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;}
-.btn-secondary{background:#f5f0e8;color:#5a4a3a;}
-
-/* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e8dcc8;display:flex;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,0.05);}
-.nav-item{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;}
-.nav-icon{font-size:19px;display:block;margin-bottom:2px;}
-.nav-label{font-size:10px;color:#aaa;}
-.nav-item.active .nav-label{color:#8B7355;font-weight:600;}
+.btn-primary{background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;width:100%;}
+.btn-secondary{background:#f5f0e8;color:#5a4a3a;border:none;border-radius:10px;padding:12px;font-size:14px;cursor:pointer;width:100%;margin-top:8px;}
 </style>
 </head>
 <body>
 
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 <div id="loginPage">
   <div class="login-brand">
     <h1>HT 團隊</h1>
@@ -131,29 +128,35 @@ body{font-family:'Noto Sans TC',-apple-system,sans-serif;background:#f5f0e8;min-
   </div>
   <div class="login-tagline">— 一切都在變好 從我們相遇開始 —</div>
   <div class="login-card">
-    <input type="text" id="sellerName" placeholder="你的賣家名字" />
-    <input type="text" id="customerName" placeholder="你的名字" />
-    <button class="login-btn" onclick="customerLogin()">進入小錦囊</button>
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchLoginTab('login',this)">登入</button>
+      <button class="login-tab" onclick="switchLoginTab('register',this)">註冊</button>
+    </div>
+    <div id="loginForm">
+      <input type="text" id="loginSeller" placeholder="賣家名字" />
+      <input type="text" id="loginAccount" placeholder="帳號" />
+      <input type="password" id="loginPwd" placeholder="密碼" />
+      <button class="login-btn" onclick="doLogin()">登入</button>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <input type="text" id="regSeller" placeholder="你的賣家名字" />
+      <input type="text" id="regAccount" placeholder="設定帳號" />
+      <input type="text" id="regNickname" placeholder="你的暱稱" />
+      <input type="password" id="regPwd" placeholder="設定密碼" />
+      <input type="password" id="regPwd2" placeholder="確認密碼" />
+      <button class="login-btn" onclick="doRegister()">立即註冊</button>
+    </div>
     <div class="login-msg" id="loginMsg"></div>
   </div>
 </div>
 
-<!-- PRODUCT SELECTION MODAL -->
-<div id="productSelectModal">
-  <div class="select-box">
-    <div class="select-title">🎯 選擇你購買的產品</div>
-    <div class="select-desc">選擇後會顯示這些產品的吃法、功效和打卡記錄挑戰！</div>
+<!-- PRODUCT SELECT MODAL -->
+<div id="productModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;overflow-y:auto;padding:1.5rem;">
+  <div style="background:white;border-radius:18px;padding:1.5rem;max-width:500px;margin:auto;">
+    <div style="font-size:18px;font-weight:700;color:#5a4a3a;margin-bottom:8px;">🎯 選擇你購買的產品</div>
+    <div style="font-size:13px;color:#999;margin-bottom:1.5rem;">可以隨時在個人頁面更改</div>
     <div id="productSelectList"></div>
-    <button class="btn btn-primary" style="width:100%;margin-top:1rem;" onclick="saveProductSelection()">確認選擇</button>
-  </div>
-</div>
-
-<!-- WELCOME MODAL -->
-<div id="welcomeModal">
-  <div class="welcome-box">
-    <button class="welcome-close" onclick="closeWelcome()">×</button>
-    <div class="welcome-title" id="welcomeTitle"></div>
-    <div class="welcome-announce" id="welcomeAnnounce"></div>
+    <button class="btn-primary" style="margin-top:1rem;" onclick="saveProductSelection()">確認選擇</button>
   </div>
 </div>
 
@@ -165,57 +168,102 @@ body{font-family:'Noto Sans TC',-apple-system,sans-serif;background:#f5f0e8;min-
     <div class="header-sub">婕樂纖系列完整指南 · 科學體控 · 卓越品質</div>
   </div>
 
-  <!-- CHECKIN PAGE -->
+  <!-- 每日記錄 -->
   <div class="page active" id="page-checkin">
-    <div class="checkin-hero">
-      <div class="checkin-percent" id="checkinPercent">0%</div>
-      <div class="checkin-msg" id="checkinMsg">開始你的打卡挑戰！</div>
+    <div class="health-summary">
+      <div class="health-date" id="todayDateDisplay"></div>
+      <div class="health-score">
+        <span class="health-score-num" id="todayScore">0</span>
+        <span class="health-score-unit">%</span>
+      </div>
+      <div class="health-msg" id="todayMsg">開始今天的健康記錄！</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     </div>
-    <div id="myProductsList"></div>
+
+    <div class="section-title">💧 今日喝水</div>
+    <div class="health-card">
+      <div class="health-card-title">喝水打卡 <span style="font-size:12px;color:#aaa;" id="waterCount">0 / 8 杯</span></div>
+      <div class="water-grid" id="waterGrid"></div>
+    </div>
+
+    <div class="section-title">⚖️ 今日體重</div>
+    <div class="health-card">
+      <div class="weight-input-wrap">
+        <input type="number" class="weight-input" id="weightInput" placeholder="--.-" step="0.1" />
+        <span class="weight-unit">kg</span>
+        <button onclick="saveWeight()" style="padding:10px 18px;background:#8B7355;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">記錄</button>
+      </div>
+      <div id="weightHistory" style="margin-top:10px;font-size:12px;color:#aaa;"></div>
+    </div>
+
+    <div class="section-title">🍽️ 今日飲食比例</div>
+    <div class="health-card">
+      <div style="font-size:12px;color:#999;margin-bottom:10px;">目標：菜3：肉2：飯1</div>
+      <div class="diet-grid" id="dietGrid">
+        <div class="diet-item" id="diet-veg" onclick="toggleDiet('veg')">
+          <div class="diet-icon">🥦</div>
+          <div class="diet-label">蔬菜</div>
+          <div class="diet-ratio">佔 3 份</div>
+          <div class="diet-check" id="check-veg"></div>
+        </div>
+        <div class="diet-item" id="diet-meat" onclick="toggleDiet('meat')">
+          <div class="diet-icon">🍗</div>
+          <div class="diet-label">蛋白質</div>
+          <div class="diet-ratio">佔 2 份</div>
+          <div class="diet-check" id="check-meat"></div>
+        </div>
+        <div class="diet-item" id="diet-rice" onclick="toggleDiet('rice')">
+          <div class="diet-icon">🍚</div>
+          <div class="diet-label">澱粉</div>
+          <div class="diet-ratio">佔 1 份</div>
+          <div class="diet-check" id="check-rice"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">💊 今日產品打卡</div>
+    <div id="prodCheckinList"></div>
   </div>
 
-  <!-- INFO PAGE -->
+  <!-- 產品功效 -->
   <div class="page" id="page-info">
     <div class="search-box">
-      <span class="search-icon">🔍</span>
+      <span>🔍</span>
       <input type="text" id="infoSearch" placeholder="搜尋產品名稱、功效..." oninput="filterInfo()" />
     </div>
+    <div class="cat-scroll" id="infoCatBtns"></div>
     <div id="infoList"></div>
   </div>
 
-  <!-- QA PAGE -->
+  <!-- Q&A -->
   <div class="page" id="page-qa">
     <div class="search-box">
-      <span class="search-icon">🔍</span>
+      <span>🔍</span>
       <input type="text" id="qaSearch" placeholder="搜尋問題..." oninput="filterQA()" />
     </div>
+    <div class="cat-scroll" id="qaCatBtns"></div>
     <div id="qaList"></div>
   </div>
 
-  <!-- PROFILE PAGE -->
+  <!-- 個人 -->
   <div class="page" id="page-profile">
     <div class="profile-card">
       <div style="font-size:15px;font-weight:700;color:#5a4a3a;margin-bottom:10px;">👤 我的資訊</div>
-      <div class="profile-row">
-        <span class="profile-label">賣家</span>
-        <span class="profile-value" id="profileSeller"></span>
-      </div>
-      <div class="profile-row">
-        <span class="profile-label">我的名字</span>
-        <span class="profile-value" id="profileName"></span>
-      </div>
+      <div class="profile-row"><span class="profile-label">賣家</span><span class="profile-value" id="profileSeller"></span></div>
+      <div class="profile-row"><span class="profile-label">帳號</span><span class="profile-value" id="profileAccount"></span></div>
+      <div class="profile-row"><span class="profile-label">暱稱</span><span class="profile-value" id="profileNickname"></span></div>
     </div>
     <div class="profile-card">
-      <div style="font-size:15px;font-weight:700;color:#5a4a3a;margin-bottom:10px;">📦 我購買的產品</div>
+      <div style="font-size:15px;font-weight:700;color:#5a4a3a;margin-bottom:10px;">📦 我的產品</div>
       <div id="myProductsDisplay" style="font-size:13px;color:#666;line-height:1.8;"></div>
-      <button class="btn btn-secondary" style="width:100%;margin-top:12px;" onclick="reopenProductSelect()">重新選擇產品</button>
+      <button class="btn-secondary" onclick="reopenProductSelect()">重新選擇產品</button>
     </div>
-    <button class="btn" style="width:100%;background:#f0f0f0;color:#999;" onclick="customerLogout()">登出</button>
+    <button class="btn-primary" style="margin-top:8px;" onclick="doLogout()">登出</button>
   </div>
 
   <div class="bottom-nav">
     <button class="nav-item active" onclick="switchPage('checkin',this)">
-      <span class="nav-icon">📋</span><span class="nav-label">打卡記錄</span>
+      <span class="nav-icon">📋</span><span class="nav-label">每日記錄</span>
     </button>
     <button class="nav-item" onclick="switchPage('info',this)">
       <span class="nav-icon">📖</span><span class="nav-label">產品功效</span>
@@ -261,109 +309,198 @@ const ALL_PRODUCTS=[
 let currentUser=null;
 let selectedProducts=[];
 let checkIns={};
-let productInfoData=[];
+let healthData={};
+let infoData=[];
 let qaData=[];
+let infoCatFilter='all';
+let qaCatFilter='all';
 
 // ===== LOGIN =====
-async function customerLogin(){
-  const seller=document.getElementById('sellerName').value.trim();
-  const name=document.getElementById('customerName').value.trim();
-  const msg=document.getElementById('loginMsg');
-  if(!seller||!name){msg.textContent='請填寫賣家名字和你的名字';return;}
-  
-  const{data:existing}=await sb.from('customer_users').select('*').eq('seller_name',seller).eq('customer_name',name).single();
-  if(existing){
-    currentUser=existing;
-  } else {
-    const{data:newUser}=await sb.from('customer_users').insert({seller_name:seller,customer_name:name,my_products:'[]',created_at:new Date().toISOString()}).select().single();
-    currentUser=newUser;
-  }
-  
-  try{selectedProducts=JSON.parse(currentUser.my_products||'[]');}catch(e){selectedProducts=[];}
-  
-  if(selectedProducts.length===0){
-    showProductSelect();
-  } else {
-    enterApp();
-  }
+function switchLoginTab(tab,el){
+  document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('loginForm').style.display=tab==='login'?'block':'none';
+  document.getElementById('registerForm').style.display=tab==='register'?'block':'none';
+  document.getElementById('loginMsg').textContent='';
 }
 
-function showProductSelect(){
+async function doLogin(){
+  const seller=document.getElementById('loginSeller').value.trim();
+  const account=document.getElementById('loginAccount').value.trim();
+  const pwd=document.getElementById('loginPwd').value.trim();
+  const msg=document.getElementById('loginMsg');
+  if(!seller||!account||!pwd){msg.textContent='請填寫所有欄位';return;}
+  const {data}=await sb.from('customer_users').select('*').eq('seller_name',seller).eq('account',account).eq('password',pwd).single();
+  if(!data){msg.textContent='帳號或密碼錯誤';return;}
+  currentUser=data;
+  try{selectedProducts=JSON.parse(currentUser.my_products||'[]');}catch(e){selectedProducts=[];}
+  if(selectedProducts.length===0){showProductModal();}
+  else{enterApp();}
+}
+
+async function doRegister(){
+  const seller=document.getElementById('regSeller').value.trim();
+  const account=document.getElementById('regAccount').value.trim();
+  const nickname=document.getElementById('regNickname').value.trim();
+  const pwd=document.getElementById('regPwd').value.trim();
+  const pwd2=document.getElementById('regPwd2').value.trim();
+  const msg=document.getElementById('loginMsg');
+  if(!seller||!account||!nickname||!pwd){msg.textContent='請填寫所有欄位';return;}
+  if(pwd!==pwd2){msg.textContent='兩次密碼不一致';return;}
+  if(pwd.length<4){msg.textContent='密碼至少4個字元';return;}
+  const {data:existing}=await sb.from('customer_users').select('id').eq('seller_name',seller).eq('account',account).single();
+  if(existing){msg.textContent='此帳號已被使用';return;}
+  const {data:newUser}=await sb.from('customer_users').insert({seller_name:seller,account,nickname,password:pwd,my_products:'[]',created_at:new Date().toISOString()}).select().single();
+  if(!newUser){msg.textContent='註冊失敗，請再試一次';return;}
+  currentUser=newUser;selectedProducts=[];
+  showProductModal();
+}
+
+function showProductModal(){
   document.getElementById('loginPage').style.display='none';
-  const modal=document.getElementById('productSelectModal');
   const list=document.getElementById('productSelectList');
   list.innerHTML=ALL_PRODUCTS.map(p=>{
-    const isSelected=selectedProducts.includes(p.id);
-    return `<div class="prod-select-item${isSelected?' selected':''}" onclick="toggleProductSelect(${p.id})"><div class="prod-select-icon">${p.icon}</div><div class="prod-select-info"><div class="prod-select-name">${p.name}</div><div class="prod-select-cat">${p.cat}</div></div><div class="prod-select-check${isSelected?' checked':''}" id="check-${p.id}">${isSelected?'✓':''}</div></div>`;
+    const sel=selectedProducts.includes(p.id);
+    return `<div onclick="toggleProd(${p.id})" id="psel-${p.id}" style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;margin-bottom:6px;cursor:pointer;border:2px solid ${sel?'#8B7355':'#e8dcc8'};background:${sel?'#fef9f3':'white'};">
+      <div style="font-size:22px;">${p.icon}</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#3d2f24;">${p.name}</div><div style="font-size:11px;color:#999;">${p.cat}</div></div>
+      <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${sel?'#8B7355':'#d4c4b0'};background:${sel?'#8B7355':'white'};display:flex;align-items:center;justify-content:center;color:white;font-size:12px;" id="pcheck-${p.id}">${sel?'✓':''}</div>
+    </div>`;
   }).join('');
-  modal.classList.add('show');
+  document.getElementById('productModal').style.display='block';
 }
 
-function toggleProductSelect(id){
-  if(selectedProducts.includes(id)){
-    selectedProducts=selectedProducts.filter(x=>x!==id);
-  } else {
-    selectedProducts.push(id);
-  }
-  const check=document.getElementById('check-'+id);
-  const item=check.closest('.prod-select-item');
-  if(selectedProducts.includes(id)){
-    check.classList.add('checked');check.textContent='✓';
-    item.classList.add('selected');
-  } else {
-    check.classList.remove('checked');check.textContent='';
-    item.classList.remove('selected');
-  }
+function toggleProd(id){
+  if(selectedProducts.includes(id)){selectedProducts=selectedProducts.filter(x=>x!==id);}
+  else{selectedProducts.push(id);}
+  const el=document.getElementById('psel-'+id);
+  const check=document.getElementById('pcheck-'+id);
+  const sel=selectedProducts.includes(id);
+  el.style.border=`2px solid ${sel?'#8B7355':'#e8dcc8'}`;
+  el.style.background=sel?'#fef9f3':'white';
+  check.style.background=sel?'#8B7355':'white';
+  check.style.border=`2px solid ${sel?'#8B7355':'#d4c4b0'}`;
+  check.textContent=sel?'✓':'';
 }
 
 async function saveProductSelection(){
   if(selectedProducts.length===0){alert('請至少選擇一個產品');return;}
   await sb.from('customer_users').update({my_products:JSON.stringify(selectedProducts)}).eq('id',currentUser.id);
   currentUser.my_products=JSON.stringify(selectedProducts);
-  document.getElementById('productSelectModal').classList.remove('show');
+  document.getElementById('productModal').style.display='none';
   enterApp();
 }
 
 function reopenProductSelect(){
   document.getElementById('mainPage').style.display='none';
-  showProductSelect();
+  showProductModal();
 }
 
-async function enterApp(){
+function enterApp(){
   document.getElementById('loginPage').style.display='none';
+  document.getElementById('productModal').style.display='none';
   document.getElementById('mainPage').style.display='block';
   document.getElementById('profileSeller').textContent=currentUser.seller_name;
-  document.getElementById('profileName').textContent=currentUser.customer_name;
-  
-  await loadCheckIns();
-  await loadProductInfo();
-  await loadQA();
-  renderMyProducts();
-  renderInfo();
-  renderQA();
-  
-  const{data:announce}=await sb.from('announcements').select('*').eq('is_active',true).order('created_at',{ascending:false}).limit(1);
-  if(announce&&announce.length){
-    document.getElementById('welcomeTitle').textContent='歡迎 '+currentUser.customer_name+' 回來記錄自己的美好轉變💌';
-    document.getElementById('welcomeAnnounce').textContent=announce[0].content;
-    document.getElementById('welcomeModal').classList.add('show');
-  }
+  document.getElementById('profileAccount').textContent=currentUser.account;
+  document.getElementById('profileNickname').textContent=currentUser.nickname||'—';
+  const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
+  document.getElementById('myProductsDisplay').textContent=myProds.map(p=>p.name).join('、')||'尚未選擇';
+  loadAll();
 }
 
-function closeWelcome(){document.getElementById('welcomeModal').classList.remove('show');}
+async function loadAll(){
+  const today=getTodayStr();
+  const d=new Date();
+  document.getElementById('todayDateDisplay').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 健康記錄';
+  await loadCheckIns();
+  await loadHealthData();
+  await loadInfo();
+  await loadQA();
+  renderCheckinPage();
+}
 
-function customerLogout(){
-  currentUser=null;selectedProducts=[];
+function doLogout(){
+  currentUser=null;selectedProducts=[];checkIns={};healthData={};
   document.getElementById('mainPage').style.display='none';
   document.getElementById('loginPage').style.display='flex';
-  document.getElementById('sellerName').value='';
-  document.getElementById('customerName').value='';
+  ['loginSeller','loginAccount','loginPwd'].forEach(id=>document.getElementById(id).value='');
 }
 
-// ===== CHECK-INS =====
+function getTodayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+function switchPage(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  el.classList.add('active');
+}
+
+// ===== HEALTH DATA =====
+async function loadHealthData(){
+  const today=getTodayStr();
+  const {data}=await sb.from('daily_health').select('*').eq('user_id',currentUser.id).eq('record_date',today).single();
+  healthData=data||{water_cups:0,weight:null,veg_done:false,meat_done:false,rice_done:false};
+}
+
+async function saveHealthField(field,value){
+  const today=getTodayStr();
+  const existing=await sb.from('daily_health').select('id').eq('user_id',currentUser.id).eq('record_date',today).single();
+  if(existing.data){
+    await sb.from('daily_health').update({[field]:value}).eq('id',existing.data.id);
+  } else {
+    await sb.from('daily_health').insert({user_id:currentUser.id,record_date:today,[field]:value});
+  }
+  healthData[field]=value;
+  updateScore();
+}
+
+// ===== WATER =====
+function renderWaterGrid(){
+  const cups=healthData.water_cups||0;
+  document.getElementById('waterCount').textContent=cups+' / 8 杯';
+  let html='';
+  for(let i=0;i<8;i++){
+    html+=`<div class="water-cup${i<cups?' filled':''}" onclick="toggleWater(${i+1})">💧</div>`;
+  }
+  document.getElementById('waterGrid').innerHTML=html;
+}
+
+async function toggleWater(cup){
+  const current=healthData.water_cups||0;
+  const newVal=cup===current?cup-1:cup;
+  await saveHealthField('water_cups',Math.max(0,newVal));
+  renderWaterGrid();
+}
+
+// ===== WEIGHT =====
+async function saveWeight(){
+  const val=parseFloat(document.getElementById('weightInput').value);
+  if(!val||val<20||val>300){alert('請輸入正確的體重（20-300kg）');return;}
+  await saveHealthField('weight',val);
+  document.getElementById('weightHistory').textContent='✓ 今日體重已記錄：'+val+' kg';
+  document.getElementById('weightInput').value='';
+}
+
+// ===== DIET =====
+function renderDietGrid(){
+  ['veg','meat','rice'].forEach(type=>{
+    const done=healthData[type+'_done'];
+    const el=document.getElementById('diet-'+type);
+    const check=document.getElementById('check-'+type);
+    if(done){el.classList.add('done');check.textContent='✓';}
+    else{el.classList.remove('done');check.textContent='';}
+  });
+}
+
+async function toggleDiet(type){
+  const newVal=!healthData[type+'_done'];
+  await saveHealthField(type+'_done',newVal);
+  renderDietGrid();
+}
+
+// ===== PRODUCT CHECKIN =====
 async function loadCheckIns(){
-  if(!currentUser)return;
-  const{data}=await sb.from('product_check_ins').select('*').eq('user_id',currentUser.id);
+  const {data}=await sb.from('product_check_ins').select('*').eq('user_id',currentUser.id);
   checkIns={};
   (data||[]).forEach(c=>{
     if(!checkIns[c.product_id])checkIns[c.product_id]=[];
@@ -371,12 +508,10 @@ async function loadCheckIns(){
   });
 }
 
-async function toggleCheck(prodId){
-  if(!currentUser)return;
-  const today=new Date().toISOString().split('T')[0];
-  const isChecked=checkIns[prodId]&&checkIns[prodId].includes(today);
-  
-  if(isChecked){
+async function toggleProdCheck(prodId){
+  const today=getTodayStr();
+  const checked=checkIns[prodId]&&checkIns[prodId].includes(today);
+  if(checked){
     await sb.from('product_check_ins').delete().eq('user_id',currentUser.id).eq('product_id',prodId).eq('check_date',today);
     checkIns[prodId]=checkIns[prodId].filter(d=>d!==today);
   } else {
@@ -384,124 +519,131 @@ async function toggleCheck(prodId){
     if(!checkIns[prodId])checkIns[prodId]=[];
     checkIns[prodId].push(today);
   }
-  
-  renderMyProducts();
+  renderCheckinPage();
 }
 
-function getCheerMessage(pct){
-  if(pct===100)return'目前 100% 在變好的路上 加油！';
-  if(pct>=95)return'目前 '+pct+'% 在變好的路上 太棒了！';
-  if(pct>=90)return'目前 '+pct+'% 在變好的路上 不要放棄！';
-  if(pct>=80)return'目前 '+pct+'% 在變好的路上 繼續保持！';
-  if(pct>=70)return'目前 '+pct+'% 在變好的路上 你很棒！';
-  if(pct>=60)return'目前 '+pct+'% 在變好的路上 加油加油！';
-  if(pct>=50)return'目前 '+pct+'% 在變好的路上 別放棄！';
-  return'目前 '+pct+'% 在變好的路上 我們一起努力！';
-}
+function renderCheckinPage(){
+  const today=getTodayStr();
+  renderWaterGrid();
+  renderDietGrid();
+  if(healthData.weight){document.getElementById('weightHistory').textContent='✓ 今日體重已記錄：'+healthData.weight+' kg';}
+  if(healthData.water_cups){document.getElementById('weightInput').value='';}
 
-function renderMyProducts(){
   const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
-  document.getElementById('myProductsDisplay').textContent=myProds.map(p=>p.name).join('、')||'尚未選擇';
-  
-  // Calculate overall percentage
-  let totalDays=0,totalChecked=0;
-  const last7Days=[];
-  for(let i=6;i>=0;i--){
-    const d=new Date();
-    d.setDate(d.getDate()-i);
-    last7Days.push(d.toISOString().split('T')[0]);
-  }
-  
-  myProds.forEach(p=>{
-    last7Days.forEach(date=>{
-      totalDays++;
-      if(checkIns[p.id]&&checkIns[p.id].includes(date))totalChecked++;
-    });
-  });
-  
-  const pct=totalDays?Math.round(totalChecked/totalDays*100):0;
-  document.getElementById('checkinPercent').textContent=pct+'%';
-  document.getElementById('checkinMsg').textContent=getCheerMessage(pct);
-  
-  const today=new Date().toISOString().split('T')[0];
-  const el=document.getElementById('myProductsList');
-  el.innerHTML=myProds.map(p=>{
-    const prodDays=last7Days.filter(d=>checkIns[p.id]&&checkIns[p.id].includes(d)).length;
-    const prodPct=Math.round(prodDays/7*100);
+  const last14=[];
+  for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);last14.push(d.toISOString().split('T')[0]);}
+
+  document.getElementById('prodCheckinList').innerHTML=myProds.map(p=>{
     const isChecked=checkIns[p.id]&&checkIns[p.id].includes(today);
-    
-    const days=[];
-    for(let i=13;i>=0;i--){
-      const d=new Date();
-      d.setDate(d.getDate()-i);
-      const dateStr=d.toISOString().split('T')[0];
-      const dayNum=d.getDate();
-      const checked=checkIns[p.id]&&checkIns[p.id].includes(dateStr);
-      const isToday=dateStr===today;
-      days.push(`<div class="cal-day${checked?' checked':''}${isToday?' today':''}">${dayNum}</div>`);
-    }
-    
-    return `<div class="my-prod-card${isChecked?' checked-today':''}"><div class="my-prod-icon">${p.icon}</div><div class="my-prod-info"><div class="my-prod-name">${p.name}</div><div class="my-prod-rate">近7天完成率 ${prodPct}%</div></div><div class="my-prod-check${isChecked?' checked':''}" onclick="toggleCheck(${p.id})">${isChecked?'✓':''}</div></div><div style="padding:0 1rem 1rem;"><div style="font-size:11px;color:#999;margin-bottom:6px;">最近14天打卡記錄</div><div class="calendar-grid">${days.join('')}</div></div>`;
-  }).join('');
+    const last7=last14.slice(-7);
+    const doneCount=last7.filter(d=>checkIns[p.id]&&checkIns[p.id].includes(d)).length;
+    const pct=Math.round(doneCount/7*100);
+    const dots=last14.map((d,i)=>{
+      const done=checkIns[p.id]&&checkIns[p.id].includes(d);
+      const isToday=d===today;
+      return `<div class="cal-dot${done?' done':''}${isToday?' today':''}">${new Date(d).getDate()}</div>`;
+    }).join('');
+    return `<div class="prod-card">
+      <div class="prod-row">
+        <div class="prod-icon">${p.icon}</div>
+        <div class="prod-info">
+          <div class="prod-name">${p.name}</div>
+          <div class="prod-rate">近7天完成率 ${pct}%</div>
+        </div>
+        <div class="prod-check-btn${isChecked?' checked':''}" onclick="toggleProdCheck(${p.id})">${isChecked?'✓':''}</div>
+      </div>
+      <div class="cal-mini">${dots}</div>
+    </div>`;
+  }).join('')||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">請先選擇你的產品</div>';
+
+  updateScore();
+}
+
+function updateScore(){
+  const myProds=ALL_PRODUCTS.filter(p=>selectedProducts.includes(p.id));
+  const today=getTodayStr();
+  let total=0,done=0;
+  // Water (1 item)
+  total++;if((healthData.water_cups||0)>=6)done++;
+  // Weight (1 item)
+  total++;if(healthData.weight)done++;
+  // Diet (3 items)
+  total+=3;
+  if(healthData.veg_done)done++;
+  if(healthData.meat_done)done++;
+  if(healthData.rice_done)done++;
+  // Products
+  myProds.forEach(p=>{total++;if(checkIns[p.id]&&checkIns[p.id].includes(today))done++;});
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('todayScore').textContent=pct;
+  document.getElementById('progressFill').style.width=pct+'%';
+  const msgs=['今天從這裡開始！加油！','很好的開始，繼續！','做得不錯，再加把勁！','超棒！繼續保持！','太優秀了！完美的一天！'];
+  document.getElementById('todayMsg').textContent=msgs[Math.floor(pct/25)]||msgs[4];
 }
 
 // ===== PRODUCT INFO =====
-async function loadProductInfo(){
-  const{data}=await sb.from('customer_products').select('*').eq('is_active',true);
-  productInfoData=data||[];
-}
-
-function filterInfo(){
+async function loadInfo(){
+  const {data}=await sb.from('customer_products').select('*').eq('is_active',true);
+  infoData=data||[];
+  const cats=[...new Set(infoData.map(p=>p.category).filter(Boolean))];
+  const btnEl=document.getElementById('infoCatBtns');
+  btnEl.innerHTML=`<button class="cat-btn active" onclick="setInfoCat('all',this)">全部</button>`+cats.map(c=>`<button class="cat-btn" onclick="setInfoCat('${c}',this)">${c}</button>`).join('');
   renderInfo();
 }
 
+function setInfoCat(cat,el){
+  infoCatFilter=cat;
+  document.querySelectorAll('#infoCatBtns .cat-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderInfo();
+}
+
+function filterInfo(){renderInfo();}
+
 function renderInfo(){
-  const query=document.getElementById('infoSearch').value.toLowerCase();
-  let list=productInfoData;
-  if(query){
-    list=list.filter(p=>(p.name||'').toLowerCase().includes(query)||(p.effect||'').toLowerCase().includes(query)||(p.usage||'').toLowerCase().includes(query));
-  }
-  
+  const q=document.getElementById('infoSearch').value.toLowerCase();
+  let list=infoData;
+  if(infoCatFilter!=='all')list=list.filter(p=>p.category===infoCatFilter);
+  if(q)list=list.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.effect||'').toLowerCase().includes(q)||(p.usage||'').toLowerCase().includes(q));
   const el=document.getElementById('infoList');
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;">找不到相關產品</div>';return;}
-  el.innerHTML=list.map(p=>{
-    return `<div class="info-card">
-      <div class="info-title">${p.name}</div>
-      <span class="info-cat">${p.category||''}</span>
-      ${p.effect?`<div class="info-section"><div class="info-label">✨ 產品功效</div><div class="info-content">${p.effect}</div></div>`:''}
-      ${p.usage?`<div class="info-section"><div class="info-label">📖 使用方法/吃法</div><div class="info-content">${p.usage}</div></div>`:''}
-    </div>`;
-  }).join('');
+  el.innerHTML=list.map(p=>`<div class="info-card">
+    <div class="info-title">${p.name}</div>
+    <span class="cat-tag">${p.category||''}</span>
+    ${p.effect?`<div style="margin-bottom:10px;"><div class="info-label">✨ 產品功效</div><div class="info-content">${p.effect}</div></div>`:''}
+    ${p.usage?`<div><div class="info-label">📖 使用方法/吃法</div><div class="info-content">${p.usage}</div></div>`:''}
+  </div>`).join('');
 }
 
 // ===== QA =====
 async function loadQA(){
-  const{data}=await sb.from('product_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
+  const {data}=await sb.from('product_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
   qaData=data||[];
-}
-
-function filterQA(){
+  const cats=[...new Set(qaData.map(q=>q.category).filter(Boolean))];
+  const btnEl=document.getElementById('qaCatBtns');
+  btnEl.innerHTML=`<button class="cat-btn active" onclick="setQACat('all',this)">全部</button>`+cats.map(c=>`<button class="cat-btn" onclick="setQACat('${c}',this)">${c}</button>`).join('');
   renderQA();
 }
 
-function renderQA(){
-  const query=document.getElementById('qaSearch').value.toLowerCase();
-  let list=qaData;
-  if(query){
-    list=list.filter(q=>(q.question||'').toLowerCase().includes(query)||(q.answer||'').toLowerCase().includes(query));
-  }
-  
-  const el=document.getElementById('qaList');
-  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;">找不到相關問題</div>';return;}
-  el.innerHTML=list.map(q=>`<div class="qa-card"><div class="qa-q">Q：${q.question}</div><div class="qa-a">A：${q.answer}</div></div>`).join('');
+function setQACat(cat,el){
+  qaCatFilter=cat;
+  document.querySelectorAll('#qaCatBtns .cat-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderQA();
 }
 
-// ===== NAVIGATION =====
-function switchPage(page,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  el.classList.add('active');
+function filterQA(){renderQA();}
+
+function renderQA(){
+  const q=document.getElementById('qaSearch').value.toLowerCase();
+  let list=qaData;
+  if(qaCatFilter!=='all')list=list.filter(x=>x.category===qaCatFilter);
+  if(q)list=list.filter(x=>(x.question||'').toLowerCase().includes(q)||(x.answer||'').toLowerCase().includes(q));
+  const el=document.getElementById('qaList');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;">找不到相關問題</div>';return;}
+  el.innerHTML=list.map(q=>`<div class="qa-card">
+    ${q.category?`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f5f0e8;color:#8B7355;font-weight:600;display:inline-block;margin-bottom:6px;">${q.category}</span>`:''}
+    <div class="qa-q">Q：${q.question}</div>
+    <div class="qa-a">A：${q.answer}</div>
+  </div>`).join('');
 }
 </script>
 </body>
