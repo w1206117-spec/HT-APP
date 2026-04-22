@@ -1095,17 +1095,19 @@ function renderCoachingGrouped(data){
   const el=document.getElementById('coachingList');
   if(!data||!data.length){el.innerHTML='<div style="text-align:center;padding:1rem;color:#aaa;font-size:13px;">尚無輔導記錄</div>';return;}
   const statusIcon={'green':'🟢','yellow':'🟡','red':'🔴'};
-  // Group by downline_name
   const groups={};
   data.forEach(r=>{
     if(!groups[r.downline_name])groups[r.downline_name]=[];
     groups[r.downline_name].push(r);
   });
   el.innerHTML=Object.entries(groups).map(([name,records])=>`
-    <div style="margin-bottom:1rem;">
+    <div style="margin-bottom:1.25rem;">
       <div style="font-size:13px;font-weight:700;color:#A67C5B;padding:8px 0;border-bottom:2px solid #A4E5E0;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
         <span>${name} <span style="font-size:11px;color:#aaa;font-weight:400;">${records[0].downline_level||''}</span></span>
-        <span style="font-size:11px;color:#aaa;">${records.length} 筆記錄</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;color:#aaa;">${records.length} 筆記錄</span>
+          <button onclick="deletePartnerAllRecords('${name.replace(/'/g,"\'")}')" style="font-size:11px;padding:3px 10px;border-radius:6px;border:none;background:#ffeaea;color:#E24B4A;cursor:pointer;font-weight:500;">刪除此夥伴</button>
+        </div>
       </div>
       ${records.map(r=>`<div style="padding:10px 0;border-bottom:0.5px solid #f5f5f5;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
@@ -1113,16 +1115,16 @@ function renderCoachingGrouped(data){
             <span>${statusIcon[r.status]||'🟡'}</span>
             <span style="font-size:12px;color:#888;">${r.merchant_type||''}</span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;align-items:center;gap:6px;">
             <span style="font-size:11px;color:#aaa;">${r.record_date||''}</span>
-            <button onclick="openCoachEdit(${r.id},'${(r.content||'').replace(/'/g,"\'")}')" style="font-size:11px;padding:3px 8px;border-radius:6px;border:0.5px solid #ddd;background:white;color:#888;cursor:pointer;">編輯</button>
+            <button onclick="openCoachEdit(${r.id},'${(r.content||'').replace(/'/g,"\'").replace(/\n/g,'\\n')}')" style="font-size:11px;padding:3px 8px;border-radius:6px;border:0.5px solid #ddd;background:white;color:#555;cursor:pointer;">編輯</button>
+            <button onclick="deleteCoachRecord(${r.id})" style="font-size:11px;padding:3px 8px;border-radius:6px;border:none;background:#ffeaea;color:#E24B4A;cursor:pointer;font-weight:500;">刪除</button>
           </div>
         </div>
         <div style="font-size:13px;color:#555;line-height:1.6;">${r.content}</div>
       </div>`).join('')}
     </div>`).join('');
 }
-
 function openCoachEdit(id,content){
   document.getElementById('editCoachId').value=id;
   document.getElementById('editCoachContent').value=content;
@@ -1142,6 +1144,18 @@ async function saveCoachEdit(){
   closeCoachEdit();
   loadCoachingRecords();
   alert('已更新！');
+}
+
+async function deleteCoachRecord(id){
+  if(!confirm('確定刪除這筆記錄？'))return;
+  await sb.from('coaching_records').delete().eq('id',id);
+  loadCoachingRecords();
+}
+
+async function deletePartnerAllRecords(name){
+  if(!confirm(`確定刪除「${name}」的所有輔導記錄？\n此操作無法復原`))return;
+  await sb.from('coaching_records').delete().eq('user_id',currentUser.id).eq('downline_name',name);
+  loadCoachingRecords();
 }
 
 // ===== COURSE MAIN TAB SWITCH =====
