@@ -98,6 +98,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .eat-canvas-wrap canvas{width:100%;display:block;}
 .eat-dl-btn{flex:1;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#5BBDB7,#3AA8A2);color:white;font-size:14px;font-weight:600;cursor:pointer;}
 .eat-close-btn{flex:1;padding:13px;border:none;border-radius:12px;background:#f0f0f0;color:#555;font-size:14px;font-weight:600;cursor:pointer;}
+/* CUSTOMER TRACKING */
+.cust-card{background:white;border-radius:14px;padding:1rem 1.2rem;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;display:flex;align-items:center;gap:12px;}
+.cust-card:active{background:#fef9f3;}
+.cust-temp-dot{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.cust-card-info{flex:1;min-width:0;}
+.cust-card-name{font-size:15px;font-weight:700;color:#3d2f24;}
+.cust-card-sub{font-size:12px;color:#aaa;margin-top:2px;}
+.cust-followup-badge{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;white-space:nowrap;}
+.cust-paused{opacity:0.45;}
+.progress-node{display:inline-flex;flex-direction:column;align-items:center;gap:3px;margin-right:6px;margin-bottom:8px;}
+.progress-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid #e8dcc8;}
+.progress-circle.done{background:#8B7355;border-color:#8B7355;color:white;}
+.progress-circle.today{background:#FF8C00;border-color:#FF8C00;color:white;box-shadow:0 0 0 3px rgba(255,140,0,0.25);}
+.progress-circle.future{background:#f5f0e8;color:#bbb;}
+.progress-label{font-size:10px;color:#aaa;}
 </style>
 </head>
 <body>
@@ -331,43 +346,161 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <div class="page" id="page-eat">
-    <div class="eat-section-title">👤 客人姓名</div>
-    <input class="eat-name-input" id="eatCustomerName" type="text" placeholder="輸入客人的名字（會顯示在圖卡上）" />
-
-    <div class="eat-section-title" style="margin-top:1.25rem;">💊 新增產品吃法</div>
-    <div style="font-size:12px;color:#aaa;margin-bottom:10px;">同一產品可多次加入（不同時段），數量請手動輸入</div>
-
-    <div style="background:white;border-radius:14px;padding:1rem;margin-bottom:10px;box-shadow:0 1px 6px rgba(139,100,60,0.08);">
-      <div style="margin-bottom:10px;">
-        <select id="eatAddProduct" class="eat-meal-select" style="width:100%;font-size:14px;">
-          <option value="">選擇產品...</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <select id="eatAddMeal" class="eat-meal-select" style="flex:1;">
-          <option value="breakfast">🌅 第一餐（早餐）</option>
-          <option value="lunch">🌞 第二餐（午餐）</option>
-          <option value="dinner">🌙 第三餐（晚餐）</option>
-          <option value="anytime">⏰ 任何時刻</option>
-        </select>
-        <input type="text" id="eatAddQty" placeholder="數量（如 3顆 / 1包）" style="flex:1;padding:8px 10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:13px;outline:none;" />
-      </div>
-      <button onclick="addEatItem()" style="width:100%;padding:11px;background:linear-gradient(135deg,#A67C5B,#8B7355);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer;">➕ 加入清單</button>
+  <!-- ===== 服務頁 ===== -->
+  <div class="page" id="page-service">
+    <!-- Sub tabs -->
+    <div class="tabs" style="margin-bottom:1rem;">
+      <button class="tab active" id="svcTabCust" onclick="switchServiceTab('customers',this)">👥 客戶紀錄</button>
+      <button class="tab" id="svcTabEat" onclick="switchServiceTab('eat',this)">💊 吃法生成</button>
     </div>
 
-    <div id="eatItemList"><div style="text-align:center;padding:1rem;color:#ccc;font-size:13px;">尚未加入任何產品</div></div>
-
-    <button class="eat-generate-btn" onclick="generateEatingCard()" style="margin-top:0.5rem;">✨ 生成吃法圖卡</button>
-
-    <div id="eatResultSection" style="display:none;margin-top:1rem;padding-bottom:1rem;">
-      <div class="eat-canvas-wrap">
-        <canvas id="eatCanvas"></canvas>
+    <!-- ===== 客戶紀錄 ===== -->
+    <div id="svc-customers">
+      <!-- 搜尋 + 新增 -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <div style="flex:1;display:flex;align-items:center;gap:8px;background:white;border-radius:12px;padding:9px 14px;box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+          <span style="color:#aaa;">🔍</span>
+          <input type="text" id="custSearch" placeholder="搜尋客人名字..." oninput="filterCustomers()" style="border:none;outline:none;font-size:14px;color:#333;background:transparent;flex:1;" />
+        </div>
+        <button onclick="openAddCustomer()" style="padding:9px 16px;background:linear-gradient(135deg,#A67C5B,#8B7355);border:none;border-radius:12px;color:white;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">＋ 新增</button>
       </div>
-      <div style="font-size:12px;color:#aaa;text-align:center;margin-top:8px;">💡 長按圖片可以儲存到相簿</div>
-      <div style="display:flex;gap:10px;margin-top:10px;">
-        <button class="eat-dl-btn" onclick="downloadEatCard()">⬇️ 下載小卡</button>
-        <button class="eat-close-btn" onclick="document.getElementById('eatResultSection').style.display='none'">重新編輯</button>
+      <!-- Today's follow-up banner -->
+      <div id="todayFollowBanner" style="display:none;background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-radius:12px;padding:12px 14px;margin-bottom:12px;border-left:4px solid #FF8C00;">
+        <div style="font-size:12px;font-weight:700;color:#E65100;margin-bottom:6px;">⏰ 今日需要關心的客人</div>
+        <div id="todayFollowList"></div>
+      </div>
+      <!-- Customer list -->
+      <div id="customerList"><div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">尚無客戶紀錄</div></div>
+    </div>
+
+    <!-- ===== 吃法生成 ===== -->
+    <div id="svc-eat" style="display:none;">
+      <div class="eat-section-title">👤 客人姓名</div>
+      <input class="eat-name-input" id="eatCustomerName" type="text" placeholder="輸入客人的名字（會顯示在圖卡上）" />
+      <div class="eat-section-title" style="margin-top:1.25rem;">💊 新增產品吃法</div>
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px;">同一產品可多次加入（不同時段），數量請手動輸入</div>
+      <div style="background:white;border-radius:14px;padding:1rem;margin-bottom:10px;box-shadow:0 1px 6px rgba(139,100,60,0.08);">
+        <div style="margin-bottom:10px;">
+          <select id="eatAddProduct" class="eat-meal-select" style="width:100%;font-size:14px;">
+            <option value="">選擇產品...</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <select id="eatAddMeal" class="eat-meal-select" style="flex:1;">
+            <option value="breakfast">🌅 第一餐（早餐）</option>
+            <option value="lunch">🌞 第二餐（午餐）</option>
+            <option value="dinner">🌙 第三餐（晚餐）</option>
+            <option value="anytime">⏰ 任何時刻</option>
+          </select>
+          <input type="text" id="eatAddQty" placeholder="數量（如 3顆 / 1包）" style="flex:1;padding:8px 10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:13px;outline:none;" />
+        </div>
+        <button onclick="addEatItem()" style="width:100%;padding:11px;background:linear-gradient(135deg,#A67C5B,#8B7355);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer;">➕ 加入清單</button>
+      </div>
+      <div id="eatItemList"><div style="text-align:center;padding:1rem;color:#ccc;font-size:13px;">尚未加入任何產品</div></div>
+      <button class="eat-generate-btn" onclick="generateEatingCard()" style="margin-top:0.5rem;">✨ 生成吃法圖卡</button>
+      <div id="eatResultSection" style="display:none;margin-top:1rem;padding-bottom:1rem;">
+        <div class="eat-canvas-wrap"><canvas id="eatCanvas"></canvas></div>
+        <div style="font-size:12px;color:#aaa;text-align:center;margin-top:8px;">💡 長按圖片可以儲存到相簿</div>
+        <div style="display:flex;gap:10px;margin-top:10px;">
+          <button class="eat-dl-btn" onclick="downloadEatCard()">⬇️ 下載小卡</button>
+          <button class="eat-close-btn" onclick="document.getElementById('eatResultSection').style.display='none'">重新編輯</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增/編輯客戶 Modal -->
+  <div id="custModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;overflow-y:auto;padding:1rem;">
+    <div style="background:white;border-radius:18px;padding:1.5rem;max-width:480px;margin:1.5rem auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+        <div style="font-size:17px;font-weight:700;color:#333;" id="custModalTitle">新增客戶</div>
+        <button onclick="closeCustModal()" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">✕</button>
+      </div>
+      <input type="hidden" id="custEditId" />
+      <!-- Name -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:5px;">客人姓名 *</div>
+        <input type="text" id="custName" placeholder="例：小美" style="width:100%;padding:11px 13px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;" />
+      </div>
+      <!-- Products -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:5px;">購買產品</div>
+        <input type="text" id="custProducts" placeholder="例：纖纖飲、爆纖錠" style="width:100%;padding:11px 13px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;" />
+      </div>
+      <!-- Temp -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:8px;">客戶溫度</div>
+        <div style="display:flex;gap:8px;">
+          <button class="cust-temp-btn" id="tempHot" onclick="selectTemp('hot',this)" style="flex:1;padding:10px;border-radius:10px;border:2px solid #FFB347;background:#FFF8F0;color:#E65100;font-size:13px;font-weight:600;cursor:pointer;">🔥 熱</button>
+          <button class="cust-temp-btn" id="tempWarm" onclick="selectTemp('warm',this)" style="flex:1;padding:10px;border-radius:10px;border:2px solid #5BBDB7;background:#F0FAFA;color:#2E8B84;font-size:13px;font-weight:600;cursor:pointer;">🌤 暖</button>
+          <button class="cust-temp-btn" id="tempCold" onclick="selectTemp('cold',this)" style="flex:1;padding:10px;border-radius:10px;border:2px solid #d4c4b0;background:#f5f5f5;color:#888;font-size:13px;font-weight:600;cursor:pointer;">🧊 冷</button>
+        </div>
+      </div>
+      <!-- Start date -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:5px;">開始日期（收到貨的日期）</div>
+        <input type="date" id="custStartDate" style="width:100%;padding:11px 13px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;" />
+      </div>
+      <!-- Phone -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:5px;">聯絡電話（選填）</div>
+        <input type="text" id="custPhone" placeholder="例：0912345678" style="width:100%;padding:11px 13px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;" />
+      </div>
+      <!-- Address -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:5px;">收件資料（選填）</div>
+        <input type="text" id="custAddress" placeholder="例：台中市北區○○路○號" style="width:100%;padding:11px 13px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;" />
+      </div>
+      <!-- Note -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:5px;">備註（選填）</div>
+        <textarea id="custNote" rows="3" placeholder="💡 建議詢問：是否有過敏史、正在服用藥物、有無慢性病（如高血壓、糖尿病）、是否懷孕哺乳——這些都會影響產品建議，備註後才能給出最安心的使用指導" style="width:100%;padding:11px 13px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:13px;outline:none;resize:none;line-height:1.6;color:#555;"></textarea>
+        <div style="font-size:11px;color:#bbb;margin-top:4px;opacity:0.8;">⬆ 以上資訊有助於提供更安全的售後服務</div>
+      </div>
+      <div id="custSaveMsg" style="font-size:13px;color:#E24B4A;min-height:18px;margin-bottom:8px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="saveCust()" style="flex:1;padding:13px;background:linear-gradient(135deg,#A67C5B,#8B7355);border:none;border-radius:12px;color:white;font-size:14px;font-weight:700;cursor:pointer;">✓ 儲存</button>
+        <button onclick="closeCustModal()" style="flex:1;padding:13px;background:#f5f0e8;border:none;border-radius:12px;color:#888;font-size:14px;cursor:pointer;">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 客戶詳情 Modal -->
+  <div id="custDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9998;overflow-y:auto;padding:1rem;">
+    <div style="background:white;border-radius:18px;max-width:480px;margin:1.5rem auto;overflow:hidden;">
+      <!-- Header -->
+      <div id="custDetailHeader" style="padding:1.25rem 1.5rem;background:linear-gradient(135deg,#8B7355,#A67C5B);color:white;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:20px;font-weight:700;" id="detailName"></div>
+            <div style="font-size:13px;opacity:0.8;margin-top:3px;" id="detailProducts"></div>
+          </div>
+          <button onclick="closeCustDetail()" style="background:rgba(255,255,255,0.2);border:none;border-radius:8px;padding:6px 10px;color:white;cursor:pointer;font-size:16px;">✕</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <div id="detailTempBadge" style="font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.2);font-weight:600;"></div>
+          <div id="detailDayBadge" style="font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.2);"></div>
+        </div>
+      </div>
+      <!-- 13777 progress -->
+      <div style="padding:1rem 1.5rem;border-bottom:1px solid #f5f0e8;">
+        <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:10px;letter-spacing:1px;">📅 售後追蹤進度 (1-3-7-7-7...)</div>
+        <div id="detailProgress"></div>
+      </div>
+      <!-- Info -->
+      <div style="padding:1rem 1.5rem;border-bottom:1px solid #f5f0e8;">
+        <div id="detailInfo"></div>
+      </div>
+      <!-- Notes -->
+      <div style="padding:1rem 1.5rem;border-bottom:1px solid #f5f0e8;" id="detailNoteWrap">
+        <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px;">📝 備註</div>
+        <div id="detailNote" style="font-size:13px;color:#555;line-height:1.7;white-space:pre-line;"></div>
+      </div>
+      <!-- Actions -->
+      <div style="padding:1rem 1.5rem;display:flex;flex-wrap:wrap;gap:8px;">
+        <button id="detailPauseBtn" onclick="togglePauseCust()" style="flex:1;min-width:100px;padding:10px;border:1.5px solid #d4c4b0;border-radius:10px;background:white;color:#888;font-size:13px;cursor:pointer;">⏸ 暫停追蹤</button>
+        <button onclick="editCurrentCust()" style="flex:1;min-width:100px;padding:10px;border:none;border-radius:10px;background:#f5f0e8;color:#8B7355;font-size:13px;font-weight:600;cursor:pointer;">✏️ 編輯</button>
+        <button onclick="deleteCurrentCust()" style="flex:1;min-width:100px;padding:10px;border:none;border-radius:10px;background:#ffeaea;color:#E24B4A;font-size:13px;font-weight:600;cursor:pointer;">🗑 刪除</button>
       </div>
     </div>
   </div>
@@ -546,8 +679,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="nav-item" onclick="switchPage('course',this)">
       <span class="nav-icon">📚</span><span class="nav-label">課程</span>
     </button>
-    <button class="nav-item" onclick="switchPage('eat',this);initEatPage();">
-      <span class="nav-icon">💊</span><span class="nav-label">吃法</span>
+    <button class="nav-item" onclick="switchPage('service',this);initServicePage();">
+      <span class="nav-icon">🛎</span><span class="nav-label">服務</span>
     </button>
     <button class="nav-item" onclick="switchPage('team',this)">
       <span class="nav-icon">👥</span><span class="nav-label">團隊</span>
@@ -1804,6 +1937,296 @@ function downloadEatCard(){
   const name=document.getElementById('eatCustomerName').value.trim()||'客人';
   const a=document.createElement('a');
   a.download=name+'_吃法計劃.png';a.href=canvas.toDataURL('image/png');a.click();
+}
+
+
+// ============================================================
+// SERVICE TAB
+// ============================================================
+let serviceInited = false;
+function initServicePage(){
+  if(!serviceInited){
+    serviceInited = true;
+    initEatPage(); // init eat generator
+  }
+  loadCustomers();
+}
+
+function switchServiceTab(tab, el){
+  document.querySelectorAll('#page-service .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('svc-customers').style.display = tab==='customers'?'block':'none';
+  document.getElementById('svc-eat').style.display = tab==='eat'?'block':'none';
+}
+
+// ============================================================
+// CUSTOMER TRACKING - 13777 SYSTEM
+// ============================================================
+const FOLLOWUP_DAYS = [1, 3, 7, 14, 21, 28, 35, 42, 49, 56]; // 1,3, then every 7
+
+function getFollowupSchedule(startDate){
+  const start = new Date(startDate + 'T00:00:00');
+  return FOLLOWUP_DAYS.map(d => {
+    const date = new Date(start);
+    date.setDate(date.getDate() + d - 1);
+    return date.toISOString().split('T')[0];
+  });
+}
+
+function getDaysSinceStart(startDate){
+  const start = new Date(startDate + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  return Math.floor((today - start) / 86400000) + 1;
+}
+
+function getTodayStr2(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function getNextFollowup(startDate){
+  const today = getTodayStr2();
+  const schedule = getFollowupSchedule(startDate);
+  // find first upcoming (today or future)
+  return schedule.find(d => d >= today) || null;
+}
+
+function isTodayFollowup(startDate){
+  const today = getTodayStr2();
+  return getFollowupSchedule(startDate).includes(today);
+}
+
+const TEMP_CONFIG = {
+  hot:  { icon:'🔥', label:'熱', bg:'#FFF3E0', border:'#FFB347', color:'#E65100', dotBg:'#FFE0B2' },
+  warm: { icon:'🌤', label:'暖', bg:'#F0FAFA', border:'#5BBDB7', color:'#2E8B84', dotBg:'#A4E5E0' },
+  cold: { icon:'🧊', label:'冷', bg:'#F5F5F5', border:'#d4c4b0', color:'#888',    dotBg:'#E0E0E0' },
+};
+
+let customersData = [];
+let selectedTemp = 'warm';
+let viewingCustId = null;
+
+async function loadCustomers(){
+  if(!currentUser) return;
+  const {data} = await sb.from('customers').select('*').eq('partner_id', currentUser.id).order('created_at', {ascending:false});
+  customersData = data || [];
+  renderCustomers(customersData);
+  renderTodayFollowups();
+}
+
+function filterCustomers(){
+  const q = document.getElementById('custSearch').value.toLowerCase();
+  const filtered = q ? customersData.filter(c => c.name.toLowerCase().includes(q)) : customersData;
+  renderCustomers(filtered);
+}
+
+function renderCustomers(list){
+  const el = document.getElementById('customerList');
+  if(!list.length){ el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px;">尚無客戶紀錄</div>'; return; }
+  const today = getTodayStr2();
+  el.innerHTML = list.map(c => {
+    const t = TEMP_CONFIG[c.temp] || TEMP_CONFIG.warm;
+    const days = getDaysSinceStart(c.start_date);
+    const needToday = !c.paused && isTodayFollowup(c.start_date);
+    const next = !c.paused ? getNextFollowup(c.start_date) : null;
+    let badgeHtml = '';
+    if(c.paused){
+      badgeHtml = '<span style="font-size:11px;padding:3px 8px;border-radius:10px;background:#f0f0f0;color:#aaa;">⏸ 暫停</span>';
+    } else if(needToday){
+      badgeHtml = '<span class="cust-followup-badge" style="background:#FF8C00;color:white;">今日追蹤！</span>';
+    } else if(next){
+      const daysTo = Math.round((new Date(next) - new Date(today+'T00:00:00'))/86400000);
+      badgeHtml = `<span class="cust-followup-badge" style="background:#f5f0e8;color:#A67C5B;">${daysTo}天後追蹤</span>`;
+    }
+    return `<div class="cust-card${c.paused?' cust-paused':''}" onclick="openCustDetail(${c.id})">
+      <div class="cust-temp-dot" style="background:${t.dotBg};">${t.icon}</div>
+      <div class="cust-card-info">
+        <div class="cust-card-name">${c.name}</div>
+        <div class="cust-card-sub">${c.products||'未填產品'} · 第${days}天</div>
+      </div>
+      ${badgeHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderTodayFollowups(){
+  const today = getTodayStr2();
+  const need = customersData.filter(c => !c.paused && isTodayFollowup(c.start_date));
+  const banner = document.getElementById('todayFollowBanner');
+  const list = document.getElementById('todayFollowList');
+  if(!need.length){ banner.style.display='none'; return; }
+  banner.style.display='block';
+  const dayLabels = {1:'第1天 · 發送使用觀念', 3:'第3天 · 確認使用方式 + 索取對比圖'};
+  list.innerHTML = need.map(c => {
+    const days = getDaysSinceStart(c.start_date);
+    const label = dayLabels[days] || `第${days}天 · 定期關心`;
+    return `<div onclick="openCustDetail(${c.id})" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;cursor:pointer;border-bottom:0.5px solid rgba(0,0,0,0.06);">
+      <span style="font-size:13px;font-weight:600;color:#3d2f24;">${c.name}</span>
+      <span style="font-size:12px;color:#E65100;">${label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ---- TEMP SELECTION ----
+function selectTemp(temp, el){
+  selectedTemp = temp;
+  document.querySelectorAll('.cust-temp-btn').forEach(b=>{
+    const t = TEMP_CONFIG[b.id.replace('temp','').toLowerCase()];
+    if(t){ b.style.border=`2px solid #d4c4b0`; b.style.background='#f5f5f5'; b.style.color='#888'; }
+  });
+  const cfg = TEMP_CONFIG[temp];
+  el.style.border = `2px solid ${cfg.border}`;
+  el.style.background = cfg.bg;
+  el.style.color = cfg.color;
+}
+
+// ---- ADD / EDIT ----
+function openAddCustomer(){
+  document.getElementById('custModalTitle').textContent = '新增客戶';
+  document.getElementById('custEditId').value = '';
+  document.getElementById('custName').value = '';
+  document.getElementById('custProducts').value = '';
+  document.getElementById('custPhone').value = '';
+  document.getElementById('custAddress').value = '';
+  document.getElementById('custNote').value = '';
+  document.getElementById('custStartDate').value = getTodayStr2();
+  document.getElementById('custSaveMsg').textContent = '';
+  selectedTemp = 'warm';
+  // reset temp buttons
+  selectTemp('warm', document.getElementById('tempWarm'));
+  document.getElementById('custModal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+
+function closeCustModal(){
+  document.getElementById('custModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+async function saveCust(){
+  const id = document.getElementById('custEditId').value;
+  const name = document.getElementById('custName').value.trim();
+  const msg = document.getElementById('custSaveMsg');
+  if(!name){ msg.textContent='請輸入客人姓名'; return; }
+  const payload = {
+    partner_id: currentUser.id,
+    name,
+    products: document.getElementById('custProducts').value.trim(),
+    temp: selectedTemp,
+    start_date: document.getElementById('custStartDate').value || getTodayStr2(),
+    phone: document.getElementById('custPhone').value.trim(),
+    address: document.getElementById('custAddress').value.trim(),
+    note: document.getElementById('custNote').value.trim(),
+  };
+  msg.textContent='儲存中...'; msg.style.color='#aaa';
+  let err;
+  if(id){
+    const r = await sb.from('customers').update(payload).eq('id', id);
+    err = r.error;
+  } else {
+    const r = await sb.from('customers').insert({...payload, paused:false});
+    err = r.error;
+  }
+  if(err){ msg.style.color='#E24B4A'; msg.textContent='儲存失敗：'+err.message; return; }
+  closeCustModal();
+  await loadCustomers();
+  if(id && viewingCustId == id){ openCustDetail(id); }
+}
+
+// ---- DETAIL VIEW ----
+function openCustDetail(id){
+  const c = customersData.find(x=>x.id===id);
+  if(!c) return;
+  viewingCustId = id;
+  const t = TEMP_CONFIG[c.temp]||TEMP_CONFIG.warm;
+  const days = getDaysSinceStart(c.start_date);
+  document.getElementById('detailName').textContent = c.name;
+  document.getElementById('detailProducts').textContent = c.products||'未填產品';
+  document.getElementById('detailTempBadge').textContent = t.icon+' '+t.label;
+  document.getElementById('detailDayBadge').textContent = '第 '+days+' 天';
+  // Progress nodes
+  const today = getTodayStr2();
+  const schedule = getFollowupSchedule(c.start_date);
+  const dayLabels2 = {0:'第1天', 1:'第3天'};
+  const progHtml = schedule.map((date, i) => {
+    const dNum = FOLLOWUP_DAYS[i];
+    const isPast = date < today;
+    const isToday = date === today;
+    const cls = isPast?'done': isToday?'today':'future';
+    const lbl = i<2?dayLabels2[i]:`第${dNum}天`;
+    return `<div class="progress-node">
+      <div class="progress-circle ${cls}">${isPast?'✓': isToday?'今':'·'}</div>
+      <div class="progress-label">${lbl}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('detailProgress').innerHTML = `<div style="display:flex;flex-wrap:wrap;">${progHtml}</div>`;
+  // Info
+  let infoHtml = '';
+  if(c.phone) infoHtml += `<div style="font-size:13px;color:#555;padding:5px 0;">📞 ${c.phone}</div>`;
+  if(c.address) infoHtml += `<div style="font-size:13px;color:#555;padding:5px 0;">📦 ${c.address}</div>`;
+  infoHtml += `<div style="font-size:13px;color:#aaa;padding:5px 0;">📅 開始日期：${c.start_date}</div>`;
+  document.getElementById('detailInfo').innerHTML = infoHtml;
+  // Note
+  const noteWrap = document.getElementById('detailNoteWrap');
+  const noteEl = document.getElementById('detailNote');
+  if(c.note){ noteEl.textContent=c.note; noteWrap.style.display='block'; }
+  else { noteWrap.style.display='none'; }
+  // Pause btn
+  const pauseBtn = document.getElementById('detailPauseBtn');
+  pauseBtn.textContent = c.paused ? '▶ 恢復追蹤' : '⏸ 暫停追蹤';
+  pauseBtn.style.color = c.paused ? '#2E8B84' : '#888';
+  document.getElementById('custDetailModal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+
+function closeCustDetail(){
+  document.getElementById('custDetailModal').style.display='none';
+  document.body.style.overflow='';
+  viewingCustId = null;
+}
+
+function editCurrentCust(){
+  const c = customersData.find(x=>x.id===viewingCustId);
+  if(!c) return;
+  closeCustDetail();
+  // populate form
+  document.getElementById('custModalTitle').textContent='編輯客戶';
+  document.getElementById('custEditId').value = c.id;
+  document.getElementById('custName').value = c.name;
+  document.getElementById('custProducts').value = c.products||'';
+  document.getElementById('custPhone').value = c.phone||'';
+  document.getElementById('custAddress').value = c.address||'';
+  document.getElementById('custNote').value = c.note||'';
+  document.getElementById('custStartDate').value = c.start_date;
+  document.getElementById('custSaveMsg').textContent='';
+  selectedTemp = c.temp||'warm';
+  const tmpEl = document.getElementById('temp'+selectedTemp.charAt(0).toUpperCase()+selectedTemp.slice(1));
+  if(tmpEl) selectTemp(selectedTemp, tmpEl);
+  document.getElementById('custModal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+
+async function togglePauseCust(){
+  const c = customersData.find(x=>x.id===viewingCustId);
+  if(!c) return;
+  await sb.from('customers').update({paused:!c.paused}).eq('id',c.id);
+  await loadCustomers();
+  openCustDetail(viewingCustId);
+}
+
+async function deleteCurrentCust(){
+  if(!confirm('確定刪除這位客人的所有資料？')) return;
+  await sb.from('customers').delete().eq('id', viewingCustId);
+  closeCustDetail();
+  await loadCustomers();
+}
+
+// Also render today followups on profit page load
+const _origEnterApp = enterApp;
+function enterApp(){
+  _origEnterApp();
+  // show today's follow-ups count in profit header area (optional enhancement)
 }
 
 </script>
