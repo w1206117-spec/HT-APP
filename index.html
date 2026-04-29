@@ -2222,12 +2222,7 @@ async function deleteCurrentCust(){
   await loadCustomers();
 }
 
-// Also render today followups on profit page load
-const _origEnterApp = enterApp;
-function enterApp(){
-  _origEnterApp();
-  // show today's follow-ups count in profit header area (optional enhancement)
-}
+// today follow-ups loaded via loadCustomers() when service tab opens
 
 </script>
 </body>
