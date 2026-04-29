@@ -449,7 +449,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <!-- Address -->
       <div style="margin-bottom:12px;">
         <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:5px;">收件資料（選填）</div>
-        <input type="text" id="custAddress" placeholder="例：台中市北區○○路○號" style="width:100%;padding:11px 13px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;" />
+        <input type="text" id="custAddress" placeholder="例：台中市北區○○路○號 / 全家○○門市" style="width:100%;padding:11px 13px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;" />
       </div>
       <!-- Note -->
       <div style="margin-bottom:16px;">
@@ -1962,7 +1962,7 @@ function switchServiceTab(tab, el){
 // ============================================================
 // CUSTOMER TRACKING - 13777 SYSTEM
 // ============================================================
-const FOLLOWUP_DAYS = [1, 3, 7, 14, 21, 28, 35, 42, 49, 56]; // 1,3, then every 7
+const FOLLOWUP_DAYS = [3, 7, 14, 21, 28, 35, 42, 49, 56, 63]; // 第3天，之後每7天
 
 function getFollowupSchedule(startDate){
   const start = new Date(startDate + 'T00:00:00');
@@ -2057,10 +2057,10 @@ function renderTodayFollowups(){
   const list = document.getElementById('todayFollowList');
   if(!need.length){ banner.style.display='none'; return; }
   banner.style.display='block';
-  const dayLabels = {1:'第1天 · 發送使用觀念', 3:'第3天 · 確認使用方式 + 索取對比圖'};
+  const dayLabels2 = {3:'第3天 · 確認使用方式 + 索取對比圖', 7:'第7天 · 關心 + 確認進度', 14:'第14天 · 定期關心', 21:'第21天 · 定期關心'};
   list.innerHTML = need.map(c => {
     const days = getDaysSinceStart(c.start_date);
-    const label = dayLabels[days] || `第${days}天 · 定期關心`;
+    const label = dayLabels2[days] || `第${days}天 · 定期關心`;
     return `<div onclick="openCustDetail(${c.id})" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;cursor:pointer;border-bottom:0.5px solid rgba(0,0,0,0.06);">
       <span style="font-size:13px;font-weight:600;color:#3d2f24;">${c.name}</span>
       <span style="font-size:12px;color:#E65100;">${label}</span>
@@ -2148,13 +2148,13 @@ function openCustDetail(id){
   // Progress nodes
   const today = getTodayStr2();
   const schedule = getFollowupSchedule(c.start_date);
-  const dayLabels2 = {0:'第1天', 1:'第3天'};
+  const dayLabelMap = {3:'第3天', 7:'第7天', 14:'第14天', 21:'第21天', 28:'第28天', 35:'第35天', 42:'第42天'};
   const progHtml = schedule.map((date, i) => {
     const dNum = FOLLOWUP_DAYS[i];
     const isPast = date < today;
     const isToday = date === today;
     const cls = isPast?'done': isToday?'today':'future';
-    const lbl = i<2?dayLabels2[i]:`第${dNum}天`;
+    const lbl = dayLabelMap[dNum] || `第${dNum}天`;
     return `<div class="progress-node">
       <div class="progress-circle ${cls}">${isPast?'✓': isToday?'今':'·'}</div>
       <div class="progress-label">${lbl}</div>
