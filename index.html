@@ -167,6 +167,83 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- ===== 初始設定 Modal ===== -->
+<div id="setupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9990;overflow-y:auto;padding:1rem;">
+  <div style="background:white;border-radius:20px;max-width:420px;margin:2rem auto;overflow:hidden;">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#8B7355,#A67C5B);padding:1.5rem;color:white;text-align:center;">
+      <div style="font-size:22px;font-weight:700;margin-bottom:4px;">👋 歡迎！先設定一下</div>
+      <div style="font-size:13px;opacity:0.85;">幫助系統給你最準確的數據分析</div>
+    </div>
+    <div style="padding:1.5rem;">
+      <!-- Init fans -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:13px;font-weight:700;color:#8B7355;margin-bottom:6px;">📊 目前粉絲數（開始記錄前的基礎數）</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="number" id="setupInitFans" placeholder="例：14254" style="flex:1;padding:12px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:16px;font-weight:600;outline:none;text-align:center;" />
+          <span style="font-size:13px;color:#aaa;">人</span>
+        </div>
+        <div style="font-size:11px;color:#bbb;margin-top:5px;">這是計算每月增粉的基準，之後可以在我的頁面修改</div>
+      </div>
+      <!-- Init profit goal -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="font-size:13px;font-weight:700;color:#8B7355;margin-bottom:6px;">🎯 本月淨利目標（選填）</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="number" id="setupProfitGoal" placeholder="例：30000" style="flex:1;padding:12px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:16px;font-weight:600;outline:none;text-align:center;" />
+          <span style="font-size:13px;color:#aaa;">元</span>
+        </div>
+      </div>
+      <!-- This month fans (optional) -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="font-size:13px;font-weight:700;color:#8B7355;margin-bottom:6px;">📈 本月底粉絲數（選填，有填才算增粉）</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="number" id="setupCurrentFans" placeholder="例：15000" style="flex:1;padding:12px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:16px;font-weight:600;outline:none;text-align:center;" />
+          <span style="font-size:13px;color:#aaa;">人</span>
+        </div>
+      </div>
+      <div id="setupMsg" style="font-size:13px;color:#E24B4A;min-height:18px;margin-bottom:8px;"></div>
+      <button onclick="saveSetup()" style="width:100%;padding:14px;background:linear-gradient(135deg,#8B7355,#A67C5B);border:none;border-radius:12px;color:white;font-size:15px;font-weight:700;cursor:pointer;">✓ 完成設定，進入系統</button>
+      <button onclick="skipSetup()" style="width:100%;padding:10px;border:none;background:none;color:#aaa;font-size:13px;cursor:pointer;margin-top:6px;">稍後再設定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 回填過往數據 Modal ===== -->
+<div id="backfillModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9989;overflow-y:auto;padding:1rem;">
+  <div style="background:white;border-radius:18px;max-width:420px;margin:2rem auto;padding:1.5rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+      <div style="font-size:17px;font-weight:700;color:#333;">📅 補填過往數據</div>
+      <button onclick="closeBackfill()" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">✕</button>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">選擇月份</div>
+      <div style="display:flex;gap:8px;">
+        <select id="backfillYear" style="flex:1;padding:10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;"></select>
+        <select id="backfillMonth" style="flex:1;padding:10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;">
+          <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+          <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+          <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+          <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">該月底粉絲數</div>
+      <input type="number" id="backfillFans" placeholder="例：15320" style="width:100%;padding:11px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:15px;outline:none;text-align:center;font-weight:600;" />
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">影片數</div>
+      <input type="number" id="backfillVideos" placeholder="例：8" style="width:100%;padding:11px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:15px;outline:none;text-align:center;font-weight:600;" />
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">淨利（元）</div>
+      <input type="number" id="backfillProfit" placeholder="例：25000" style="width:100%;padding:11px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:15px;outline:none;text-align:center;font-weight:600;" />
+    </div>
+    <div id="backfillMsg" style="font-size:13px;color:#E24B4A;min-height:18px;margin-bottom:8px;"></div>
+    <button onclick="saveBackfill()" style="width:100%;padding:13px;background:linear-gradient(135deg,#8B7355,#A67C5B);border:none;border-radius:12px;color:white;font-size:14px;font-weight:700;cursor:pointer;">✓ 儲存這個月的數據</button>
+  </div>
+</div>
+
 <div id="mainPage">
   <div class="app-header" id="appHeader">
     <div class="user-name" id="headerName"></div>
@@ -212,7 +289,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="btn btn-primary" onclick="saveRecord()">新增這筆</button>
       </div>
       <div class="card">
-        <div class="card-title">粉絲 ＆ 影片（每月更新）</div>
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">粉絲 ＆ 影片（每月更新）<button onclick="openBackfill()" style="font-size:12px;padding:5px 12px;border:1.5px solid #d4c4b0;border-radius:8px;background:white;color:#8B7355;cursor:pointer;font-weight:600;">📅 補填過往</button></div>
         <div class="form-row">
           <div class="field"><label>目前粉絲數</label><input type="number" id="currentFans" placeholder="現在的粉絲數" /></div>
           <div class="field"><label>影片更新數</label><input type="number" id="videoCount" placeholder="0" /></div>
@@ -801,6 +878,7 @@ function enterApp(){
   document.getElementById('todayDisplay').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
   renderSaleItems();loadSalesData();loadFansRecordOnInput();
   checkWelcome();
+  checkAndShowSetup();
 }
 
 async function loadFansRecordOnInput(){
@@ -2222,6 +2300,116 @@ async function deleteCurrentCust(){
 }
 
 // today follow-ups loaded via loadCustomers() when service tab opens
+
+
+// ============================================================
+// INITIAL SETUP MODAL
+// ============================================================
+async function checkAndShowSetup(){
+  if(!currentUser) return;
+  // Already set up if init_fans > 0 OR has any monthly data
+  const {data:mData} = await sb.from('monthly_data').select('id').eq('user_id', currentUser.id).limit(1);
+  const hasData = mData && mData.length > 0;
+  const hasInitFans = currentUser.init_fans && currentUser.init_fans > 0;
+  if(!hasData && !hasInitFans){
+    // First time - show setup
+    document.getElementById('mainPage').style.display = 'none';
+    document.getElementById('setupModal').style.display = 'block';
+  }
+}
+
+async function saveSetup(){
+  const initFans = parseInt(document.getElementById('setupInitFans').value) || 0;
+  const profitGoal = parseInt(document.getElementById('setupProfitGoal').value) || 0;
+  const currentFans = parseInt(document.getElementById('setupCurrentFans').value) || 0;
+  const msg = document.getElementById('setupMsg');
+  msg.textContent = '儲存中...'; msg.style.color = '#aaa';
+  try {
+    // Save init_fans
+    await sb.from('users').update({init_fans: initFans}).eq('id', currentUser.id);
+    currentUser.init_fans = initFans;
+    document.getElementById('initFansInput').value = initFans;
+    // Save profit goal if provided
+    if(profitGoal > 0){
+      const now = new Date();
+      const y = now.getFullYear(), m = now.getMonth()+1;
+      const {data:ex} = await sb.from('monthly_goals').select('id').eq('user_id',currentUser.id).eq('year',y).eq('month',m).maybeSingle();
+      if(ex){ await sb.from('monthly_goals').update({target:profitGoal}).eq('id',ex.id); }
+      else { await sb.from('monthly_goals').insert({user_id:currentUser.id,year:y,month:m,target:profitGoal}); }
+    }
+    // Save this month fans if provided
+    if(currentFans > 0){
+      const now = new Date();
+      const y = now.getFullYear(), m = now.getMonth()+1;
+      const fansGain = currentFans - initFans;
+      await sb.from('monthly_data').upsert(
+        {user_id:currentUser.id,year:y,month:m,current_fans:currentFans,fans_gain:fansGain,videos:0,new_clients:0,return_clients:0,profit:0,init_fans:initFans},
+        {onConflict:'user_id,year,month',ignoreDuplicates:false}
+      );
+    }
+    closeSetupModal(true);
+  } catch(e){ msg.style.color='#E24B4A'; msg.textContent='儲存失敗，請稍後再試'; }
+}
+
+function skipSetup(){ closeSetupModal(false); }
+
+function closeSetupModal(reload){
+  document.getElementById('setupModal').style.display = 'none';
+  document.getElementById('mainPage').style.display = 'block';
+  if(reload){ loadSalesData(); loadFansRecordOnInput(); }
+}
+
+// ============================================================
+// BACKFILL PAST DATA
+// ============================================================
+function openBackfill(){
+  // Populate year selector
+  const sel = document.getElementById('backfillYear');
+  const now = new Date();
+  sel.innerHTML = '';
+  for(let y = now.getFullYear(); y >= now.getFullYear()-3; y--){
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y+'年';
+    sel.appendChild(opt);
+  }
+  // Set month to current
+  document.getElementById('backfillMonth').value = now.getMonth()+1;
+  ['backfillFans','backfillVideos','backfillProfit'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('backfillMsg').textContent = '';
+  document.getElementById('backfillModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBackfill(){
+  document.getElementById('backfillModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+async function saveBackfill(){
+  const y = parseInt(document.getElementById('backfillYear').value);
+  const m = parseInt(document.getElementById('backfillMonth').value);
+  const fans = parseInt(document.getElementById('backfillFans').value) || 0;
+  const videos = parseInt(document.getElementById('backfillVideos').value) || 0;
+  const profit = parseInt(document.getElementById('backfillProfit').value) || 0;
+  const msg = document.getElementById('backfillMsg');
+  if(!fans && !videos && !profit){ msg.textContent='請至少填寫一項數據'; return; }
+  msg.textContent='儲存中...'; msg.style.color='#aaa';
+  try {
+    // Get prev month fans for gain calculation
+    const prevM = m===1?12:m-1, prevY = m===1?y-1:y;
+    const {data:prevRows} = await sb.from('monthly_data').select('current_fans').eq('user_id',currentUser.id).eq('year',prevY).eq('month',prevM).order('id',{ascending:false}).limit(1);
+    const prevFans = prevRows&&prevRows.length ? (prevRows[0].current_fans||0) : (currentUser.init_fans||0);
+    const fansGain = fans ? fans - prevFans : 0;
+    // Upsert
+    await sb.from('monthly_data').upsert(
+      {user_id:currentUser.id,year:y,month:m,current_fans:fans||0,fans_gain:fansGain,videos,profit,new_clients:0,return_clients:0,init_fans:currentUser.init_fans||0},
+      {onConflict:'user_id,year,month',ignoreDuplicates:false}
+    );
+    msg.style.color='#1D9E75'; msg.textContent=`✓ ${y}年${m}月數據已儲存！增粉 ${fansGain>=0?'+':''}${fansGain}`;
+    loadSalesData(); loadFansRecordOnInput();
+    setTimeout(closeBackfill, 1500);
+  } catch(e){ msg.style.color='#E24B4A'; msg.textContent='儲存失敗：'+e.message; }
+}
 
 </script>
 </body>
