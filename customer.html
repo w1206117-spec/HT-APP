@@ -966,12 +966,6 @@ function renderInfo(){
   </div>`).join('');
 }
 
-  el.innerHTML=list.map(q=>`<div class="qa-card">
-    ${q.category?`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f5f0e8;color:#8B7355;font-weight:600;display:inline-block;margin-bottom:6px;">${q.category}</span>`:''}
-    <div class="qa-q">Q：${q.question}</div>
-    <div class="qa-a">A：${q.answer}</div>
-  </div>`).join('');
-}
 </script>
 </body>
 </html>
