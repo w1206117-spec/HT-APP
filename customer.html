@@ -350,15 +350,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="infoList"></div>
   </div>
 
-  <!-- Q&A -->
-  <div class="page" id="page-qa">
-    <div class="search-box">
-      <span>🔍</span>
-      <input type="text" id="qaSearch" placeholder="搜尋問題..." oninput="filterQA()" />
-    </div>
-    <div class="cat-scroll" id="qaCatBtns"></div>
-    <div id="qaList"></div>
-  </div>
 
   <!-- 個人 -->
   <div class="page" id="page-profile">
@@ -385,9 +376,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </button>
     <button class="nav-item" onclick="switchPage('info',this)">
       <span class="nav-icon">📖</span><span class="nav-label">產品功效</span>
-    </button>
-    <button class="nav-item" onclick="switchPage('qa',this)">
-      <span class="nav-icon">❓</span><span class="nav-label">Q&A</span>
     </button>
     <button class="nav-item" onclick="switchPage('profile',this)">
       <span class="nav-icon">👤</span><span class="nav-label">我的</span>
@@ -425,7 +413,7 @@ const ALL_PRODUCTS=[
 ];
 
 let currentUser=null,selectedProducts=[],checkIns={},healthData={};
-let infoData=[],qaData=[],infoCatFilter='all',qaCatFilter='all';
+let infoData=[],infoCatFilter='all';
 let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
 let allHealthData=[],wChart=null,waterCh=null,checkinCh=null,sleepCh=null;
 
@@ -583,7 +571,6 @@ async function loadAll(){
   await loadCheckIns();
   await loadHealthData();
   await loadInfo();
-  await loadQA();
   renderCheckinPage();
 }
 
@@ -979,23 +966,6 @@ function renderInfo(){
   </div>`).join('');
 }
 
-// ===== QA =====
-async function loadQA(){
-  const {data}=await sb.from('product_qa').select('*').eq('is_active',true).order('created_at',{ascending:false});
-  qaData=data||[];
-  const cats=[...new Set(qaData.map(q=>q.category).filter(Boolean))];
-  document.getElementById('qaCatBtns').innerHTML=`<button class="cat-btn active" onclick="setQACat('all',this)">全部</button>`+cats.map(c=>`<button class="cat-btn" onclick="setQACat('${c}',this)">${c}</button>`).join('');
-  renderQA();
-}
-function setQACat(cat,el){qaCatFilter=cat;document.querySelectorAll('#qaCatBtns .cat-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderQA();}
-function filterQA(){renderQA();}
-function renderQA(){
-  const q=document.getElementById('qaSearch').value.toLowerCase();
-  let list=qaData;
-  if(qaCatFilter!=='all')list=list.filter(x=>x.category===qaCatFilter);
-  if(q)list=list.filter(x=>(x.question||'').toLowerCase().includes(q)||(x.answer||'').toLowerCase().includes(q));
-  const el=document.getElementById('qaList');
-  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;">找不到相關問題</div>';return;}
   el.innerHTML=list.map(q=>`<div class="qa-card">
     ${q.category?`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#f5f0e8;color:#8B7355;font-weight:600;display:inline-block;margin-bottom:6px;">${q.category}</span>`:''}
     <div class="qa-q">Q：${q.question}</div>
