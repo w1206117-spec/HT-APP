@@ -2531,7 +2531,7 @@ let swRegistration = null;
 async function initPWA() {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
   try {
-    swRegistration = await navigator.serviceWorker.register('/sw.js');
+    swRegistration = await navigator.serviceWorker.register('/HT-APP/sw.js');
     console.log('SW registered');
   } catch(e) { console.log('SW error:', e); }
 }

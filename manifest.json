@@ -2,7 +2,7 @@
   "name": "HT 團隊系統",
   "short_name": "HT 團隊",
   "description": "HT 團隊夥伴管理系統",
-  "start_url": "/index.html",
+  "start_url": "/HT-APP/index.html",
   "display": "standalone",
   "background_color": "#f5f5f0",
   "theme_color": "#8B7355",
