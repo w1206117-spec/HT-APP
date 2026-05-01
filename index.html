@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8B7355">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="HT團隊">
 <link rel="apple-touch-icon" href="app2.jpg">
@@ -193,14 +196,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <span style="font-size:13px;color:#aaa;">元</span>
         </div>
       </div>
-      <!-- This month fans (optional) -->
-      <div style="margin-bottom:1.5rem;">
-        <div style="font-size:13px;font-weight:700;color:#8B7355;margin-bottom:6px;">📈 本月底粉絲數（選填，有填才算增粉）</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <input type="number" id="setupCurrentFans" placeholder="例：15000" style="flex:1;padding:12px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:16px;font-weight:600;outline:none;text-align:center;" />
-          <span style="font-size:13px;color:#aaa;">人</span>
-        </div>
-      </div>
       <div id="setupMsg" style="font-size:13px;color:#E24B4A;min-height:18px;margin-bottom:8px;"></div>
       <button onclick="saveSetup()" style="width:100%;padding:14px;background:linear-gradient(135deg,#8B7355,#A67C5B);border:none;border-radius:12px;color:white;font-size:15px;font-weight:700;cursor:pointer;">✓ 完成設定，進入系統</button>
       <button onclick="skipSetup()" style="width:100%;padding:10px;border:none;background:none;color:#aaa;font-size:13px;cursor:pointer;margin-top:6px;">稍後再設定</button>
@@ -208,18 +203,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- ===== 回填過往數據 Modal ===== -->
-<div id="backfillModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9989;overflow-y:auto;padding:1rem;">
+<!-- ===== 補填過往淨利 Modal ===== -->
+<div id="backfillProfitModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9989;overflow-y:auto;padding:1rem;">
   <div style="background:white;border-radius:18px;max-width:420px;margin:2rem auto;padding:1.5rem;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
-      <div style="font-size:17px;font-weight:700;color:#333;">📅 補填過往數據</div>
-      <button onclick="closeBackfill()" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">✕</button>
+      <div style="font-size:17px;font-weight:700;color:#333;">💰 補填過往淨利</div>
+      <button onclick="closeBackfillProfit()" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">✕</button>
     </div>
     <div style="margin-bottom:12px;">
       <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">選擇月份</div>
       <div style="display:flex;gap:8px;">
-        <select id="backfillYear" style="flex:1;padding:10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;"></select>
-        <select id="backfillMonth" style="flex:1;padding:10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;">
+        <select id="bpYear" style="flex:1;padding:10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;"></select>
+        <select id="bpMonth" style="flex:1;padding:10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;">
+          <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+          <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+          <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+          <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">該月淨利（元）</div>
+      <input type="number" id="bpProfit" placeholder="例：25000" style="width:100%;padding:12px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:16px;outline:none;text-align:center;font-weight:600;" />
+    </div>
+    <div id="bpMsg" style="font-size:13px;color:#E24B4A;min-height:18px;margin-bottom:8px;"></div>
+    <button onclick="saveBackfillProfit()" style="width:100%;padding:13px;background:linear-gradient(135deg,#8B7355,#A67C5B);border:none;border-radius:12px;color:white;font-size:14px;font-weight:700;cursor:pointer;">✓ 儲存</button>
+  </div>
+</div>
+
+<!-- ===== 補填過往粉絲 Modal ===== -->
+<div id="backfillFansModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9989;overflow-y:auto;padding:1rem;">
+  <div style="background:white;border-radius:18px;max-width:420px;margin:2rem auto;padding:1.5rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+      <div style="font-size:17px;font-weight:700;color:#333;">📊 補填過往粉絲</div>
+      <button onclick="closeBackfillFans()" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">✕</button>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">選擇月份</div>
+      <div style="display:flex;gap:8px;">
+        <select id="bfYear" style="flex:1;padding:10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;"></select>
+        <select id="bfMonth" style="flex:1;padding:10px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:14px;outline:none;">
           <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
           <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
           <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
@@ -229,18 +252,48 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div style="margin-bottom:12px;">
       <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">該月底粉絲數</div>
-      <input type="number" id="backfillFans" placeholder="例：15320" style="width:100%;padding:11px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:15px;outline:none;text-align:center;font-weight:600;" />
+      <input type="number" id="bfFans" placeholder="例：15320" style="width:100%;padding:12px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:16px;outline:none;text-align:center;font-weight:600;" />
     </div>
-    <div style="margin-bottom:12px;">
+    <div style="margin-bottom:16px;">
       <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">影片數</div>
-      <input type="number" id="backfillVideos" placeholder="例：8" style="width:100%;padding:11px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:15px;outline:none;text-align:center;font-weight:600;" />
+      <input type="number" id="bfVideos" placeholder="例：8" style="width:100%;padding:12px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:16px;outline:none;text-align:center;font-weight:600;" />
     </div>
-    <div style="margin-bottom:12px;">
-      <div style="font-size:12px;font-weight:600;color:#8B7355;margin-bottom:6px;">淨利（元）</div>
-      <input type="number" id="backfillProfit" placeholder="例：25000" style="width:100%;padding:11px;border:1.5px solid #e8dcc8;border-radius:10px;font-size:15px;outline:none;text-align:center;font-weight:600;" />
+    <div id="bfMsg" style="font-size:13px;color:#E24B4A;min-height:18px;margin-bottom:8px;"></div>
+    <button onclick="saveBackfillFans()" style="width:100%;padding:13px;background:linear-gradient(135deg,#8B7355,#A67C5B);border:none;border-radius:12px;color:white;font-size:14px;font-weight:700;cursor:pointer;">✓ 儲存</button>
+  </div>
+</div>
+
+<!-- ===== 月底更新提醒 Modal ===== -->
+<div id="monthEndModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9988;overflow-y:auto;padding:1rem;">
+  <div style="background:white;border-radius:20px;max-width:380px;margin:3rem auto;padding:0;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#A67C5B,#8B7355);padding:1.5rem;text-align:center;color:white;">
+      <div style="font-size:32px;margin-bottom:8px;">📊</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px;">月底到了！</div>
+      <div style="font-size:13px;opacity:0.85;" id="monthEndSubtitle"></div>
     </div>
-    <div id="backfillMsg" style="font-size:13px;color:#E24B4A;min-height:18px;margin-bottom:8px;"></div>
-    <button onclick="saveBackfill()" style="width:100%;padding:13px;background:linear-gradient(135deg,#8B7355,#A67C5B);border:none;border-radius:12px;color:white;font-size:14px;font-weight:700;cursor:pointer;">✓ 儲存這個月的數據</button>
+    <div style="padding:1.5rem;">
+      <div style="font-size:14px;color:#555;line-height:1.7;margin-bottom:1.25rem;text-align:center;">
+        記得更新本月粉絲數 & 影片數<br>
+        <span style="font-size:12px;color:#aaa;">數據記錄好才能看到完整成長曲線</span>
+      </div>
+      <button onclick="goUpdateData()" style="width:100%;padding:13px;background:linear-gradient(135deg,#A67C5B,#8B7355);border:none;border-radius:12px;color:white;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;">✏️ 現在去更新</button>
+      <button onclick="dismissMonthEnd()" style="width:100%;padding:10px;border:none;background:none;color:#aaa;font-size:13px;cursor:pointer;">今天先跳過</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PWA 推播授權 Modal ===== -->
+<div id="pushPermModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9995;padding:1rem;display:flex;align-items:flex-end;">
+  <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:480px;margin:0 auto;padding:1.5rem 1.5rem 2rem;">
+    <div style="text-align:center;margin-bottom:1rem;">
+      <div style="font-size:36px;margin-bottom:8px;">🔔</div>
+      <div style="font-size:17px;font-weight:700;color:#333;margin-bottom:6px;">開啟客戶追蹤提醒</div>
+      <div style="font-size:13px;color:#888;line-height:1.6;">
+        每天早上9點自動通知你今天<br>需要關心哪些客人，不怕忘記追蹤！
+      </div>
+    </div>
+    <button onclick="requestPushPermission()" style="width:100%;padding:14px;background:linear-gradient(135deg,#8B7355,#A67C5B);border:none;border-radius:12px;color:white;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">✓ 好，開啟通知</button>
+    <button onclick="dismissPushModal()" style="width:100%;padding:10px;border:none;background:none;color:#aaa;font-size:13px;cursor:pointer;">不用了</button>
   </div>
 </div>
 
@@ -280,7 +333,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
       <div class="card">
-        <div class="card-title">新增單筆銷售</div>
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">新增單筆銷售<button onclick="openBackfillProfit()" style="font-size:12px;padding:5px 12px;border:1.5px solid #d4c4b0;border-radius:8px;background:white;color:#8B7355;cursor:pointer;font-weight:600;">📅 補填過往淨利</button></div>
         <div id="salesItems"></div>
         <button class="add-item-btn" onclick="addSaleItem()">＋ 新增品項</button>
         <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid #f0f0f0;">
@@ -289,7 +342,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="btn btn-primary" onclick="saveRecord()">新增這筆</button>
       </div>
       <div class="card">
-        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">粉絲 ＆ 影片（每月更新）<button onclick="openBackfill()" style="font-size:12px;padding:5px 12px;border:1.5px solid #d4c4b0;border-radius:8px;background:white;color:#8B7355;cursor:pointer;font-weight:600;">📅 補填過往</button></div>
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">粉絲 ＆ 影片（每月更新）<button onclick="openBackfillFans()" style="font-size:12px;padding:5px 12px;border:1.5px solid #d4c4b0;border-radius:8px;background:white;color:#8B7355;cursor:pointer;font-weight:600;">📅 補填過往粉絲</button></div>
         <div class="form-row">
           <div class="field"><label>目前粉絲數</label><input type="number" id="currentFans" placeholder="現在的粉絲數" /></div>
           <div class="field"><label>影片更新數</label><input type="number" id="videoCount" placeholder="0" /></div>
@@ -746,6 +799,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field"><label style="font-size:12px;color:#888;">LINE 名字</label><input type="text" id="newLineNameInput" placeholder="輸入新LINE名字" /></div>
       <button class="btn btn-primary" onclick="updateProfile()">儲存</button>
     </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-title">🔔 推播通知</div>
+      <div style="font-size:13px;color:#888;margin-bottom:12px;">開啟後每天早上9點提醒今日需追蹤的客人</div>
+      <button onclick="sendTestNotification()" style="width:100%;padding:11px;border:1.5px solid #d4c4b0;border-radius:10px;background:white;color:#8B7355;font-size:13px;font-weight:600;cursor:pointer;">📳 測試推播通知</button>
+    </div>
     <div class="logout-btn" onclick="doLogout()">登出</div>
   </div>
 
@@ -879,6 +937,8 @@ function enterApp(){
   renderSaleItems();loadSalesData();loadFansRecordOnInput();
   checkWelcome();
   checkAndShowSetup();
+  setTimeout(checkMonthEndReminder, 1500);
+  setTimeout(checkPushPermission, 3000);
 }
 
 async function loadFansRecordOnInput(){
@@ -2321,15 +2381,12 @@ async function checkAndShowSetup(){
 async function saveSetup(){
   const initFans = parseInt(document.getElementById('setupInitFans').value) || 0;
   const profitGoal = parseInt(document.getElementById('setupProfitGoal').value) || 0;
-  const currentFans = parseInt(document.getElementById('setupCurrentFans').value) || 0;
   const msg = document.getElementById('setupMsg');
   msg.textContent = '儲存中...'; msg.style.color = '#aaa';
   try {
-    // Save init_fans
     await sb.from('users').update({init_fans: initFans}).eq('id', currentUser.id);
     currentUser.init_fans = initFans;
     document.getElementById('initFansInput').value = initFans;
-    // Save profit goal if provided
     if(profitGoal > 0){
       const now = new Date();
       const y = now.getFullYear(), m = now.getMonth()+1;
@@ -2337,18 +2394,37 @@ async function saveSetup(){
       if(ex){ await sb.from('monthly_goals').update({target:profitGoal}).eq('id',ex.id); }
       else { await sb.from('monthly_goals').insert({user_id:currentUser.id,year:y,month:m,target:profitGoal}); }
     }
-    // Save this month fans if provided
-    if(currentFans > 0){
-      const now = new Date();
-      const y = now.getFullYear(), m = now.getMonth()+1;
-      const fansGain = currentFans - initFans;
-      await sb.from('monthly_data').upsert(
-        {user_id:currentUser.id,year:y,month:m,current_fans:currentFans,fans_gain:fansGain,videos:0,new_clients:0,return_clients:0,profit:0,init_fans:initFans},
-        {onConflict:'user_id,year,month',ignoreDuplicates:false}
-      );
-    }
     closeSetupModal(true);
   } catch(e){ msg.style.color='#E24B4A'; msg.textContent='儲存失敗，請稍後再試'; }
+}
+
+// ---- Month-end reminder ----
+function checkMonthEndReminder(){
+  const now = new Date();
+  const day = now.getDate();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  // Show reminder on last 3 days of month
+  if(day < daysInMonth - 2) return;
+  const key = `ht_monthend_${currentUser.id}_${now.getFullYear()}_${now.getMonth()+1}`;
+  if(localStorage.getItem(key)) return; // already dismissed today
+  const subtitle = `${now.getMonth()+1}月還有 ${daysInMonth - day + 1} 天就結束了`;
+  document.getElementById('monthEndSubtitle').textContent = subtitle;
+  document.getElementById('monthEndModal').style.display = 'block';
+}
+function dismissMonthEnd(){
+  const now = new Date();
+  const key = `ht_monthend_${currentUser.id}_${now.getFullYear()}_${now.getMonth()+1}`;
+  localStorage.setItem(key, '1');
+  document.getElementById('monthEndModal').style.display = 'none';
+}
+function goUpdateData(){
+  dismissMonthEnd();
+  // Scroll to fans section on profit page
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-profit').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector('.nav-item').classList.add('active');
+  setTimeout(()=>{ const el=document.getElementById('currentFans'); if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.focus();} }, 200);
 }
 
 function skipSetup(){ closeSetupModal(false); }
@@ -2359,57 +2435,164 @@ function closeSetupModal(reload){
   if(reload){ loadSalesData(); loadFansRecordOnInput(); }
 }
 
-// ============================================================
-// BACKFILL PAST DATA
-// ============================================================
-function openBackfill(){
-  // Populate year selector
-  const sel = document.getElementById('backfillYear');
+// ---- Profit Backfill ----
+function openBackfillProfit(){
   const now = new Date();
+  const sel = document.getElementById('bpYear');
   sel.innerHTML = '';
   for(let y = now.getFullYear(); y >= now.getFullYear()-3; y--){
-    const opt = document.createElement('option');
-    opt.value = y; opt.textContent = y+'年';
-    sel.appendChild(opt);
+    const opt = document.createElement('option'); opt.value=y; opt.textContent=y+'年'; sel.appendChild(opt);
   }
-  // Set month to current
-  document.getElementById('backfillMonth').value = now.getMonth()+1;
-  ['backfillFans','backfillVideos','backfillProfit'].forEach(id => document.getElementById(id).value='');
-  document.getElementById('backfillMsg').textContent = '';
-  document.getElementById('backfillModal').style.display = 'block';
+  document.getElementById('bpMonth').value = now.getMonth()+1;
+  document.getElementById('bpProfit').value = '';
+  document.getElementById('bpMsg').textContent = '';
+  document.getElementById('backfillProfitModal').style.display = 'block';
   document.body.style.overflow = 'hidden';
 }
-
-function closeBackfill(){
-  document.getElementById('backfillModal').style.display = 'none';
+function closeBackfillProfit(){
+  document.getElementById('backfillProfitModal').style.display = 'none';
   document.body.style.overflow = '';
 }
-
-async function saveBackfill(){
-  const y = parseInt(document.getElementById('backfillYear').value);
-  const m = parseInt(document.getElementById('backfillMonth').value);
-  const fans = parseInt(document.getElementById('backfillFans').value) || 0;
-  const videos = parseInt(document.getElementById('backfillVideos').value) || 0;
-  const profit = parseInt(document.getElementById('backfillProfit').value) || 0;
-  const msg = document.getElementById('backfillMsg');
-  if(!fans && !videos && !profit){ msg.textContent='請至少填寫一項數據'; return; }
+async function saveBackfillProfit(){
+  const y = parseInt(document.getElementById('bpYear').value);
+  const m = parseInt(document.getElementById('bpMonth').value);
+  const profit = parseInt(document.getElementById('bpProfit').value) || 0;
+  const msg = document.getElementById('bpMsg');
+  if(!profit){ msg.textContent='請填寫淨利'; return; }
   msg.textContent='儲存中...'; msg.style.color='#aaa';
   try {
-    // Get prev month fans for gain calculation
+    const {data:ex} = await sb.from('monthly_data').select('id').eq('user_id',currentUser.id).eq('year',y).eq('month',m).maybeSingle();
+    if(ex){ await sb.from('monthly_data').update({profit}).eq('id',ex.id); }
+    else { await sb.from('monthly_data').insert({user_id:currentUser.id,year:y,month:m,profit,current_fans:0,fans_gain:0,videos:0,new_clients:0,return_clients:0,init_fans:currentUser.init_fans||0}); }
+    msg.style.color='#1D9E75'; msg.textContent=`✓ ${y}年${m}月淨利已儲存`;
+    loadSalesData();
+    setTimeout(closeBackfillProfit, 1200);
+  } catch(e){ msg.style.color='#E24B4A'; msg.textContent='儲存失敗'; }
+}
+
+// ---- Fans Backfill ----
+function openBackfillFans(){
+  const now = new Date();
+  const sel = document.getElementById('bfYear');
+  sel.innerHTML = '';
+  for(let y = now.getFullYear(); y >= now.getFullYear()-3; y--){
+    const opt = document.createElement('option'); opt.value=y; opt.textContent=y+'年'; sel.appendChild(opt);
+  }
+  document.getElementById('bfMonth').value = now.getMonth()+1;
+  document.getElementById('bfFans').value = '';
+  document.getElementById('bfVideos').value = '';
+  document.getElementById('bfMsg').textContent = '';
+  document.getElementById('backfillFansModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+function closeBackfillFans(){
+  document.getElementById('backfillFansModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function saveBackfillFans(){
+  const y = parseInt(document.getElementById('bfYear').value);
+  const m = parseInt(document.getElementById('bfMonth').value);
+  const fans = parseInt(document.getElementById('bfFans').value) || 0;
+  const videos = parseInt(document.getElementById('bfVideos').value) || 0;
+  const msg = document.getElementById('bfMsg');
+  if(!fans && !videos){ msg.textContent='請至少填寫粉絲數或影片數'; return; }
+  msg.textContent='儲存中...'; msg.style.color='#aaa';
+  try {
     const prevM = m===1?12:m-1, prevY = m===1?y-1:y;
     const {data:prevRows} = await sb.from('monthly_data').select('current_fans').eq('user_id',currentUser.id).eq('year',prevY).eq('month',prevM).order('id',{ascending:false}).limit(1);
     const prevFans = prevRows&&prevRows.length ? (prevRows[0].current_fans||0) : (currentUser.init_fans||0);
     const fansGain = fans ? fans - prevFans : 0;
-    // Upsert
-    await sb.from('monthly_data').upsert(
-      {user_id:currentUser.id,year:y,month:m,current_fans:fans||0,fans_gain:fansGain,videos,profit,new_clients:0,return_clients:0,init_fans:currentUser.init_fans||0},
-      {onConflict:'user_id,year,month',ignoreDuplicates:false}
-    );
-    msg.style.color='#1D9E75'; msg.textContent=`✓ ${y}年${m}月數據已儲存！增粉 ${fansGain>=0?'+':''}${fansGain}`;
+    const {data:ex} = await sb.from('monthly_data').select('id,profit').eq('user_id',currentUser.id).eq('year',y).eq('month',m).maybeSingle();
+    if(ex){ await sb.from('monthly_data').update({current_fans:fans,fans_gain:fansGain,videos}).eq('id',ex.id); }
+    else { await sb.from('monthly_data').insert({user_id:currentUser.id,year:y,month:m,current_fans:fans,fans_gain:fansGain,videos,profit:0,new_clients:0,return_clients:0,init_fans:currentUser.init_fans||0}); }
+    msg.style.color='#1D9E75'; msg.textContent=`✓ ${y}年${m}月已儲存！增粉 ${fansGain>=0?'+':''}${fansGain}`;
     loadSalesData(); loadFansRecordOnInput();
-    setTimeout(closeBackfill, 1500);
-  } catch(e){ msg.style.color='#E24B4A'; msg.textContent='儲存失敗：'+e.message; }
+    setTimeout(closeBackfillFans, 1200);
+  } catch(e){ msg.style.color='#E24B4A'; msg.textContent='儲存失敗'; }
 }
+
+
+// ============================================================
+// PWA - SERVICE WORKER + PUSH NOTIFICATIONS
+// ============================================================
+const VAPID_PUBLIC_KEY = 'BGKlCxE4ksr1uf1GOlki2DXGIpafVYcP_tuhMWkq69VmBT1vi5Pf0aVKl4RwLNS3Ek_6E3VjLM1c5Lhbw9b54Vo';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+let swRegistration = null;
+
+async function initPWA() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    swRegistration = await navigator.serviceWorker.register('/sw.js');
+    console.log('SW registered');
+  } catch(e) { console.log('SW error:', e); }
+}
+
+async function checkPushPermission() {
+  if(!currentUser) return;
+  if(!swRegistration) return;
+  const key = 'ht_push_asked_' + currentUser.id;
+  if(localStorage.getItem(key)) return;
+  if(Notification.permission === 'granted') { await subscribePush(); return; }
+  if(Notification.permission === 'denied') return;
+  // Show our modal first (better UX than direct browser prompt)
+  setTimeout(() => {
+    document.getElementById('pushPermModal').style.display = 'flex';
+  }, 2000);
+}
+
+async function requestPushPermission() {
+  dismissPushModal();
+  const permission = await Notification.requestPermission();
+  if(permission === 'granted') await subscribePush();
+}
+
+function dismissPushModal() {
+  document.getElementById('pushPermModal').style.display = 'none';
+  if(currentUser) localStorage.setItem('ht_push_asked_' + currentUser.id, '1');
+}
+
+async function subscribePush() {
+  if(!swRegistration) return;
+  try {
+    let sub = await swRegistration.pushManager.getSubscription();
+    if(!sub) {
+      sub = await swRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+    }
+    // Save subscription to Supabase
+    const subJson = JSON.stringify(sub);
+    await sb.from('push_subscriptions').upsert(
+      { user_id: currentUser.id, subscription: subJson, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    );
+    console.log('Push subscription saved');
+  } catch(e) { console.log('Subscribe error:', e); }
+}
+
+// Send a test notification immediately (for testing)
+async function sendTestNotification() {
+  if(!swRegistration) { alert('請先允許通知'); return; }
+  if(Notification.permission !== 'granted') { await requestPushPermission(); return; }
+  swRegistration.showNotification('HT 團隊系統', {
+    body: '🔔 通知功能正常！今天有 2 位客人需要追蹤',
+    icon: '/app1.jpg',
+    vibrate: [200, 100, 200],
+  });
+}
+
+// Init PWA on page load
+initPWA();
 
 </script>
 </body>
