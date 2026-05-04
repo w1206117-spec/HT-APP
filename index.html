@@ -283,7 +283,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <!-- ===== PWA 推播授權 Modal ===== -->
-<div id="pushPermModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9995;padding:1rem;display:flex;align-items:flex-end;">
+<div id="pushPermModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9995;padding:1rem;align-items:flex-end;">
   <div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:480px;margin:0 auto;padding:1.5rem 1.5rem 2rem;">
     <div style="text-align:center;margin-bottom:1rem;">
       <div style="font-size:36px;margin-bottom:8px;">🔔</div>
@@ -370,11 +370,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="card">
         <div class="card-title">本月每日淨利</div>
-        <div class="chart-wrap"><canvas id="profitChartCanvas"></canvas></div>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;">
+          <div style="min-width:500px;padding:0 4px;">
+            <div class="chart-wrap"><canvas id="profitChartCanvas"></canvas></div>
+          </div>
+        </div>
       </div>
       <div class="card">
         <div class="card-title">年度淨利趨勢</div>
-        <div class="chart-wrap"><canvas id="yearProfitCanvas"></canvas></div>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;">
+          <div style="min-width:640px;padding:0 4px;">
+            <div class="chart-wrap"><canvas id="yearProfitCanvas"></canvas></div>
+          </div>
+        </div>
       </div>
       <div class="card">
         <div class="card-title">粉絲成長</div>
@@ -383,7 +391,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <span><span class="legend-dot" style="background:#D4537E;"></span>增粉</span>
         </div>
         <div id="videoTextDisplay" style="font-size:12px;color:#888;margin-bottom:6px;"></div>
-        <div class="chart-wrap" style="height:240px;"><canvas id="fansChartCanvas"></canvas></div>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;">
+          <div style="min-width:640px;padding:0 4px;">
+            <div style="height:240px;position:relative;"><canvas id="fansChartCanvas"></canvas></div>
+          </div>
+        </div>
         <div class="fans-total-box">
           <span class="fans-total-label">目前粉絲總數</span>
           <span class="fans-total-num" id="currentFansTotal">—</span>
@@ -395,7 +407,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <span><span class="legend-dot" style="background:#7F77DD;"></span>新消費者</span>
           <span><span class="legend-dot" style="background:#5BBDB7;"></span>回購客</span>
         </div>
-        <div class="chart-wrap"><canvas id="clientsChartCanvas"></canvas></div>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;">
+          <div style="min-width:640px;padding:0 4px;">
+            <div class="chart-wrap"><canvas id="clientsChartCanvas"></canvas></div>
+          </div>
+        </div>
       </div>
       <div class="card">
         <div class="card-title">起始粉絲設定</div>
@@ -1157,7 +1173,7 @@ async function loadFansCharts(totalYearProfit){
 
   const baseArr=cumFans.map((v,i)=>v!==null?(v-(fans[i]||0)):null);
   if(fChart)fChart.destroy();
-  fChart=new Chart(document.getElementById('fansChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'基礎粉絲',data:baseArr,backgroundColor:'rgba(91,189,183,0.6)',borderRadius:0,stack:'fans'},{label:'當月增粉',data:fans.map(v=>v&&v>0?v:null),backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3,stack:'fans'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[{id:'stackLabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;const totalVal=cumFans[i];if(di===1){ctx.fillStyle='#D4537E';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('+'+val.toLocaleString(),bar.x,bar.y-4);}if(di===0&&totalVal){ctx.fillStyle='#085041';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText(totalVal.toLocaleString(),bar.x,bar.y-(fans[i]&&fans[i]>0?24:8));const baseVal=baseArr[i];if(baseVal&&bar.height>30){ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font='10px sans-serif';ctx.fillText('原有'+baseVal.toLocaleString(),bar.x,bar.y+(bar.height/2)+4);}}});});}}]});
+  fChart=new Chart(document.getElementById('fansChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'基礎粉絲',data:baseArr,backgroundColor:'rgba(91,189,183,0.6)',borderRadius:0,stack:'fans'},{label:'當月增粉',data:fans.map(v=>v&&v>0?v:null),backgroundColor:'rgba(212,83,126,0.85)',borderRadius:3,stack:'fans'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:11}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[{id:'stackLabels',afterDatasetsDraw(chart){const ctx=chart.ctx;chart.data.datasets.forEach((ds,di)=>{const meta=chart.getDatasetMeta(di);meta.data.forEach((bar,i)=>{const val=ds.data[i];if(val===null||val===0)return;const totalVal=cumFans[i];if(di===1){ctx.fillStyle='#D4537E';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('+'+val.toLocaleString(),bar.x,bar.y-4);}if(di===0&&totalVal){ctx.fillStyle='#085041';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText(totalVal.toLocaleString(),bar.x,bar.y-(fans[i]&&fans[i]>0?24:8));const baseVal=baseArr[i];if(baseVal&&bar.height>30){ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font='10px sans-serif';ctx.fillText('原有'+baseVal.toLocaleString(),bar.x,bar.y+(bar.height/2)+4);}}});});}}]});
 
   if(cChart)cChart.destroy();
   cChart=new Chart(document.getElementById('clientsChartCanvas'),{type:'bar',data:{labels:ML,datasets:[{label:'新消費者',data:newC,backgroundColor:'rgba(127,119,221,0.85)',borderRadius:3},{label:'回購客',data:retC,backgroundColor:'rgba(91,189,183,0.85)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}},plugins:[datalabelPlugin]});
@@ -2543,9 +2559,16 @@ async function checkPushPermission() {
   if(localStorage.getItem(key)) return;
   if(Notification.permission === 'granted') { await subscribePush(); return; }
   if(Notification.permission === 'denied') return;
-  // Show our modal first (better UX than direct browser prompt)
+  // iOS Safari 瀏覽器不支援，需加到主畫面
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  if(isIOS && !isStandalone) {
+    // 在 iOS Safari 裡，先記住，等加到主畫面後才提示
+    return;
+  }
   setTimeout(() => {
-    document.getElementById('pushPermModal').style.display = 'flex';
+    const modal = document.getElementById('pushPermModal');
+    modal.style.display = 'flex';
   }, 2000);
 }
 
@@ -2556,7 +2579,8 @@ async function requestPushPermission() {
 }
 
 function dismissPushModal() {
-  document.getElementById('pushPermModal').style.display = 'none';
+  const modal = document.getElementById('pushPermModal');
+  modal.style.display = 'none';
   if(currentUser) localStorage.setItem('ht_push_asked_' + currentUser.id, '1');
 }
 
@@ -2570,7 +2594,6 @@ async function subscribePush() {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
       });
     }
-    // Save subscription to Supabase
     const subJson = JSON.stringify(sub);
     await sb.from('push_subscriptions').upsert(
       { user_id: currentUser.id, subscription: subJson, updated_at: new Date().toISOString() },
@@ -2580,13 +2603,21 @@ async function subscribePush() {
   } catch(e) { console.log('Subscribe error:', e); }
 }
 
-// Send a test notification immediately (for testing)
 async function sendTestNotification() {
-  if(!swRegistration) { alert('請先允許通知'); return; }
-  if(Notification.permission !== 'granted') { await requestPushPermission(); return; }
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  if(isIOS && !isStandalone) {
+    alert('📱 iPhone 用戶請先將此頁面「加入主畫面」，再從主畫面開啟 App，才能收到推播通知！\n\n步驟：Safari → 分享按鈕 → 加入主畫面');
+    return;
+  }
+  if(!swRegistration) { alert('Service Worker 未載入，請重新整理'); return; }
+  if(Notification.permission !== 'granted') {
+    await requestPushPermission();
+    return;
+  }
   swRegistration.showNotification('HT 團隊系統', {
     body: '🔔 通知功能正常！今天有 2 位客人需要追蹤',
-    icon: '/app1.jpg',
+    icon: '/HT-APP/app1.jpg',
     vibrate: [200, 100, 200],
   });
 }
