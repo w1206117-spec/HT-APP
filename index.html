@@ -2552,36 +2552,36 @@ async function initPWA() {
   } catch(e) { console.log('SW error:', e); }
 }
 
+function dismissPushModal() {
+  const modal = document.getElementById('pushPermModal');
+  modal.style.display = 'none';
+  const uid = currentUser?.id || currentUser?.phone || 'default';
+  localStorage.setItem('ht_push_asked_' + uid, '1');
+}
+
 async function checkPushPermission() {
-  if(!currentUser) return;
   if(!swRegistration) return;
-  const key = 'ht_push_asked_' + currentUser.id;
+  const uid = currentUser?.id || currentUser?.phone || 'default';
+  const key = 'ht_push_asked_' + uid;
   if(localStorage.getItem(key)) return;
   if(Notification.permission === 'granted') { await subscribePush(); return; }
-  if(Notification.permission === 'denied') return;
-  // iOS Safari 瀏覽器不支援，需加到主畫面
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = window.navigator.standalone === true;
-  if(isIOS && !isStandalone) {
-    // 在 iOS Safari 裡，先記住，等加到主畫面後才提示
+  if(Notification.permission === 'denied') {
+    localStorage.setItem(key, '1'); // 已拒絕就不再問
     return;
   }
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  if(isIOS && !isStandalone) return;
   setTimeout(() => {
-    const modal = document.getElementById('pushPermModal');
-    modal.style.display = 'flex';
-  }, 2000);
+    if(localStorage.getItem(key)) return; // double check
+    document.getElementById('pushPermModal').style.display = 'flex';
+  }, 2500);
 }
 
 async function requestPushPermission() {
   dismissPushModal();
   const permission = await Notification.requestPermission();
   if(permission === 'granted') await subscribePush();
-}
-
-function dismissPushModal() {
-  const modal = document.getElementById('pushPermModal');
-  modal.style.display = 'none';
-  if(currentUser) localStorage.setItem('ht_push_asked_' + currentUser.id, '1');
 }
 
 async function subscribePush() {
