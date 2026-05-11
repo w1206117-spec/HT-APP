@@ -2710,12 +2710,22 @@ function getSeriesForProduct(name){
 let pieChart=null, rankChart=null;
 
 function renderSalesRatio(){
-  // Aggregate product quantities from salesCache
+  // Aggregate product quantities from salesCache (product_name is JSON array)
   const prodQty={};
   salesCache.forEach(r=>{
-    const name=r.product_name||r.name||'未知';
-    const qty=r.qty||r.quantity||1;
-    prodQty[name]=(prodQty[name]||0)+qty;
+    let items=[];
+    try{ items=JSON.parse(r.product_name||'[]'); }catch(e){}
+    if(!Array.isArray(items)||!items.length){
+      // fallback: single product name
+      const name=r.product_name||'未知';
+      prodQty[name]=(prodQty[name]||0)+(r.quantity||1);
+      return;
+    }
+    items.forEach(it=>{
+      const name=it.name||'未知';
+      const qty=it.qty||1;
+      prodQty[name]=(prodQty[name]||0)+qty;
+    });
   });
 
   // Series totals
