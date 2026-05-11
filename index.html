@@ -308,6 +308,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="tabs">
       <button class="tab active" onclick="switchSubTab('profit','input')">新增今日</button>
       <button class="tab" onclick="switchSubTab('profit','chart')">趨勢圖表</button>
+      <button class="tab" onclick="switchSubTab('profit','sales')">銷售比例</button>
     </div>
     <div id="profit-input">
       <div class="card">
@@ -554,6 +555,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
   </div>
+
+    <div id="profit-sales" style="display:none;">
+      <!-- 三大系列圓餅圖 -->
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-title">三大系列銷售佔比</div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="width:160px;height:160px;flex-shrink:0;"><canvas id="seriesPieCanvas"></canvas></div>
+          <div id="seriesLegend" style="flex:1;font-size:13px;"></div>
+        </div>
+      </div>
+      <!-- 個別產品銷售排行 -->
+      <div class="card">
+        <div class="card-title">產品銷量排行</div>
+        <div id="productRankingChart" style="overflow-x:auto;">
+          <div style="min-width:300px;"><canvas id="productRankCanvas" style="width:100%;"></canvas></div>
+        </div>
+      </div>
+    </div>
 
   <!-- 新增/編輯客戶 Modal -->
   <div id="custModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;overflow-y:auto;padding:1rem;">
@@ -983,10 +1002,15 @@ function switchPage(page,el){
 function switchSubTab(section,tab){
   const inputEl=document.getElementById(section+'-input');
   const chartEl=document.getElementById(section+'-chart');
+  const salesEl=document.getElementById(section+'-sales');
   const tabs=document.querySelectorAll('#page-'+section+' .tab');
-  tabs.forEach((t,i)=>t.classList.toggle('active',i===(tab==='input'?0:1)));
-  if(tab==='input'){inputEl.style.display='block';chartEl.style.display='none';}
-  else{inputEl.style.display='none';chartEl.style.display='block';loadSalesData().then(renderCharts);}
+  const tabMap={input:0,chart:1,sales:2};
+  tabs.forEach((t,i)=>t.classList.toggle('active',i===tabMap[tab]));
+  if(inputEl)inputEl.style.display=tab==='input'?'block':'none';
+  if(chartEl)chartEl.style.display=tab==='chart'?'block':'none';
+  if(salesEl)salesEl.style.display=tab==='sales'?'block':'none';
+  if(tab==='chart')loadSalesData().then(renderCharts);
+  if(tab==='sales')loadSalesData().then(renderSalesRatio);
 }
 
 function renderSaleItems(){
@@ -1058,8 +1082,12 @@ async function saveInitFans(){
 
 async function loadSalesData(){
   if(!currentUser)return;
-  const {data}=await sb.from('sales_data').select('*').eq('user_id',currentUser.id).order('date');
+  const [{data},{data:mpc}]=await Promise.all([
+    sb.from('sales_data').select('*').eq('user_id',currentUser.id).order('date'),
+    sb.from('monthly_data').select('year,month,profit').eq('user_id',currentUser.id)
+  ]);
   salesCache=data||[];
+  window.monthlyProfitCache=mpc||[];
   updateTodaySummary();renderTodayRecords();
   const chartVisible=document.getElementById('profit-chart').style.display!=='none';
   if(chartVisible)renderCharts();
@@ -1111,12 +1139,49 @@ function renderCharts(){
     if(day>=0&&day<daysInMonth)dayProfits[day]+=(r.total_revenue-r.cost);
   });
   if(pChart)pChart.destroy();
-  pChart=new Chart(document.getElementById('profitChartCanvas'),{type:'bar',data:{labels:dayLabels,datasets:[{data:dayProfits,backgroundColor:dayProfits.map(v=>v>=0?'rgba(91,189,183,0.85)':'rgba(226,75,74,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}}}});
+  pChart=new Chart(document.getElementById('profitChartCanvas'),{
+    type:'bar',
+    data:{labels:dayLabels,datasets:[{data:dayProfits,backgroundColor:dayProfits.map(v=>v>0?'rgba(91,189,183,0.85)':v<0?'rgba(226,75,74,0.85)':'rgba(200,200,200,0.3)'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}}},
+    plugins:[{id:'dayLabels',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;
+      chart.data.datasets[0].data.forEach((val,i)=>{
+        if(!val)return;
+        const bar=chart.getDatasetMeta(0).data[i];
+        ctx.fillStyle=val>=0?'#085041':'#c0392b';
+        ctx.font='bold 9px sans-serif';
+        ctx.textAlign='center';
+        ctx.fillText('$'+val.toLocaleString(),bar.x,val>=0?bar.y-3:bar.y+bar.height+10);
+      });
+    }}]
+  });
   const monthProfits=Array(12).fill(0);
   salesCache.filter(r=>r.year===year).forEach(r=>{if(r.month>=1&&r.month<=12)monthProfits[r.month-1]+=(r.total_revenue-r.cost);});
+  // Merge with monthly_data.profit for backfilled months (use window.monthlyProfitCache if available)
+  const mpc=window.monthlyProfitCache||[];
+  mpc.filter(m=>m.year===year).forEach(m=>{
+    const i=m.month-1;
+    if(i>=0&&i<12&&monthProfits[i]===0&&m.profit) monthProfits[i]=m.profit;
+  });
   const totalYearProfit=monthProfits.reduce((a,v)=>a+v,0);
   if(yChart)yChart.destroy();
-  yChart=new Chart(document.getElementById('yearProfitCanvas'),{type:'bar',data:{labels:ML,datasets:[{data:monthProfits,backgroundColor:monthProfits.map(v=>v>=0?'rgba(91,189,183,0.85)':'rgba(226,75,74,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}}}});
+  yChart=new Chart(document.getElementById('yearProfitCanvas'),{
+    type:'bar',
+    data:{labels:ML,datasets:[{data:monthProfits,backgroundColor:monthProfits.map(v=>v>0?'rgba(91,189,183,0.85)':v<0?'rgba(226,75,74,0.85)':'rgba(200,200,200,0.3)'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{autoSkip:false,maxRotation:0,font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}}},
+    plugins:[{id:'profitLabels',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;
+      chart.data.datasets[0].data.forEach((val,i)=>{
+        if(!val)return;
+        const bar=chart.getDatasetMeta(0).data[i];
+        ctx.fillStyle=val>=0?'#085041':'#c0392b';
+        ctx.font='bold 10px sans-serif';
+        ctx.textAlign='center';
+        const label=val>=1000?'$'+Math.round(val/1000)+'K':'$'+val;
+        ctx.fillText(label,bar.x,val>=0?bar.y-4:bar.y+bar.height+12);
+      });
+    }}]
+  });
   loadFansCharts(totalYearProfit);
 }
 
@@ -2481,7 +2546,9 @@ async function saveBackfillProfit(){
     if(ex){ await sb.from('monthly_data').update({profit}).eq('id',ex.id); }
     else { await sb.from('monthly_data').insert({user_id:currentUser.id,year:y,month:m,profit,current_fans:0,fans_gain:0,videos:0,new_clients:0,return_clients:0,init_fans:currentUser.init_fans||0}); }
     msg.style.color='#1D9E75'; msg.textContent=`✓ ${y}年${m}月淨利已儲存`;
-    loadSalesData();
+    await loadSalesData();
+    const chartVisible=document.getElementById('profit-chart')?.style.display!=='none';
+    if(chartVisible) renderCharts();
     setTimeout(closeBackfillProfit, 1200);
   } catch(e){ msg.style.color='#E24B4A'; msg.textContent='儲存失敗'; }
 }
@@ -2552,28 +2619,26 @@ async function initPWA() {
   } catch(e) { console.log('SW error:', e); }
 }
 
+const PUSH_ASKED_KEY = 'ht_push_asked_v1';
+
 function dismissPushModal() {
-  const modal = document.getElementById('pushPermModal');
-  modal.style.display = 'none';
-  const uid = currentUser?.id || currentUser?.phone || 'default';
-  localStorage.setItem('ht_push_asked_' + uid, '1');
+  document.getElementById('pushPermModal').style.display = 'none';
+  localStorage.setItem(PUSH_ASKED_KEY, '1');
 }
 
 async function checkPushPermission() {
   if(!swRegistration) return;
-  const uid = currentUser?.id || currentUser?.phone || 'default';
-  const key = 'ht_push_asked_' + uid;
-  if(localStorage.getItem(key)) return;
+  if(localStorage.getItem(PUSH_ASKED_KEY)) return;
   if(Notification.permission === 'granted') { await subscribePush(); return; }
   if(Notification.permission === 'denied') {
-    localStorage.setItem(key, '1'); // 已拒絕就不再問
+    localStorage.setItem(PUSH_ASKED_KEY, '1');
     return;
   }
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.navigator.standalone === true;
   if(isIOS && !isStandalone) return;
   setTimeout(() => {
-    if(localStorage.getItem(key)) return; // double check
+    if(localStorage.getItem(PUSH_ASKED_KEY)) return;
     document.getElementById('pushPermModal').style.display = 'flex';
   }, 2500);
 }
@@ -2624,6 +2689,118 @@ async function sendTestNotification() {
 
 // Init PWA on page load
 initPWA();
+
+
+// ============================================================
+// SALES RATIO - 銷售比例
+// ============================================================
+const SERIES_MAP = {
+  '纖體':['纖纖飲','纖飄錠','紫纖飲','爆纖錠','纖酵宿','肽纖飲','肽纖飲可可','肽纖飲奶茶'],
+  '美肌':['水光錠','水光繃帶面膜','雪聚露','婕肌零','玻尿酸','急救小白瓶','積雪草護手霜','婕肌零體驗'],
+  '大健康':['複方金盞花葉黃素EX飲','葉黃素高鈣晶亮凍','高機能益生菌','酒國英雄極速錠','療肺草正冠茶','固樂纖','法樂蓬洗髮露','法樂蓬養髮原液'],
+};
+
+function getSeriesForProduct(name){
+  for(const [series, prods] of Object.entries(SERIES_MAP)){
+    if(prods.some(p=>name.includes(p)||p.includes(name))) return series;
+  }
+  return '其他';
+}
+
+let pieChart=null, rankChart=null;
+
+function renderSalesRatio(){
+  // Aggregate product quantities from salesCache
+  const prodQty={};
+  salesCache.forEach(r=>{
+    const name=r.product_name||r.name||'未知';
+    const qty=r.qty||r.quantity||1;
+    prodQty[name]=(prodQty[name]||0)+qty;
+  });
+
+  // Series totals
+  const seriesTotals={'纖體':0,'美肌':0,'大健康':0,'其他':0};
+  Object.entries(prodQty).forEach(([name,qty])=>{
+    const s=getSeriesForProduct(name);
+    seriesTotals[s]=(seriesTotals[s]||0)+qty;
+  });
+  const totalAll=Object.values(seriesTotals).reduce((a,v)=>a+v,0);
+
+  // Pie chart
+  const pieEl=document.getElementById('seriesPieCanvas');
+  if(pieChart)pieChart.destroy();
+  const COLORS={'纖體':'rgba(91,189,183,0.85)','美肌':'rgba(212,83,126,0.75)','大健康':'rgba(139,115,85,0.8)','其他':'rgba(200,200,200,0.6)'};
+  const seriesLabels=Object.keys(seriesTotals).filter(k=>seriesTotals[k]>0);
+  const seriesData=seriesLabels.map(k=>seriesTotals[k]);
+  pieChart=new Chart(pieEl,{
+    type:'doughnut',
+    data:{
+      labels:seriesLabels,
+      datasets:[{data:seriesData,backgroundColor:seriesLabels.map(k=>COLORS[k]||'#ccc'),borderWidth:2,borderColor:'white'}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const pct=totalAll?Math.round(ctx.raw/totalAll*100):0;return ctx.label+': '+ctx.raw+'件 ('+pct+'%)';}}}}}
+  });
+  // Legend
+  const legEl=document.getElementById('seriesLegend');
+  legEl.innerHTML=seriesLabels.map(k=>{
+    const pct=totalAll?Math.round(seriesTotals[k]/totalAll*100):0;
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <div style="width:12px;height:12px;border-radius:50%;background:${COLORS[k]};flex-shrink:0;"></div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#333;">${k}系列</div>
+        <div style="font-size:12px;color:#888;">${seriesTotals[k]}件 · <span style="font-weight:700;color:${COLORS[k].replace('0.85','1').replace('0.75','1').replace('0.8','1')}">${pct}%</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  if(totalAll===0){legEl.innerHTML='<div style="color:#aaa;font-size:13px;">尚無銷售資料</div>';}
+
+  // Product ranking bar chart (horizontal)
+  const sorted=Object.entries(prodQty).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const rankEl=document.getElementById('productRankCanvas');
+  if(rankChart)rankChart.destroy();
+  if(!sorted.length){document.getElementById('productRankingChart').innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;font-size:13px;">尚無銷售資料</div>';return;}
+  const maxVal=sorted[0][1];
+  // Use canvas height proportional to items
+  rankEl.style.height=(sorted.length*48+40)+'px';
+  rankChart=new Chart(rankEl,{
+    type:'bar',
+    data:{
+      labels:sorted.map(([n])=>n),
+      datasets:[{
+        data:sorted.map(([,v])=>v),
+        backgroundColor:sorted.map(([n])=>{
+          const s=getSeriesForProduct(n);
+          return COLORS[s]||'rgba(180,160,140,0.7)';
+        }),
+        borderRadius:4,
+        barThickness:28,
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>ctx.raw+'件'}}
+      },
+      scales:{
+        x:{ticks:{font:{size:11}},grid:{display:false}},
+        y:{ticks:{font:{size:12},color:'#333'},grid:{display:false}}
+      }
+    },
+    plugins:[{id:'rankLabels',afterDatasetsDraw(chart){
+      const ctx=chart.ctx;
+      chart.data.datasets[0].data.forEach((val,i)=>{
+        const bar=chart.getDatasetMeta(0).data[i];
+        ctx.fillStyle='#333';
+        ctx.font='bold 12px sans-serif';
+        ctx.textAlign='left';
+        ctx.fillText(val,bar.x+6,bar.y+5);
+      });
+    }}]
+  });
+}
 
 </script>
 </body>
